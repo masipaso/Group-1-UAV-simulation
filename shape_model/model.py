@@ -41,4 +41,11 @@ class ShapesModel(Model):
                 unique_id += 1
 
     def step(self):
+        for a in self.schedule.agents:
+            x = random.randrange(self.grid.width)
+            y = random.randrange(self.grid.height)
+            if self.grid.is_cell_empty((x, y)):
+                self.grid.move_agent(a,(x,y))
+                  
+
         self.schedule.step()
