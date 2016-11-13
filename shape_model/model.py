@@ -1,51 +1,54 @@
 import random
 
-from mesa import Model, Agent
-from mesa.space import SingleGrid
-from mesa.time import RandomActivation
+from mesa.space import MultiGrid
+from mesa import Model
+
+from shape_model.obstacles import Obstacle
+from shape_model.base_stations import BaseStation
+
+class WorldModel(Model):
+    '''
+    Model representing the world
+    '''
 
 
-class Walker(Agent):
-    def __init__(self, unique_id, model, pos, heading=(1, 0)):
-        super().__init__(unique_id, model)
-        self.pos = pos
-        self.heading = heading
-        self.headings = {(1, 0), (0, 1), (-1, 0), (0, -1)}
+    def __init__(self, height=101, width=101, number_of_base_stations=7):
+        '''
+        Create a new WorldModel with the given parameters
+        :param height:
+        :param width:
+        '''
+        # Set parameters
+        self.height = height
+        self.width = width
+        self.number_of_base_stations = number_of_base_stations
+        self.grid = MultiGrid(self.height, self.width, torus=True)
 
+        # Create Obstacles
+        for j in range(1, self.height, 5):
+            for i in range(1, self.width, 5):
+                for x in range(0, 4, 1):
+                    if x == 0 or x == 3:
+                        for y in range(0, 4, 1):
+                            obstacle = Obstacle(self, (x + i, y + j))
+                            self.grid.place_agent(obstacle, (x + i, y + j))
+                    else:
+                        obstacle = Obstacle(self, (x + i, j))
+                        self.grid.place_agent(obstacle, (x + i, j))
+                        obstacle = Obstacle(self, (x + i, j + 3))
+                        self.grid.place_agent(obstacle, (x + i, j + 3))
 
-class ShapesModel(Model):
-    def __init__(self, N, width=20, height=10):
+        # Create BaseStations
+        for i in range(self.number_of_base_stations):
+            x = random.randrange(self.width)
+            y = random.randrange(self.height)
+            while self.grid.is_cell_empty((x, y)):
+                x = random.randrange(self.width)
+                y = random.randrange(self.height)
+            base_station = BaseStation(self, (x, y))
+            self.grid.place_agent(base_station, (x, y))
+
         self.running = True
-        self.N = N    # num of agents
-        self.headings = ((1, 0), (0, 1), (-1, 0), (0, -1))  # tuples are fast
-        self.grid = SingleGrid(width, height, torus=False)
-        self.schedule = RandomActivation(self)
-        self.make_walker_agents()
-
-    def make_walker_agents(self):
-        unique_id = 0
-        while True:
-            if unique_id == self.N:
-                break
-            x = random.randrange(self.grid.width)
-            y = random.randrange(self.grid.height)
-            pos = (x, y)
-            heading = random.choice(self.headings)
-            # heading = (1, 0)
-            if self.grid.is_cell_empty(pos):
-                print("Creating agent {2} at ({0}, {1})"
-                      .format(x, y, unique_id))
-                a = Walker(unique_id, self, pos, heading)
-                self.schedule.add(a)
-                self.grid.place_agent(a, pos)
-                unique_id += 1
 
     def step(self):
-        for a in self.schedule.agents:
-            x = random.randrange(self.grid.width)
-            y = random.randrange(self.grid.height)
-            if self.grid.is_cell_empty((x, y)):
-                self.grid.move_agent(a,(x,y))
-                  
-
-        self.schedule.step()
+        pass

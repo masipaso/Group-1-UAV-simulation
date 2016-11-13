@@ -1,46 +1,49 @@
 import random
 
-from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
+from mesa.visualization.modules import CanvasGrid
 
-from shape_model.model import Walker, ShapesModel
+from shape_model.obstacles import Obstacle
+from shape_model.base_stations import BaseStation
+
+from shape_model.model import WorldModel
 
 
-def agent_draw(agent):
-    portrayal = None
+def world_portrayal(agent):
     if agent is None:
-        # Actually this if part is unnecessary, but still keeping it for
-        # aesthetics
-        pass
-    elif isinstance(agent, Walker):
-        print("Uid: {0}, Heading: {1}".format(agent.unique_id, agent.heading))
-        portrayal = {"Shape": "arrowHead",
-                     "Filled": "true",
-                     "Layer": 2,
-                     "Color": "green",
-                     "Filled": "true",
-                     "heading_x": agent.heading[0],
-                     "heading_y": agent.heading[1],
-                     "text": agent.unique_id,
-                     "text_color": "white",
-                     "scale": 0.8,
-                     }
+        return
+
+    portrayal = {"Shape": "circle",
+                 "Filled": "true"}
+
+    if type(agent) is Obstacle:
+        portrayal["Color"] = "rgba(0, 0, 0, 0.4)"
+        portrayal["Shape"] = "rect"
+        portrayal["Layer"] = 0
+        portrayal["w"] = 1
+        portrayal["h"] = 1
+
+    elif type(agent) is BaseStation:
+        portrayal["Color"] = "#FFC319"
+        portrayal["Shape"] = "rect"
+        portrayal["Layer"] = 1
+        portrayal["w"] = 1
+        portrayal["h"] = 1
+
     return portrayal
 
 
-def launch_shape_model():
-    width = 15
-    height = 15
-    num_agents = 5
-    pixel_ratio = 50
-    grid = CanvasGrid(agent_draw, width, height,
-                      width * pixel_ratio, height * pixel_ratio)
-    server = ModularServer(ShapesModel, [grid], "Shape Model Example",
-                           num_agents, width, height)
-    server.max_steps = 0
+def launch_world_model():
+    width = 101
+    height = 101
+    pixel_ratio = 8
+    # Create Grid
+    grid = CanvasGrid(world_portrayal, width, height, width * pixel_ratio, height * pixel_ratio)
+    # Create Server
+    server = ModularServer(WorldModel, [grid], "Delivery Simulation")
     server.port = 8521
     server.launch()
 
 if __name__ == "__main__":
     random.seed(3)
-    launch_shape_model()
+    launch_world_model()
