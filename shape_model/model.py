@@ -5,14 +5,16 @@ from mesa import Model
 
 from shape_model.obstacles import Obstacle
 from shape_model.base_stations import BaseStation
+from shape_model.uavs import UAV
 from random import randint
+
 class WorldModel(Model):
     '''
     Model representing the world
     '''
 
 
-    def __init__(self, height=101, width=101, number_of_base_stations=7):
+    def __init__(self, height=101, width=101, number_of_base_stations=7, number_of_uavs=7):
         '''
         Create a new WorldModel with the given parameters
         :param height:
@@ -22,13 +24,12 @@ class WorldModel(Model):
         self.height = height
         self.width = width
         self.number_of_base_stations = number_of_base_stations
+        self.number_of_uavs = number_of_uavs
         self.grid = MultiGrid(self.height, self.width, torus=True)
 
         # Create Obstacles
         for j in range(1, self.height, 5):
             for i in range(1, self.width, 5):
-                #for x in range(0, 4, 1):
-                    #self.make_square(i,j)
                 form = randint(1,3)
                 if form == 1:
                     self.make_l(i,j)
@@ -46,6 +47,16 @@ class WorldModel(Model):
                 y = random.randrange(self.height)
             base_station = BaseStation(self, (x, y))
             self.grid.place_agent(base_station, (x, y))
+
+        # Create UAV's
+        for i in range(self.number_of_uavs):
+            x = random.randrange(self.width)
+            y = random.randrange(self.height)
+            while not self.grid.is_cell_empty((x, y)):
+                x = random.randrange(self.width)
+                y = random.randrange(self.height)
+            uav = UAV(self, (x, y))
+            self.grid.place_agent(uav, (x, y))
 
         self.running = True
 

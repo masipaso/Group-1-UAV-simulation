@@ -5,6 +5,7 @@ from mesa.visualization.modules import CanvasGrid
 
 from shape_model.obstacles import Obstacle
 from shape_model.base_stations import BaseStation
+from shape_model.uavs import UAV
 
 from shape_model.model import WorldModel
 
@@ -30,6 +31,12 @@ def world_portrayal(agent):
         portrayal["w"] = 1
         portrayal["h"] = 1
 
+    elif type(agent) is UAV:
+        portrayal["Color"] = "#00bfff"
+        portrayal["Shape"] = "rect"
+        portrayal["Layer"] = 1
+        portrayal["w"] = 1
+        portrayal["h"] = 1
     return portrayal
 
 
