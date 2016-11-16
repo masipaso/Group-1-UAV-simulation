@@ -47,9 +47,11 @@ def launch_world_model():
     # Create Grid
     grid = CanvasGrid(world_portrayal, width, height, width * pixel_ratio, height * pixel_ratio)
     # Create Server
-    server = ModularServer(WorldModel, [grid], "Delivery Simulation")
+    worldmodel = WorldModel
+    server = ModularServer(worldmodel, [grid], "Delivery Simulation")
     server.port = 8521
     server.launch()
+
 
 if __name__ == "__main__":
     random.seed(3)

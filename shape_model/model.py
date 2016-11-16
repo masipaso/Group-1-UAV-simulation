@@ -2,6 +2,7 @@ import random
 
 from mesa.space import MultiGrid
 from mesa import Model
+from mesa.time import RandomActivation
 
 from shape_model.obstacles import Obstacle
 from shape_model.base_stations import BaseStation
@@ -21,6 +22,9 @@ class WorldModel(Model):
         :param width:
         '''
         # Set parameters
+        self.basestations = []
+        self.uavs= []
+        self.schedule = RandomActivation(self)
         self.height = height
         self.width = width
         self.number_of_base_stations = number_of_base_stations
@@ -47,20 +51,20 @@ class WorldModel(Model):
                 y = random.randrange(self.height)
             base_station = BaseStation(self, (x, y))
             self.grid.place_agent(base_station, (x, y))
+            self.basestations.append(base_station)
 
         # Create UAV's
-        for i in range(self.number_of_uavs):
-            x = random.randrange(self.width)
-            y = random.randrange(self.height)
-            while not self.grid.is_cell_empty((x, y)):
-                x = random.randrange(self.width)
-                y = random.randrange(self.height)
-            uav = UAV(self, (x, y))
-            self.grid.place_agent(uav, (x, y))
-
+        for i in range(1,self.number_of_uavs,1):
+            start_baseStation = random.choice(self.basestations)
+            uav = UAV(self, start_baseStation.pos,i)
+            self.grid.place_agent(uav, start_baseStation.pos)
+            self.uavs.append(uav)
         self.running = True
 
+
     def step(self):
+        for a in self.uavs:
+            a.step()
         pass
 
     def make_l(self,i,j):
