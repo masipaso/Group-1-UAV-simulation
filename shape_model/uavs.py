@@ -55,7 +55,7 @@ class UAV(Agent):
             if self.getEuclideanDistance(self.destination,element) == 0:
                 min_distance = 0
                 possible_distance.append((element, 0))
-            elif self.getEuclideanDistance(self.destination,element) <= myDistance:
+            elif self.getEuclideanDistance(self.destination,element) <= myDistance and self.getEuclideanDistance(self.destination,element)<= min_distance:
                 min_distance=  self.getEuclideanDistance(self.destination,element)
                 possible_distance.append((element,min_distance))
 
