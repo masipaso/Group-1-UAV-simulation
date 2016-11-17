@@ -11,11 +11,12 @@ class UAV(Agent):
         self.pos = pos
         self.id= id
         self.destination = pos
+        self.walk = []
+        self.pastDistances = []
         pass
 
     def step(self):
-        #self.move()
-        self.moveMoreLogic()
+        self.moveSimpleAlgorithm()
         pass
 
 
@@ -35,15 +36,17 @@ class UAV(Agent):
         print(' Agent: {}  Moves from {} to {}'.format(self.id, old_position,new_position))
         print(' Agent: {}  Distance to Destination {}: {}'.format(self.id, self.destination, self.getEuclideanDistance(self.pos,self.destination)))
 
-    def moveMoreLogic(self):
+    def moveSimpleAlgorithm(self):
         if self.pos == self.destination:
+            print(' Agent: {}  is at its Destination, {}'.format(self.id, self.destination))
+            print(' Agent: {}  Needed {} steps and took this walk: {}'.format(self.id,len(self.walk)-1, self.walk))
             return
         min_distance = 100.0
         neighborhood = self.model.grid.get_neighborhood(
             self.pos,
             moore=True,
             include_center=False,
-            radius=10)
+            radius=1)
         possible_distance = []
         possible_steps = []
         myDistance = self.getEuclideanDistance(self.pos,self.destination)
@@ -66,7 +69,8 @@ class UAV(Agent):
                         possible_steps.append(element[0])
 
         ''' If no distance optimizing neighboring field is found...'''
-
+        ''' There is a lot to think of... We could optimize using the next bigger smaller distance to destination using neighbours of the last cell if we cannot optimize here and consider going back
+        This also requires some kind of memory because in the next step it would just come back to this cell - Loop!'''
         if possible_steps == []:
             new_position = random.choice(neighborhood)
             while not self.model.grid.is_cell_empty(new_position):
@@ -77,16 +81,19 @@ class UAV(Agent):
         old_position = self.pos
 
         self.model.grid.move_agent(self, new_position)
-
+        self.previousDistance = old_position
+        new_distance = self.getEuclideanDistance(self.pos,self.destination)
         print(' Agent: {}  Moves from {} to {}'.format(self.id, old_position, new_position))
         print(' Agent: {}  Distance to Destination {}: {}'.format(self.id, self.destination,
-                                                                  self.getEuclideanDistance(self.pos,
-                                                                                            self.destination)))
+                                                                  new_distance))
 
-
+        ''' Adding the new position to the walk'''
+        self.walk.append((new_position, new_distance))
 
     def setDestination(self, destination):
         self.destination = destination
+        initialDistance = self.getEuclideanDistance(self.pos,self.destination)
+        self.walk.append((self.pos,initialDistance))
 
     def getEuclideanDistance(self,pos1,pos2):
         ''' Calculate Euclidean distance '''
