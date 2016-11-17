@@ -34,13 +34,13 @@ class WorldModel(Model):
         # Create Obstacles
         for j in range(1, self.height, 5):
             for i in range(1, self.width, 5):
-                form = randint(1,3)
+                form = randint(1,2)
                 if form == 1:
                     self.make_l(i,j)
                 if form == 2:
-                    self.make_square(i,j)
-                if form == 3:
                     self.make_u(i,j)
+                if form == 3:
+                    self.make_square(i,j)
 
         # Create BaseStations
         for i in range(self.number_of_base_stations):
@@ -58,6 +58,12 @@ class WorldModel(Model):
             start_baseStation = random.choice(self.basestations)
             uav = UAV(self, start_baseStation.pos,i)
             self.grid.place_agent(uav, start_baseStation.pos)
+            x = random.randrange(self.width)
+            y = random.randrange(self.height)
+            while not self.grid.is_cell_empty((x, y)):
+                x = random.randrange(self.width)
+                y = random.randrange(self.height)
+            uav.setDestination((x,y))
             self.uavs.append(uav)
         self.running = True
 
