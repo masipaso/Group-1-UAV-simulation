@@ -33,15 +33,15 @@ class UAV(Agent):
 
         self.model.grid.move_agent(self, new_position)
 
-        print(' Agent: {}  Moves from {} to {}'.format(self.id, old_position,new_position))
-        print(' Agent: {}  Distance to Destination {}: {}'.format(self.id, self.destination, self.getEuclideanDistance(self.pos,self.destination)))
+        print(' Agent: {}  Moves from {} to {}. Distance to Destination: {}'.format(self.id, old_position,new_position,self.getEuclideanDistance(self.pos,self.destination)))
+        #print(' Agent: {}  Distance to Destination {}: {}'.format(self.id, self.destination, self.getEuclideanDistance(self.pos,self.destination)))
 
     def moveSimpleAlgorithm(self):
         if self.pos == self.destination:
             print(' Agent: {}  is at its Destination, {}'.format(self.id, self.destination))
             print(' Agent: {}  Needed {} steps and took this walk: {}'.format(self.id,len(self.walk)-1, self.walk))
             return
-        min_distance = 100.0
+
         neighborhood = self.model.grid.get_neighborhood(
             self.pos,
             moore=True,
@@ -56,21 +56,23 @@ class UAV(Agent):
 
         for element in neighborhood:
             if self.getEuclideanDistance(self.destination,element) == 0:
-                min_distance = 0
+
+                possible_distance.clear()
                 possible_distance.append((element, 0))
-            elif self.getEuclideanDistance(self.destination,element) <= myDistance and self.getEuclideanDistance(self.destination,element)<= min_distance:
+                break
+            elif self.getEuclideanDistance(self.destination,element) <= myDistance:
                 min_distance=  self.getEuclideanDistance(self.destination,element)
                 possible_distance.append((element,min_distance))
 
         if not possible_distance == []:
             for element in possible_distance:
-                if element[1] == min_distance:
-                    if self.model.grid.is_cell_empty(element[0]):
-                        possible_steps.append(element[0])
+                if self.model.grid.is_cell_empty(element[0]):
+                    possible_steps.append(element[0])
 
-        ''' If no distance optimizing neighboring field is found...'''
-        ''' There is a lot to think of... We could optimize using the next bigger smaller distance to destination using neighbours of the last cell if we cannot optimize here and consider going back
-        This also requires some kind of memory because in the next step it would just come back to this cell - Loop!'''
+        ''' If no distance optimizing neighboring field is found...
+            Repellent?
+
+        '''
         if possible_steps == []:
             new_position = random.choice(neighborhood)
             while not self.model.grid.is_cell_empty(new_position):
@@ -83,9 +85,8 @@ class UAV(Agent):
         self.model.grid.move_agent(self, new_position)
         self.previousDistance = old_position
         new_distance = self.getEuclideanDistance(self.pos,self.destination)
-        print(' Agent: {}  Moves from {} to {}'.format(self.id, old_position, new_position))
-        print(' Agent: {}  Distance to Destination {}: {}'.format(self.id, self.destination,
-                                                                  new_distance))
+        print(' Agent: {}  Moves from {} to {}. Distance to Destination: {}'.format(self.id, old_position, new_position, new_distance))
+        #print(' Agent: {}  Distance to Destination {}: {}'.format(self.id, self.destination,new_distance))
 
         ''' Adding the new position to the walk'''
         self.walk.append((new_position, new_distance))

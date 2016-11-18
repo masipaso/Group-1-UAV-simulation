@@ -65,6 +65,8 @@ class WorldModel(Model):
                 y = random.randrange(self.height)
             uav.setDestination((x,y))
             self.uavs.append(uav)
+
+
         self.running = True
 
 
