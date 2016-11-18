@@ -31,7 +31,9 @@ class BaseStation(Agent):
 
     def pickupItem(self):
         if not len(self.items)== 0:
-            return random.choice(self.items)
+            item = random.choice(self.items)
+            self.items.remove(item)
+            return item
         else:
             return None
 
