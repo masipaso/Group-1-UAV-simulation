@@ -5,6 +5,7 @@ from mesa.visualization.modules import CanvasGrid
 
 from shape_model.obstacles import Obstacle
 from shape_model.base_stations import BaseStation
+from shape_model.uavs import UAV
 
 from shape_model.model import WorldModel
 
@@ -30,6 +31,12 @@ def world_portrayal(agent):
         portrayal["w"] = 1
         portrayal["h"] = 1
 
+    elif type(agent) is UAV:
+        portrayal["Color"] = "#00bfff"
+        portrayal["Shape"] = "rect"
+        portrayal["Layer"] = 1
+        portrayal["w"] = 1
+        portrayal["h"] = 1
     return portrayal
 
 
@@ -40,9 +47,11 @@ def launch_world_model():
     # Create Grid
     grid = CanvasGrid(world_portrayal, width, height, width * pixel_ratio, height * pixel_ratio)
     # Create Server
-    server = ModularServer(WorldModel, [grid], "Delivery Simulation")
+    worldmodel = WorldModel
+    server = ModularServer(worldmodel, [grid], "Delivery Simulation")
     server.port = 8521
     server.launch()
+
 
 if __name__ == "__main__":
     random.seed(3)
