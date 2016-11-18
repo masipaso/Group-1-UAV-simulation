@@ -1,6 +1,7 @@
 from mesa import Agent
 import random
 import math
+from shape_model.base_stations import BaseStation
 
 class UAV(Agent):
     '''
@@ -24,9 +25,10 @@ class UAV(Agent):
             for base in self.baseStations:
                 if base.pos == self.pos:
                     self.assignItem(base.pickupItem())
-
+                    return
             if self.item == None:
-              self.moveSimpleAlgorithm()
+                self.moveSimpleAlgorithm()
+                return
 
         elif self.state == 2 and self.getEuclideanDistance(self.pos,self.destination)==0:
             self.deliver()
@@ -56,20 +58,26 @@ class UAV(Agent):
         ''' Map possible fields to move to, to optimization of distance to destination
         What is absolutely missing: A step now might minimise the distance in the future?'''
 
-
+        nextStepIsDest = 0
         for element in neighborhood:
             if self.getEuclideanDistance(self.destination,element) == 0:
 
                 possible_distance.clear()
                 possible_distance.append((element, 0))
-                break
+
+
             elif self.getEuclideanDistance(self.destination,element) <= myDistance:
                 min_distance=  self.getEuclideanDistance(self.destination,element)
                 possible_distance.append((element,min_distance))
 
         if not possible_distance == []:
             for element in possible_distance:
-                if self.model.grid.is_cell_empty(element[0]):
+                if not self.model.grid.is_cell_empty(element[0]):
+                    cellcontents = self.model.grid.get_cell_list_contents([(element[0])])
+                    for obs in cellcontents:
+                        if type(obs) is BaseStation:
+                            possible_steps.append(element[0])
+                else:
                     possible_steps.append(element[0])
 
         ''' If no distance optimizing neighboring field is found...
