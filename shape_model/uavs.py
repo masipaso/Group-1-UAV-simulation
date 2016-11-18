@@ -2,7 +2,8 @@ from mesa import Agent
 import random
 import math
 from shape_model.base_stations import BaseStation
-
+from shape_model.algorithms import SimpleAlgorithm
+from shape_model.algorithms import AntAlgorithm
 class UAV(Agent):
     '''
     A UAV is an Agent that can move. It transports goods
@@ -18,6 +19,7 @@ class UAV(Agent):
         self.item = None
         self.state = 1
         self.baseStations = baseStations
+        self.algorithm = AntAlgorithm(self)
         pass
 
     def step(self):
@@ -27,7 +29,8 @@ class UAV(Agent):
                     self.assignItem(base.pickupItem())
                     return
             if self.item == None:
-                self.moveSimpleAlgorithm()
+
+                self.algorithm.run()
                 return
 
         elif self.state == 2 and self.getEuclideanDistance(self.pos,self.destination)==0:
@@ -35,7 +38,8 @@ class UAV(Agent):
             return
 
         elif self.state == 2:
-            self.moveSimpleAlgorithm()
+
+            self.algorithm.run()
 
 
     def moveSimpleAlgorithm(self):
@@ -129,7 +133,10 @@ class UAV(Agent):
         self.destination = flytobase.pos
         print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}'.format(self.id, self.item.id,self.pos,self.destination))
         self.item = None
+        self.walk = []
         self.state = 1
 
     def getState(self):
         return self.state
+
+

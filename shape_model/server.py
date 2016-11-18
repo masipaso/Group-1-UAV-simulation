@@ -6,6 +6,7 @@ from mesa.visualization.modules import CanvasGrid
 from shape_model.obstacles import Obstacle
 from shape_model.base_stations import BaseStation
 from shape_model.uavs import UAV
+from shape_model.ants import Repellent, Pheromones
 
 from shape_model.model import WorldModel
 
@@ -37,8 +38,21 @@ def world_portrayal(agent):
         portrayal["Layer"] = 1
         portrayal["w"] = 1
         portrayal["h"] = 1
-    return portrayal
 
+    elif type(agent) is Repellent:
+        portrayal["Color"] = "#ff0000"
+        portrayal["Shape"] = "rect"
+        portrayal["Layer"] = 1
+        portrayal["w"] = 1
+        portrayal["h"] = 1
+
+    elif type(agent) is Pheromones:
+        portrayal["Color"] = "#008000"
+        portrayal["Shape"] = "rect"
+        portrayal["Layer"] = 1
+        portrayal["w"] = 1
+        portrayal["h"] = 1
+    return portrayal
 
 def launch_world_model():
     width = 101
