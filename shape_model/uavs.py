@@ -51,8 +51,10 @@ class UAV(Agent):
         possible_steps = []
         myDistance = self.getEuclideanDistance(self.pos,self.destination)
 
-                ''' Map possible fields to move to, to optimization of distance to destination
-                What is absolutely missing: A step now might minimise the distance in the future?'''
+
+        ''' Map possible fields to move to, to optimization of distance to destination
+        What is absolutely missing: A step now might minimise the distance in the future?'''
+
 
         for element in neighborhood:
             if self.getEuclideanDistance(self.destination,element) == 0:
