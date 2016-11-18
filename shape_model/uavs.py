@@ -24,15 +24,17 @@ class UAV(Agent):
             for base in self.baseStations:
                 if base.pos == self.pos:
                     self.assignItem(base.pickupItem())
-            pass
+
+            if self.item == None:
+              self.moveSimpleAlgorithm()
+
+        elif self.state == 2 and self.getEuclideanDistance(self.pos,self.destination)==0:
+            self.deliver()
+            return
 
         elif self.state == 2:
-            if self.pos == self.destination:
-                self.item = None
-                self.state = 1
-            else:
-                self.moveSimpleAlgorithm()
-        pass
+            self.moveSimpleAlgorithm()
+
 
     def moveSimpleAlgorithm(self):
 
@@ -110,10 +112,16 @@ class UAV(Agent):
 
         if self.state==1 and item != None:
             self.item = item
-            self.destination = item.getDestination()
+            self.destination = self.item.getDestination()
+            print(' Agent: {}  Received Item {}. Delivering to {}. Distance to Destination: {}'.format(self.id, item.id,self.destination, self.getEuclideanDistance(self.pos,self.destination)))
             self.state = 2
 
-    def deliver
+    def deliver(self):
+        flytobase = random.choice(self.baseStations)
+        self.destination = flytobase.pos
+        print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}'.format(self.id, self.item.id,self.pos,self.destination))
+        self.item = None
+        self.state = 1
 
     def getState(self):
         return self.state
