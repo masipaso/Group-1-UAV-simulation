@@ -1,12 +1,16 @@
 
 class Item():
     '''
-    An Obstacle is an Agent that cannot move
+    An Item is delivered by a drone.
     '''
-    def __init__(self, model,pos):
-        pass
+    def __init__(self, destination, priority=1,id=0):
+        self.destination = destination
+        self.priority = priority
+        self.id = id
 
-    def step(self):
-        pass
+    def getDestination(self):
+        return self.destination
+
+
 
 

@@ -5,38 +5,37 @@ import math
 class UAV(Agent):
     '''
     A UAV is an Agent that can move. It transports goods
+    State: 1: empty, 2: carrying an item, 3: , 4: ....
     '''
-    def __init__(self, model,pos,id):
+    def __init__(self, model,pos,id,baseStations=[]):
         self.model = model
         self.pos = pos
         self.id= id
         self.destination = pos
         self.walk = []
         self.pastDistances = []
+        self.item = None
+        self.state = 1
+        self.baseStations = baseStations
         pass
 
     def step(self):
-        self.moveSimpleAlgorithm()
+        if self.state == 1:
+            for base in self.baseStations:
+                if base.pos == self.pos:
+                    self.assignItem(base.pickupItem())
+            pass
+
+        elif self.state == 2:
+            if self.pos == self.destination:
+                self.item = None
+                self.state = 1
+            else:
+                self.moveSimpleAlgorithm()
         pass
 
-
-    def move(self):
-        possible_steps = self.model.grid.get_neighborhood(
-            self.pos,
-            moore=True,
-            include_center=False,
-            radius=2)
-        new_position = random.choice(possible_steps)
-        while not self.model.grid.is_cell_empty(new_position):
-            new_position = random.choice(possible_steps)
-        old_position = self.pos
-
-        self.model.grid.move_agent(self, new_position)
-
-        print(' Agent: {}  Moves from {} to {}. Distance to Destination: {}'.format(self.id, old_position,new_position,self.getEuclideanDistance(self.pos,self.destination)))
-        #print(' Agent: {}  Distance to Destination {}: {}'.format(self.id, self.destination, self.getEuclideanDistance(self.pos,self.destination)))
-
     def moveSimpleAlgorithm(self):
+
         if self.pos == self.destination:
             print(' Agent: {}  is at its Destination, {}'.format(self.id, self.destination))
             print(' Agent: {}  Needed {} steps and took this walk: {}'.format(self.id,len(self.walk)-1, self.walk))
@@ -106,3 +105,15 @@ class UAV(Agent):
             p0d0= math.pow(pos1[0]-pos2[0],2)
             p1d1= math.pow(pos1[1]-pos2[1],2)
             return math.sqrt(p0d0+p1d1)
+
+    def assignItem(self,item):
+
+        if self.state==1 and item != None:
+            self.item = item
+            self.destination = item.getDestination()
+            self.state = 2
+
+    def deliver
+
+    def getState(self):
+        return self.state
