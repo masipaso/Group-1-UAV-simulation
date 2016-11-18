@@ -1,4 +1,5 @@
 .idea
+.idea/workspace.xml
 *.pyc
 .DS_Store
 shape_model/.DS_Store
