@@ -5,13 +5,13 @@ import random
 class RandomActivationByType(RandomActivation):
     '''
     A Scheduler which activates each type of agent once per step in random order.
-    The random order is reshuffeld in every step.
+    The random order is reshuffled in every step.
     '''
 
     agents_by_type = defaultdict(list)
 
-    def __init__(self):
-        super.__init__()
+    def __init__(self, model):
+        super().__init__(model)
         self.agents_by_type = defaultdict(list)
         pass
 
@@ -34,8 +34,8 @@ class RandomActivationByType(RandomActivation):
             self.agents.remove(agent)
 
         agent_class = type(agent)
-        while agent in self.agents_by_breed[agent_class]:
-            self.agents_by_breed[agent_class].remove(agent)
+        while agent in self.agents_by_type[agent_class]:
+            self.agents_by_type[agent_class].remove(agent)
 
     def step(self, by_type=True):
         '''
@@ -44,7 +44,9 @@ class RandomActivationByType(RandomActivation):
         '''
         if by_type:
             for agent_class in self.agents_by_type:
-                self.step_type(agent_class)
+                print('class'.format(agent_class))
+                if agent_class != 'Item':
+                    self.step_type(agent_class)
             self.steps += 1
             self.time += 1
         else:
