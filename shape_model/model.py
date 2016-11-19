@@ -34,7 +34,7 @@ class WorldModel(Model):
         # Create Obstacles
         for j in range(1, self.height, 5):
             for i in range(1, self.width, 5):
-                form = randint(1,2)
+                form = randint(1,1)
                 if form == 1:
                     self.make_l(i,j)
                 if form == 2:
@@ -49,14 +49,14 @@ class WorldModel(Model):
             while self.grid.is_cell_empty((x, y)):
                 x = random.randrange(self.width)
                 y = random.randrange(self.height)
-            base_station = BaseStation(self, (x, y))
+            base_station = BaseStation(model=self, pos=(x, y), id=i)
             self.grid.place_agent(base_station, (x, y))
             self.basestations.append(base_station)
 
         # Create UAV's
         for i in range(1,self.number_of_uavs,1):
             start_baseStation = random.choice(self.basestations)
-            uav = UAV(self, start_baseStation.pos,i)
+            uav = UAV(self, pos=start_baseStation.pos,id=i,baseStations=self.basestations)
             self.grid.place_agent(uav, start_baseStation.pos)
             x = random.randrange(self.width)
             y = random.randrange(self.height)
@@ -73,7 +73,9 @@ class WorldModel(Model):
     def step(self):
         for a in self.uavs:
             a.step()
-        pass
+
+        for base in self.basestations:
+            base.step()
 
     def make_l(self,i,j):
         obstacle = Obstacle(self,(i,j))
@@ -88,6 +90,7 @@ class WorldModel(Model):
             self.grid.place_agent(obstacle, (i+y, j ))
 
     def make_u(self,i,j):
+
         obstacle = Obstacle(self,(i,j))
         self.grid.place_agent(obstacle,(i,j))
 
@@ -102,6 +105,7 @@ class WorldModel(Model):
             self.grid.place_agent(obstacle, (i+y, j ))
 
     def make_square(self,i,j):
+
         for x in range(1,4,1):
             obstacle = Obstacle(self, (i, j+x))
             self.grid.place_agent(obstacle, (i, j+x))
