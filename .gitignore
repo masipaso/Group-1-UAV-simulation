@@ -4,3 +4,4 @@
 **/.DS_Store
 **/shape_model/.DS_Store
 **/shape_model/__pycache__/.DS_Store
+.idea/misc.xml
