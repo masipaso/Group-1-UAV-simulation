@@ -2,8 +2,8 @@ from mesa import Agent
 import random
 import math
 from shape_model.base_stations import BaseStation
-from shape_model.algorithms import SimpleAlgorithm
-from shape_model.algorithms import AntAlgorithm
+from shape_model.algorithms_dominik import SimpleAlgorithm
+from shape_model.algorithms_dominik import AntAlgorithm
 class UAV(Agent):
     '''
     A UAV is an Agent that can move. It transports goods
