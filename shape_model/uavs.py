@@ -130,6 +130,8 @@ class UAV(Agent):
         print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}'.format(self.id, self.item.id,self.pos,self.destination))
         self.item = None
         self.state = 1
+        # Notify model that a delivery was made
+        self.model.number_of_delivered_items =+ 1
 
     def getState(self):
         return self.state

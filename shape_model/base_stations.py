@@ -14,7 +14,7 @@ class BaseStation(Agent):
         self.id = id
 
         self.items = []
-        self.delivered_items = 0;
+        self.picked_up_items = 0
         pass
 
     def step(self):
@@ -34,12 +34,12 @@ class BaseStation(Agent):
         if not len(self.items)== 0:
             item = random.choice(self.items)
             self.items.remove(item)
-            self.delivered_items += 1
+            self.picked_up_items += 1
             return item
         else:
             return None
 
-    def get_number_of_items(self, delivered=False):
-        if delivered:
-            return self.delivered_items;
+    def get_number_of_items(self, picked_up=False):
+        if picked_up:
+            return self.picked_up_items
         return len(self.items)

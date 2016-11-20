@@ -47,8 +47,9 @@ def launch_world_model():
     grid = CanvasGrid(world_portrayal, width, height, width * pixel_ratio, height * pixel_ratio)
     # Create Chart
     chart = ChartModule([
-        {"Label": "Items(Waiting)", "Color": "Red"},
-        {"Label": "Items(Delivered)", "Color": "Green"},
+        {"Label": "Items (Waiting)", "Color": "Red"},
+        {"Label": "Items (Picked up)", "Color": "Orange"},
+        {"Label": "Items (Delivered)", "Color": "Green"},
         {"Label": "UAVS", "Color": "#00bfff"},
     ],
         data_collector_name='datacollector'

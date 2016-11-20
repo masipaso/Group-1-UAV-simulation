@@ -18,7 +18,7 @@ class WorldModel(Model):
     '''
 
 
-    def __init__(self, height=101, width=101, number_of_base_stations=7, number_of_uavs=50):
+    def __init__(self, height=101, width=101, number_of_base_stations=7, number_of_uavs=7):
         '''
         Create a new WorldModel with the given parameters
         :param height:
@@ -32,12 +32,14 @@ class WorldModel(Model):
         self.width = width
         self.number_of_base_stations = number_of_base_stations
         self.number_of_uavs = number_of_uavs
+        self.number_of_delivered_items = 0
         self.grid = MultiGrid(self.height, self.width, torus=True)
         self.datacollector = DataCollector(
             {
                 "UAVS": lambda m: m.schedule.get_type_count(UAV),
-                "Items(Delivered)": self.compute_number_of_delivered_items,
-                "Items(Waiting)": self.compute_number_of_items
+                "Items (Waiting)": self.compute_number_of_items,
+                "Items (Picked up)": self.compute_number_of_picked_up_items,
+                "Items (Delivered)": self.compute_number_of_delivered_items,
              }
         )
 
@@ -136,8 +138,12 @@ class WorldModel(Model):
             number_of_items += base_station.get_number_of_items()
         return  number_of_items
 
-    def compute_number_of_delivered_items(self, model):
-        number_of_delivered_items = 0
+    def compute_number_of_picked_up_items(self, model):
+        number_of_picked_up_items = 0
         for base_station in model.schedule.agents_by_type[BaseStation]:
-            number_of_delivered_items += base_station.get_number_of_items(delivered=True)
-        return number_of_delivered_items
+            number_of_picked_up_items += base_station.get_number_of_items(picked_up=True)
+        return number_of_picked_up_items
+
+
+    def compute_number_of_delivered_items(self, model):
+        return model.number_of_delivered_items
