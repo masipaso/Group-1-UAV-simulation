@@ -1,6 +1,6 @@
 import random
 from shape_model.base_stations import BaseStation
-from shape_model.ants import Pheromones
+from shape_model.ants import Pheromones, Repellent
 
 class UAV_Algorithm():
     '''

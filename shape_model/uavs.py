@@ -135,6 +135,8 @@ class UAV(Agent):
         self.item = None
         self.walk = []
         self.state = 1
+        # Notify model that a delivery was made
+        self.model.number_of_delivered_items =+ 1
 
     def getState(self):
         return self.state

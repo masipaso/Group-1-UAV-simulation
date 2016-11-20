@@ -1,13 +1,13 @@
 import random
 
 from mesa.visualization.ModularVisualization import ModularServer
-from mesa.visualization.modules import CanvasGrid
+from mesa.visualization.modules import CanvasGrid, ChartModule
 
 from shape_model.obstacles import Obstacle
 from shape_model.base_stations import BaseStation
 from shape_model.uavs import UAV
-from shape_model.ants import Repellent, Pheromones
 
+from shape_model.ants import Repellent, Pheromones
 from shape_model.model import WorldModel
 
 
@@ -60,9 +60,18 @@ def launch_world_model():
     pixel_ratio = 8
     # Create Grid
     grid = CanvasGrid(world_portrayal, width, height, width * pixel_ratio, height * pixel_ratio)
+    # Create Chart
+    chart = ChartModule([
+        {"Label": "Items (Waiting)", "Color": "Red"},
+        {"Label": "Items (Picked up)", "Color": "Orange"},
+        {"Label": "Items (Delivered)", "Color": "Green"},
+        {"Label": "UAVS", "Color": "#00bfff"},
+    ],
+        data_collector_name='datacollector'
+    )
     # Create Server
     worldmodel = WorldModel
-    server = ModularServer(worldmodel, [grid], "Delivery Simulation")
+    server = ModularServer(worldmodel, [grid, chart], "Delivery Simulation")
     server.port = 8521
     server.launch()
 
