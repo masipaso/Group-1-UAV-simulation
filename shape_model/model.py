@@ -10,7 +10,7 @@ from shape_model.uavs import UAV
 from shape_model.items import Item
 from random import randint
 
-from shape_model.scheduler import RandomActivationByType
+from shape_model.schedule import RandomActivationByType
 
 class WorldModel(Model):
     '''
@@ -25,8 +25,6 @@ class WorldModel(Model):
         :param width:
         '''
         # Set parameters
-        self.basestations = []
-        self.uavs= []
         self.schedule = RandomActivationByType(self)
         self.height = height
         self.width = width
@@ -63,13 +61,12 @@ class WorldModel(Model):
                 y = random.randrange(self.height)
             base_station = BaseStation(model=self, pos=(x, y), id=i)
             self.grid.place_agent(base_station, (x, y))
-            self.basestations.append(base_station)
             self.schedule.add(base_station)
 
         # Create UAV's
         for i in range(1,self.number_of_uavs,1):
-            start_baseStation = random.choice(self.basestations)
-            uav = UAV(self, pos=start_baseStation.pos,id=i,baseStations=self.basestations)
+            start_baseStation = random.choice(self.schedule.agents_by_type[BaseStation])
+            uav = UAV(self, pos=start_baseStation.pos,id=i,baseStations=self.schedule.agents_by_type[BaseStation])
             self.grid.place_agent(uav, start_baseStation.pos)
             x = random.randrange(self.width)
             y = random.randrange(self.height)
@@ -77,9 +74,7 @@ class WorldModel(Model):
                 x = random.randrange(self.width)
                 y = random.randrange(self.height)
             uav.setDestination((x,y))
-            self.uavs.append(uav)
             self.schedule.add(uav)
-
 
         self.running = True
 
@@ -143,7 +138,6 @@ class WorldModel(Model):
         for base_station in model.schedule.agents_by_type[BaseStation]:
             number_of_picked_up_items += base_station.get_number_of_items(picked_up=True)
         return number_of_picked_up_items
-
 
     def compute_number_of_delivered_items(self, model):
         return model.number_of_delivered_items
