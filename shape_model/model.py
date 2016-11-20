@@ -18,7 +18,7 @@ class WorldModel(Model):
     '''
 
 
-    def __init__(self, height=101, width=101, number_of_base_stations=7, number_of_uavs=7):
+    def __init__(self, height=101, width=101, number_of_base_stations=7, number_of_uavs=10):
         '''
         Create a new WorldModel with the given parameters
         :param height:
@@ -40,6 +40,7 @@ class WorldModel(Model):
                 "Items (Delivered)": self.compute_number_of_delivered_items,
              }
         )
+        self.pheromones = []
 
         # Create Obstacles
         for j in range(1, self.height, 5):
@@ -126,6 +127,13 @@ class WorldModel(Model):
         self.grid.place_agent(obstacle, (i+1, j+3))
         obstacle = Obstacle(self, (i + 2, j + 3))
         self.grid.place_agent(obstacle, (i + 2, j + 3))
+
+    def appendPheromones(self,phero):
+        self.pheromones.append(phero)
+
+    def removePhereomones(self,phero):
+        self.grid._remove_agent(phero.pos,phero)
+        self.pheromones.remove(phero)
 
     def compute_number_of_items(self, model):
         number_of_items = 0
