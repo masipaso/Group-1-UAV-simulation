@@ -102,7 +102,6 @@ class MyAlgorithm(UAV_Algorithm):
                 distance = self.uav.get_euclidean_distance(self.uav.destination, cell)
                 possible_steps[distance] = cell
 
-            print("possible_steps is {}".format(sorted(possible_steps)))
             for possible_step in sorted(possible_steps):
                 # Remove all cell that contain an obstacle
                 if not self.uav.model.grid.is_cell_empty(possible_steps[possible_step]):
@@ -145,16 +144,21 @@ class MyAlgorithm(UAV_Algorithm):
                 expected_step_distance = len(self.uav.walk) - idx - 1
                 print("expected distance {} and step_distance {}".format(expected_step_distance, step_distance))
                 if expected_step_distance is not step_distance:
-                    position = self.uav.walk[len(self.uav.walk) - 1][0]
-                    print("Plant repellent at last position: {}".format(position))
-                    repellent = Repellent(model=self.uav.model, pos=position)
-                    self.uav.model.grid.place_agent(repellent, position)
+                    #position = self.uav.walk[len(self.uav.walk) - 1][0]
+                    position = step_taken[0]
+                    if position in self.uav.model.repellents:
+                        print("is already a repellent on that pos")
+                    else:
+                        print("Plant repellent at last position: {}".format(position))
+                        self.uav.model.repellents.append(position)
+                        repellent = Repellent(model=self.uav.model, pos=position)
+                        self.uav.model.grid.place_agent(repellent, position)
 
             new_position = None
             for possible_step in sorted(possible_steps):
-                print("possible_steps[possible_step] {}".format(possible_steps[possible_step]))
                 new_position = possible_steps[possible_step]
-                break
+                if new_position is not 0:
+                    break
             print("new_position {}".format(new_position))
 
             self.uav.model.grid.move_agent(self.uav, new_position)

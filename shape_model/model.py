@@ -30,7 +30,7 @@ class WorldModel(Model):
         self.number_of_base_stations = number_of_base_stations
         self.number_of_uavs = number_of_uavs
         self.number_of_delivered_items = 0
-        self.grid = MultiGrid(self.height, self.width, torus=True)
+        self.grid = MultiGrid(self.height, self.width, torus=False)
         self.datacollector = DataCollector(
             {
                 "UAVS": lambda m: m.schedule.get_type_count(UAV),
@@ -39,7 +39,7 @@ class WorldModel(Model):
                 "Items (Delivered)": self.compute_number_of_delivered_items,
              }
         )
-        self.pheromones = []
+        self.repellents = []
 
         # Create Obstacles
         for j in range(1, self.height, 5):
