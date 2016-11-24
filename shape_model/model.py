@@ -7,7 +7,6 @@ from mesa.datacollection import DataCollector
 from shape_model.obstacles import Obstacle
 from shape_model.base_stations import BaseStation
 from shape_model.uavs import UAV
-from shape_model.items import Item
 from random import randint
 
 from shape_model.schedule import RandomActivationByType
@@ -18,7 +17,7 @@ class WorldModel(Model):
     '''
 
 
-    def __init__(self, height=101, width=101, number_of_base_stations=7, number_of_uavs=10):
+    def __init__(self, height=101, width=101, number_of_base_stations=1, number_of_uavs=1):
         '''
         Create a new WorldModel with the given parameters
         :param height:
@@ -57,6 +56,8 @@ class WorldModel(Model):
         for i in range(self.number_of_base_stations):
             x = random.randrange(self.width)
             y = random.randrange(self.height)
+            x = 100
+            y = 100
             while self.grid.is_cell_empty((x, y)):
                 x = random.randrange(self.width)
                 y = random.randrange(self.height)
@@ -65,7 +66,7 @@ class WorldModel(Model):
             self.schedule.add(base_station)
 
         # Create UAV's
-        for i in range(1,self.number_of_uavs,1):
+        for i in range(self.number_of_uavs):
             start_baseStation = random.choice(self.schedule.agents_by_type[BaseStation])
             uav = UAV(self, pos=start_baseStation.pos,id=i,baseStations=self.schedule.agents_by_type[BaseStation])
             self.grid.place_agent(uav, start_baseStation.pos)
@@ -127,13 +128,6 @@ class WorldModel(Model):
         self.grid.place_agent(obstacle, (i+1, j+3))
         obstacle = Obstacle(self, (i + 2, j + 3))
         self.grid.place_agent(obstacle, (i + 2, j + 3))
-
-    def appendPheromones(self,phero):
-        self.pheromones.append(phero)
-
-    def removePhereomones(self,phero):
-        self.grid._remove_agent(phero.pos,phero)
-        self.pheromones.remove(phero)
 
     def compute_number_of_items(self, model):
         number_of_items = 0

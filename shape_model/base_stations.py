@@ -18,17 +18,20 @@ class BaseStation(Agent):
         pass
 
     def step(self):
-        if randint(1, 10) <= 1:
+        if len(self.items) <= 1:
+        #if randint(1, 10) <= 1:
             x = random.randrange(self.model.width)
             y = random.randrange(self.model.height)
+            x = 0
+            y = 0
             while not self.model.grid.is_cell_empty((x, y)):
                 x = random.randrange(self.model.width)
                 y = random.randrange(self.model.height)
-            itemdestination = (x,y)
-            item = Item(destination=itemdestination, priority=0,id=str(self.id) + "_" + str(len(self.items)))
+            itemdestination = (x, y)
+            item = Item(destination=itemdestination, priority=0, id=str(self.id) + "_" + str(len(self.items)))
             self.items.append(item)
-            print("Created item {}, destination: {}, priority:{}".format(item.id, item.destination,item.priority))
-
+            self.model.grid.place_agent(item, (itemdestination))
+            print("Created item {}, destination: {}, priority:{}".format(item.id, item.destination, item.priority))
 
     def pickupItem(self):
         if not len(self.items)== 0:

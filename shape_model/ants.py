@@ -6,6 +6,8 @@ class Repellent(Agent):
     An Obstacle is an Agent that cannot move
     '''
     def __init__(self, model,pos):
+        self.model = model
+        self.pos = pos
         pass
 
     def step(self):
