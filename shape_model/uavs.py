@@ -20,6 +20,7 @@ class UAV(Agent):
         self.state = 1
         self.baseStations = baseStations
         self.algorithm = MyAlgorithm(self)
+        self.last_repellent = 0
         pass
 
     def step(self):

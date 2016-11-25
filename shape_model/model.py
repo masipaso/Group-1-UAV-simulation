@@ -17,7 +17,7 @@ class WorldModel(Model):
     '''
 
 
-    def __init__(self, height=101, width=101, number_of_base_stations=1, number_of_uavs=1):
+    def __init__(self, height=6, width=6, number_of_base_stations=1, number_of_uavs=1):
         '''
         Create a new WorldModel with the given parameters
         :param height:
@@ -54,13 +54,13 @@ class WorldModel(Model):
 
         # Create BaseStations
         for i in range(self.number_of_base_stations):
-            x = random.randrange(self.width)
-            y = random.randrange(self.height)
-            x = 100
-            y = 100
-            while self.grid.is_cell_empty((x, y)):
-                x = random.randrange(self.width)
-                y = random.randrange(self.height)
+            #x = random.randrange(self.width)
+            #y = random.randrange(self.height)
+            x = 5
+            y = 5
+            #while self.grid.is_cell_empty((x, y)):
+                #x = random.randrange(self.width)
+                #y = random.randrange(self.height)
             base_station = BaseStation(model=self, pos=(x, y), id=i)
             self.grid.place_agent(base_station, (x, y))
             self.schedule.add(base_station)

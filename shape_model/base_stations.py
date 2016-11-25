@@ -18,7 +18,7 @@ class BaseStation(Agent):
         pass
 
     def step(self):
-        if len(self.items) <= 1:
+        if len(self.items) < 1:
         #if randint(1, 10) <= 1:
             x = random.randrange(self.model.width)
             y = random.randrange(self.model.height)

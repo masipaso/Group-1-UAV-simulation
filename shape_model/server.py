@@ -63,9 +63,9 @@ def world_portrayal(agent):
     return portrayal
 
 def launch_world_model():
-    width = 101
-    height = 101
-    pixel_ratio = 8
+    width = 6
+    height = 6
+    pixel_ratio = 100
     # Create Grid
     grid = CanvasGrid(world_portrayal, width, height, width * pixel_ratio, height * pixel_ratio)
     # Create Chart

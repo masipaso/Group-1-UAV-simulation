@@ -130,29 +130,24 @@ class MyAlgorithm(UAV_Algorithm):
 
 
     def run(self):
+        # current position of the uav
         current_position = self.uav.pos
+        # previous position of the uav
+        last_position = self.uav.walk[len(self.uav.walk) - 2][0]
+        print("current_position {}, last_position {}".format(current_position, last_position))
         possible_steps = self.get_possible_steps()
 
         if possible_steps is []:
             print("no next steps")
         else:
             print("walk {}".format(self.uav.walk))
-            for idx, step_taken in enumerate(self.uav.walk):
-                print("index {}".format(idx))
-                print("step_taken {}".format(step_taken))
-                step_distance = self.get_step_distance(step_taken[0], current_position)
-                expected_step_distance = len(self.uav.walk) - idx - 1
-                print("expected distance {} and step_distance {}".format(expected_step_distance, step_distance))
-                if expected_step_distance is not step_distance:
-                    #position = self.uav.walk[len(self.uav.walk) - 1][0]
-                    position = step_taken[0]
-                    if position in self.uav.model.repellents:
-                        print("is already a repellent on that pos")
-                    else:
-                        print("Plant repellent at last position: {}".format(position))
-                        self.uav.model.repellents.append(position)
-                        repellent = Repellent(model=self.uav.model, pos=position)
-                        self.uav.model.grid.place_agent(repellent, position)
+
+            # compare the expected distance to the actual distance
+            # expected distance: amount of cells crossed to get to the current location
+            # actual distance: amount of steps taken (one step = one cell crossed) to get to the current location
+            expected_distance = self.get_step_distance(current_position, last_position)
+            print("expected_distance {}".format(expected_distance))
+            actual_distance = self.get_step_distance()
 
             new_position = None
             for possible_step in sorted(possible_steps):
