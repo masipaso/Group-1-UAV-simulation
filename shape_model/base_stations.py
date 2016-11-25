@@ -22,8 +22,6 @@ class BaseStation(Agent):
         #if randint(1, 10) <= 1:
             x = random.randrange(self.model.width)
             y = random.randrange(self.model.height)
-            x = 0
-            y = 0
             while not self.model.grid.is_cell_empty((x, y)):
                 x = random.randrange(self.model.width)
                 y = random.randrange(self.model.height)

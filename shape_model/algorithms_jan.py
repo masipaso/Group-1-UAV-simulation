@@ -4,6 +4,9 @@ from shape_model.items import Item
 from shape_model.ants import Repellent
 from collections import defaultdict
 
+from shape_model.Step import Step
+from shape_model.obstacles import Obstacle
+
 
 class UAV_Algorithm():
     '''
@@ -96,21 +99,29 @@ class MyAlgorithm(UAV_Algorithm):
                 include_center=False,
                 radius=1)
 
-            possible_steps = defaultdict(int)
+            available_steps = []
+            possible_steps = []
 
             for cell in neighborhood:
                 distance = self.uav.get_euclidean_distance(self.uav.destination, cell)
-                possible_steps[distance] = cell
+                available_step = Step(distance=distance, pos=cell)
+                available_steps.append(available_step)
 
-            for possible_step in sorted(possible_steps):
+            available_steps.sort(key=lambda step: step.distance)
+            for available_step in available_steps:
                 # Remove all cell that contain an obstacle
-                if not self.uav.model.grid.is_cell_empty(possible_steps[possible_step]):
-                    cell_contents = self.uav.model.grid.get_cell_list_contents([possible_steps[possible_step]])
+                if not self.uav.model.grid.is_cell_empty(available_step.pos):
+                    cell_contents = self.uav.model.grid.get_cell_list_contents([available_step.pos])
+                    possible = True
                     for obstacle in cell_contents:
                         # If the obstacle is a not BaseStation, remove the cell as a possible step
-                        if type(obstacle) is not BaseStation and type(obstacle) is not Item:
-                            if possible_steps[possible_step]:
-                                del possible_steps[possible_step]
+                        if type(obstacle) is Obstacle or type(obstacle) is Repellent:
+                            possible = False
+                    if possible:
+                        possible_steps.append(available_step)
+                else:
+                    possible_steps.append(available_step)
+
 
             return possible_steps
 
@@ -125,39 +136,60 @@ class MyAlgorithm(UAV_Algorithm):
             return 0
         else:
             x = abs(pos1[0] - pos2[0])
-            y = abs(pos1[1] - pos1[1])
+            y = abs(pos1[1] - pos2[1])
             return max(x, y)
 
 
     def run(self):
-        # current position of the uav
-        current_position = self.uav.pos
-        # previous position of the uav
-        last_position = self.uav.walk[len(self.uav.walk) - 2][0]
-        print("current_position {}, last_position {}".format(current_position, last_position))
         possible_steps = self.get_possible_steps()
+        #self.uav.last_repellent += 1
+
+        last_position = self.uav.pos
 
         if possible_steps is []:
             print("no next steps")
         else:
-            print("walk {}".format(self.uav.walk))
-
-            # compare the expected distance to the actual distance
-            # expected distance: amount of cells crossed to get to the current location
-            # actual distance: amount of steps taken (one step = one cell crossed) to get to the current location
-            expected_distance = self.get_step_distance(current_position, last_position)
-            print("expected_distance {}".format(expected_distance))
-            actual_distance = self.get_step_distance()
-
             new_position = None
-            for possible_step in sorted(possible_steps):
-                new_position = possible_steps[possible_step]
+            for possible_step in possible_steps:
+                print("new_position {}".format(possible_step))
+                new_position = possible_step.pos
                 if new_position is not 0:
                     break
             print("new_position {}".format(new_position))
 
+            # Move UAV
             self.uav.model.grid.move_agent(self.uav, new_position)
             new_distance = self.uav.get_euclidean_distance(self.uav.pos, self.uav.destination)
-            print(' Agent: {}  Moves from {} to {}. Distance to Destination: {}'.format(self.uav.id, current_position, new_position, new_distance))
+            print(' Agent: {}  Moves from {} to {}. Distance to Destination: {}'.format(self.uav.id, last_position, new_position, new_distance))
             # Adding the new position to the walk
             self.uav.walk.append((new_position, new_distance))
+
+            #print("walk {}".format(self.uav.walk))
+
+            for index, step_taken in enumerate(reversed(self.uav.walk)):
+                #print("last_repellent {}".format(self.uav.last_repellent))
+                if index > self.uav.last_repellent:
+                    break
+                #print("step_taken {}, new_position {}".format(step_taken[0], new_position))
+                # compare the expected distance to the actual distance
+                # expected distance: amount of cells crossed to get to the current location
+                expected_distance = self.get_step_distance(new_position, step_taken[0])
+                # actual distance: number of walk entries from the current position to the step_taken
+                actual_distance = index
+                # if the expected_distance is smaller than the actual_distance a suboptimal route was found
+                #print("expected {}, actual {}".format(expected_distance, actual_distance))
+                if expected_distance < actual_distance:
+                    print("Path was longer than expected!")
+                    position = last_position
+                    # if there is already a repellent on that position ...
+                    if position in self.uav.model.repellents:
+                        # ... increase its effect
+                        print("is already a repellent on that pos")
+                    else:
+                        # ... or create a new one
+                        self.uav.model.repellents.append(position)
+                        repellent = Repellent(model=self.uav.model, pos=position)
+                        self.uav.model.grid.place_agent(repellent, position)
+                        self.uav.walk.remove(self.uav.walk[index])
+                        #self.uav.last_repellent = 2
+                    break

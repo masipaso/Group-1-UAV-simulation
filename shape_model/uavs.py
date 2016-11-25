@@ -20,7 +20,7 @@ class UAV(Agent):
         self.state = 1
         self.baseStations = baseStations
         self.algorithm = MyAlgorithm(self)
-        self.last_repellent = 0
+        self.last_repellent = 2
         pass
 
     def step(self):
@@ -61,11 +61,13 @@ class UAV(Agent):
             self.destination = self.item.getDestination()
             print(' Agent: {}  Received Item {}. Delivering to {}. Distance to Destination: {}'.format(self.id, item.id,self.destination, self.get_euclidean_distance(self.pos,self.destination)))
             self.state = 2
+            self.walk = []
 
     def deliver(self):
         flytobase = random.choice(self.baseStations)
         self.destination = flytobase.pos
-        print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}'.format(self.id, self.item.id,self.pos,self.destination))
+        print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}'.format(self.id, self.item.id, self.pos,self.destination))
+        self.model.grid._remove_agent(self.pos, self.item) #disregard the _
         self.item = None
         self.walk = []
         self.state = 1
