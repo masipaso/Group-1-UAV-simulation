@@ -1,5 +1,4 @@
 import configparser
-import random
 
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import ChartModule
@@ -36,6 +35,6 @@ def launch_world_model():
     )
 
     # Create Server
-    server = ModularServer(WorldModel, [real_world_grid, perceived_world_grid], "Delivery Simulation")
+    server = ModularServer(WorldModel, [real_world_grid, perceived_world_grid, chart], "Delivery Simulation")
     server.port = 8521
     server.launch()

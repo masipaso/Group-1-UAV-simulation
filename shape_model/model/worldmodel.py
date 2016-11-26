@@ -74,9 +74,9 @@ class WorldModel(Model):
             for i in range(1, self.width, 5):
                 form = randint(1, 1)
                 if form == 1:
-                    self.make_l(i, j)
-                if form == 2:
                     self.make_u(i, j)
+                if form == 2:
+                    self.make_l(i, j)
                 if form == 3:
                     self.make_square(i, j)
 

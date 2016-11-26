@@ -1,5 +1,5 @@
 
-class Item():
+class Item:
     """
     An Item is delivered by a drone.
     """
@@ -8,12 +8,17 @@ class Item():
         self.priority = priority
         self.id = id
 
-    def getDestination(self):
-        return self.destination
-
-    def get_position(self):
+    def deliver(self, grid):
         """
-        Get the position of an Item
-        :return: position of the agent as a tuple of coordinates
+        If an Item is delivered, remove it from the perceived_world_grid
+        :param grid:
+        :return:
+        """
+        grid._remove_agent(self.destination, self)  # disregard the _
+
+    def get_destination(self):
+        """
+        Get the destination of the Item
+        :return: destination of the Item as a tuple of coordinates
         """
         return self.destination

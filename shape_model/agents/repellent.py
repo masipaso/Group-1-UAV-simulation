@@ -2,9 +2,9 @@ from mesa import Agent
 
 
 class Repellent(Agent):
-    '''
-    An Obstacle is an Agent that cannot move
-    '''
+    """
+    A Repellent is an indicator that the cell in which the repellent is placed is not a good choice to move to
+    """
     def __init__(self, model, pos):
         self.model = model
         self.pos = pos

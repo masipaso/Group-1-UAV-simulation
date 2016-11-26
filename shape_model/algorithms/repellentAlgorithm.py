@@ -3,7 +3,7 @@ from shape_model.agents.obstacle import Obstacle
 from shape_model.utils.step import Step
 
 
-class MyAlgorithm():
+class Algorithm:
     """
     Class representing the current algorithm which is used to advance a Uav at each step
     """
@@ -85,12 +85,12 @@ class MyAlgorithm():
 
     @staticmethod
     def get_step_distance(pos1, pos2):
-        '''
+        """
         Calculate the step distance between two positions
         :param pos1:
         :param pos2:
         :return: the step distance
-        '''
+        """
         if pos1 == pos2:
             return 0
         else:
