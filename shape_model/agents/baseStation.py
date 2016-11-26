@@ -1,8 +1,9 @@
-from mesa import Agent
 import random
-from random import randint
 
-from shape_model.items import Item
+from mesa import Agent
+
+from shape_model.agents.item import Item
+
 
 class BaseStation(Agent):
     '''

@@ -1,8 +1,8 @@
 from mesa.visualization.modules import CanvasGrid
 
-from shape_model.base_stations import BaseStation
-from shape_model.obstacles import Obstacle
-from shape_model.uavs import UAV
+from shape_model.agents.baseStation import BaseStation
+from shape_model.agents.obstacle import Obstacle
+from shape_model.agents.uav import UAV
 
 
 class RealWorldGrid(CanvasGrid):

@@ -1,9 +1,9 @@
 import random
-from shape_model.base_stations import BaseStation
-from shape_model.ants import Repellent
 
-from shape_model.Step import Step
-from shape_model.obstacles import Obstacle
+from shape_model.agents.repellent import Repellent
+from shape_model.agents.baseStation import BaseStation
+from shape_model.agents.obstacle import Obstacle
+from shape_model.utils.step import Step
 
 
 class UAV_Algorithm():
@@ -180,8 +180,7 @@ class MyAlgorithm(UAV_Algorithm):
                         print("is already a repellent on that pos")
                     else:
                         # ... or create a new one
-                        self.uav.model.repellents.append(position)
-                        repellent = Repellent(model=self.uav.model, pos=position)
+                        repellent = Repellent(self.uav.model, position)
                         self.uav.model.perceived_world_grid.place_agent(repellent, position)
                         self.uav.walk.remove(self.uav.walk[index])
                     break

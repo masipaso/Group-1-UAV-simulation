@@ -1,16 +1,15 @@
+import configparser
 import random
 from random import randint
-import configparser
 
 from mesa import Model
 from mesa.datacollection import DataCollector
 
-from shape_model.obstacles import Obstacle
-from shape_model.base_stations import BaseStation
-from shape_model.uavs import UAV
-
-from shape_model.schedule import RandomActivationByType
+from shape_model.agents.baseStation import BaseStation
+from shape_model.agents.obstacle import Obstacle
+from shape_model.agents.uav import UAV
 from shape_model.grid.multi_grids import TwoMultiGrid
+from shape_model.schedule.schedule import RandomActivationByType
 
 
 class WorldModel(Model):
@@ -48,7 +47,12 @@ class WorldModel(Model):
                 "Items (Delivered)": self.compute_number_of_delivered_items,
              }
         )
+
+        # Store all repellents
+        # TODO: solve this in a better way!
         self.repellents = []
+
+        # In the beginning there are no delivered Items
         self.number_of_delivered_items = 0
 
         # Populate the grid with obstacles and stuff

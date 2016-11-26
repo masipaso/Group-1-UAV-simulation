@@ -1,8 +1,10 @@
-from mesa import Agent
-import random
 import math
-from shape_model.base_stations import BaseStation
+import random
+
+from mesa import Agent
+
 from shape_model.algorithms_jan import MyAlgorithm
+
 
 class UAV(Agent):
     '''
