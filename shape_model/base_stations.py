@@ -28,7 +28,7 @@ class BaseStation(Agent):
             itemdestination = (x, y)
             item = Item(destination=itemdestination, priority=0, id=str(self.id) + "_" + str(len(self.items)))
             self.items.append(item)
-            self.model.grid.place_agent(item, (itemdestination))
+            self.model.perceived_world_grid.place_agent(item, (itemdestination))
             print("Created item {}, destination: {}, priority:{}".format(item.id, item.destination, item.priority))
 
     def pickupItem(self):
@@ -44,3 +44,10 @@ class BaseStation(Agent):
         if picked_up:
             return self.picked_up_items
         return len(self.items)
+
+    def get_position(self):
+        """
+        Get the position of a Base Station
+        :return: position of the agent as a tuple of coordinates
+        """
+        return self.pos

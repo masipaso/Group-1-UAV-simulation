@@ -13,6 +13,12 @@ class Repellent(Agent):
     def step(self):
         pass
 
+    def get_position(self):
+        """
+        Get the position of a Repellent
+        :return: position of the agent as a tuple of coordinates
+        """
+        return self.pos
 
 class Pheromones(Agent):
     '''
@@ -33,3 +39,10 @@ class Pheromones(Agent):
 
     def strengthen(self):
         self.strength = self.strength*1.1
+
+    def get_position(self):
+        """
+        Get the position of a Pheromone
+        :return: position of the agent as a tuple of coordinates
+        """
+        return self.pos

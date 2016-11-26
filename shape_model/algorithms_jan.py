@@ -1,8 +1,6 @@
 import random
 from shape_model.base_stations import BaseStation
-from shape_model.items import Item
 from shape_model.ants import Repellent
-from collections import defaultdict
 
 from shape_model.Step import Step
 from shape_model.obstacles import Obstacle
@@ -12,7 +10,7 @@ class UAV_Algorithm():
     '''
     An Item is delivered by a drone.
     '''
-    def __init__(self,uav):
+    def __init__(self, uav):
         self.uav = uav
         pass
 
@@ -142,7 +140,6 @@ class MyAlgorithm(UAV_Algorithm):
 
     def run(self):
         possible_steps = self.get_possible_steps()
-        #self.uav.last_repellent += 1
 
         last_position = self.uav.pos
 
@@ -158,26 +155,22 @@ class MyAlgorithm(UAV_Algorithm):
             print("new_position {}".format(new_position))
 
             # Move UAV
-            self.uav.model.grid.move_agent(self.uav, new_position)
+            self.uav.move_to(new_position)
             new_distance = self.uav.get_euclidean_distance(self.uav.pos, self.uav.destination)
             print(' Agent: {}  Moves from {} to {}. Distance to Destination: {}'.format(self.uav.id, last_position, new_position, new_distance))
             # Adding the new position to the walk
             self.uav.walk.append((new_position, new_distance))
 
-            #print("walk {}".format(self.uav.walk))
-
             for index, step_taken in enumerate(reversed(self.uav.walk)):
-                #print("last_repellent {}".format(self.uav.last_repellent))
+
                 if index > self.uav.last_repellent:
                     break
-                #print("step_taken {}, new_position {}".format(step_taken[0], new_position))
                 # compare the expected distance to the actual distance
                 # expected distance: amount of cells crossed to get to the current location
                 expected_distance = self.get_step_distance(new_position, step_taken[0])
                 # actual distance: number of walk entries from the current position to the step_taken
                 actual_distance = index
                 # if the expected_distance is smaller than the actual_distance a suboptimal route was found
-                #print("expected {}, actual {}".format(expected_distance, actual_distance))
                 if expected_distance < actual_distance:
                     print("Path was longer than expected!")
                     position = last_position
@@ -189,7 +182,6 @@ class MyAlgorithm(UAV_Algorithm):
                         # ... or create a new one
                         self.uav.model.repellents.append(position)
                         repellent = Repellent(model=self.uav.model, pos=position)
-                        self.uav.model.grid.place_agent(repellent, position)
+                        self.uav.model.perceived_world_grid.place_agent(repellent, position)
                         self.uav.walk.remove(self.uav.walk[index])
-                        #self.uav.last_repellent = 2
                     break
