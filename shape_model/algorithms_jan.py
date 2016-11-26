@@ -1,118 +1,44 @@
-import random
-
 from shape_model.agents.repellent import Repellent
-from shape_model.agents.baseStation import BaseStation
 from shape_model.agents.obstacle import Obstacle
 from shape_model.utils.step import Step
 
 
-class UAV_Algorithm():
-    '''
-    An Item is delivered by a drone.
-    '''
+class MyAlgorithm():
+    """
+    Class representing the current algorithm which is used to advance a Uav at each step
+    """
     def __init__(self, uav):
         self.uav = uav
-        pass
-
-    def run(self):
-        pass
-
-    def getPossibleSteps(self):
-        if self.uav.pos == self.uav.destination:
-            print(' Agent: {}  is at its Destination, {}'.format(self.uav.id, self.uav.destination))
-            print(' Agent: {}  Needed {} steps and took this walk: {}'.format(self.uav.id,len(self.uav.walk)-1, self.uav.walk))
-            return
-
-        neighborhood = self.uav.model.grid.get_neighborhood(
-            self.uav.pos,
-            moore=True,
-            include_center=False,
-            radius=1)
-
-        possible_distance = []
-        possible_steps = []
-        current_distance = self.uav.get_euclidean_distance(self.uav.pos, self.uav.destination)
-        for element in neighborhood:
-            if self.uav.get_euclidean_distance(self.uav.destination,element) == 0:
-                possible_distance.clear()
-                possible_distance.append((element, 0))
-                break
-            elif self.uav.get_euclidean_distance(self.uav.destination,element) <= current_distance:
-                min_distance = self.uav.get_euclidean_distance(self.uav.destination,element)
-                possible_distance.append((element, min_distance))
-
-        if not possible_distance == []:
-            for element in possible_distance:
-                if not self.uav.model.grid.is_cell_empty(element[0]):
-                    cell_contents = self.uav.model.grid.get_cell_list_contents([(element[0])])
-                    for obstacle in cell_contents:
-                        # If the obstacle is a BaseStation the drone can fly to its position
-                        if type(obstacle) is BaseStation:
-                            possible_steps.append(element[0])
-                else:
-                    possible_steps.append(element[0])
-
-        return possible_steps
-
-
-class SimpleAlgorithm(UAV_Algorithm):
-
-    def run(self):
-        neighborhood = self.uav.model.grid.get_neighborhood(
-            self.uav.pos,
-            moore=True,
-            include_center=False,
-            radius=1)
-        possible_steps = self.getPossibleSteps()
-
-        if possible_steps == []:
-            new_position = random.choice(neighborhood)
-            while not self.uav.model.grid.is_cell_empty(new_position):
-                new_position = random.choice(neighborhood)
-        else:
-            new_position = random.choice(possible_steps)
-
-        old_position = self.uav.pos
-
-        self.uav.model.grid.move_agent(self.uav, new_position)
-
-        new_distance = self.uav.get_euclidean_distance(self.uav.pos,self.uav.destination)
-        print(' Agent: {}  Moves from {} to {}. Distance to Destination: {}'.format(self.uav.id, old_position, new_position, new_distance))
-
-        ''' Adding the new position to the walk'''
-        self.uav.walk.append(new_position)
-        pass
-
-class MyAlgorithm(UAV_Algorithm):
 
     def get_possible_steps(self):
+        """
+        Compute the possible steps based on the available steps
+        :return: a list of Steps
+        """
         if self.uav.pos == self.uav.destination:
             print(' Agent: {}  is at its Destination, {}'.format(self.uav.id, self.uav.destination))
             print(' Agent: {}  Needed {} steps and took this walk: {}'.format(self.uav.id,len(self.uav.walk)-1, self.uav.walk))
             return []
         else:
-            neighborhood = self.uav.model.grid.get_neighborhood(
-                self.uav.pos,
-                moore=True,
-                include_center=False,
-                radius=1)
-
-            available_steps = []
+            available_steps = self.get_available_steps()
             possible_steps = []
 
-            for cell in neighborhood:
-                distance = self.uav.get_euclidean_distance(self.uav.destination, cell)
-                available_step = Step(distance=distance, pos=cell)
-                available_steps.append(available_step)
-
-            available_steps.sort(key=lambda step: step.distance)
             for available_step in available_steps:
-                # Remove all cell that contain an obstacle
+                # Only add an available_step to the possible_steps if there is no Repellent or Obstacle at the position
+                # Check for the real world
                 if not self.uav.model.grid.is_cell_empty(available_step.pos):
                     cell_contents = self.uav.model.grid.get_cell_list_contents([available_step.pos])
                     possible = True
                     for obstacle in cell_contents:
-                        # If the obstacle is a not BaseStation, remove the cell as a possible step
+                        if type(obstacle) is Obstacle or type(obstacle) is Repellent:
+                            possible = False
+                    if possible:
+                        possible_steps.append(available_step)
+                # Check for the perceived world
+                elif not self.uav.model.perceived_world_grid.is_cell_empty(available_step.pos):
+                    cell_contents = self.uav.model.perceived_world_grid.get_cell_list_contents([available_step.pos])
+                    possible = True
+                    for obstacle in cell_contents:
                         if type(obstacle) is Obstacle or type(obstacle) is Repellent:
                             possible = False
                     if possible:
@@ -120,15 +46,50 @@ class MyAlgorithm(UAV_Algorithm):
                 else:
                     possible_steps.append(available_step)
 
-
             return possible_steps
 
-    def get_step_distance(self, pos1, pos2):
+    def get_available_steps(self):
+        """
+        Get all available steps in the real world and the perceived world
+        :return: a list of Steps
+        """
+        # Get the cells of the real world
+        neighborhood_real_world = self.uav.model.grid.get_neighborhood(
+            self.uav.pos,
+            moore=True,
+            include_center=False,
+            radius=1)
+
+        # Get the cells of the perceived world
+        neighborhood_perceived_world = self.uav.model.perceived_world_grid.get_neighborhood(
+            self.uav.pos,
+            moore=True,
+            include_center=False,
+            radius=1)
+
+        available_steps = []
+
+        for cell in neighborhood_real_world:
+            distance = self.uav.get_euclidean_distance(self.uav.destination, cell)
+            available_step = Step(distance=distance, pos=cell)
+            available_steps.append(available_step)
+
+        for cell in neighborhood_perceived_world:
+            distance = self.uav.get_euclidean_distance(self.uav.destination, cell)
+            available_step = Step(distance=distance, pos=cell)
+            available_steps.append(available_step)
+
+        available_steps.sort(key=lambda step: step.distance)
+
+        return available_steps
+
+    @staticmethod
+    def get_step_distance(pos1, pos2):
         '''
         Calculate the step distance between two positions
         :param pos1:
         :param pos2:
-        :return:
+        :return: the step distance
         '''
         if pos1 == pos2:
             return 0
@@ -137,50 +98,59 @@ class MyAlgorithm(UAV_Algorithm):
             y = abs(pos1[1] - pos2[1])
             return max(x, y)
 
-
     def run(self):
+        """
+        TODO: Description
+        :return:
+        """
+        # Get all possible steps
         possible_steps = self.get_possible_steps()
-
+        # Store the current position of the Uav to access it later
         last_position = self.uav.pos
 
         if possible_steps is []:
             print("no next steps")
+            return
         else:
+            # Pick the first of all possible steps because they are sorted based on their distance to the destination
             new_position = None
             for possible_step in possible_steps:
-                print("new_position {}".format(possible_step))
                 new_position = possible_step.pos
                 if new_position is not 0:
                     break
-            print("new_position {}".format(new_position))
 
-            # Move UAV
+            # Move Uav
             self.uav.move_to(new_position)
             new_distance = self.uav.get_euclidean_distance(self.uav.pos, self.uav.destination)
-            print(' Agent: {}  Moves from {} to {}. Distance to Destination: {}'.format(self.uav.id, last_position, new_position, new_distance))
+            print(' Agent: {}  Moves from {} to {}. Distance to Destination: {}'.format(self.uav.id, last_position,
+                                                                                        new_position, new_distance))
+
             # Adding the new position to the walk
             self.uav.walk.append((new_position, new_distance))
 
+            # Iterate through the walk in reverse order to find inconsistencies
             for index, step_taken in enumerate(reversed(self.uav.walk)):
-
+                # If the step is further away than the position on which the Uav planted the last repellent, break
                 if index > self.uav.last_repellent:
                     break
-                # compare the expected distance to the actual distance
-                # expected distance: amount of cells crossed to get to the current location
+                # Compare the expected distance to the actual distance
+                # Expected distance: amount of cells crossed to get to the current location
                 expected_distance = self.get_step_distance(new_position, step_taken[0])
-                # actual distance: number of walk entries from the current position to the step_taken
+                # Actual distance: number of walk entries from the current position to the step_taken
                 actual_distance = index
-                # if the expected_distance is smaller than the actual_distance a suboptimal route was found
+                # If the expected_distance is smaller than the actual_distance a suboptimal route was found
                 if expected_distance < actual_distance:
                     print("Path was longer than expected!")
-                    position = last_position
-                    # if there is already a repellent on that position ...
-                    if position in self.uav.model.repellents:
+                    # If there is already a repellent on that position ...
+                    repellent = self.uav.model.perceived_world_grid.get_repellent_on(last_position)
+                    if repellent is not None:
                         # ... increase its effect
-                        print("is already a repellent on that pos")
+                        print("There is already a repellent on that pos - increasing its effect!")
+                        repellent.strengthen()
                     else:
                         # ... or create a new one
-                        repellent = Repellent(self.uav.model, position)
-                        self.uav.model.perceived_world_grid.place_agent(repellent, position)
+                        print("There is no repellent on that pos - creating one!")
+                        repellent = Repellent(self.uav.model, last_position)
+                        self.uav.model.perceived_world_grid.place_agent(repellent, last_position)
                         self.uav.walk.remove(self.uav.walk[index])
                     break

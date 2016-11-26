@@ -48,10 +48,6 @@ class WorldModel(Model):
              }
         )
 
-        # Store all repellents
-        # TODO: solve this in a better way!
-        self.repellents = []
-
         # In the beginning there are no delivered Items
         self.number_of_delivered_items = 0
 
