@@ -6,19 +6,19 @@ from mesa import Agent
 from shape_model.algorithms.repellentAlgorithm import Algorithm
 
 
-class UAV(Agent):
+class Uav(Agent):
     """
-    A UAV is an Agent that can move. It transports Item from BaseStations to their destination
+    A Uav is an Agent that can move. It transports Item from BaseStations to their destination
     State: 1: idle at BaseStation, 2: carrying an Item, 3: on the way to a BaseStation, 4: ....
     """
     def __init__(self, model, pos, id, base_stations=[]):
         self.model = model
         self.pos = pos
         self.id = id
-        self.destination = pos
+        self.destination = None
         self.walk = []
         self.item = None
-        self.state = 3
+        self.state = 1
         self.base_stations = base_stations
         self.algorithm = Algorithm(self)
         self.last_repellent = 2
@@ -26,23 +26,26 @@ class UAV(Agent):
 
     def step(self):
         """
-        Advance the UAV one step
+        Advance the Uav one step
         """
-        if self.state == 1 or self.state == 3:
+        # If the Uav arrived at a BaseStation
+        if self.state == 3 and self.get_euclidean_distance(self.pos, self.destination) == 0:
+            self.arrive_at_base_station()
+        # If the Uav is on the way to a BaseStation
+        elif self.state == 3:
+            # ... keep running
+            self.algorithm.run()
+        # If the Uav is idle at a BaseStation
+        elif self.state == 1:
             # Iterate over all BaseStations
             for base in self.base_stations:
                 # If the Uav is at a BaseStation
                 if base.pos == self.pos:
                     # ... try to pick up an Item
                     self.pick_up_item(base.pickup_item())
-                    break
-            # If we are not at a BaseStation
-            if self.item is None and self.state == 3:
-                # .. keep going to the BaseStation
-                self.algorithm.run()
-            else:
-                # ... finish this step (wait for an Item or wait to leave with an Item)
-                return
+                    return
+            # ... finish this step (wait for an Item or wait to leave with an Item)
+            return
         # If the Uav is delivering an Item and is at the destination
         elif self.state == 2 and self.get_euclidean_distance(self.pos, self.destination) == 0:
             # ... deliver the Item
@@ -75,7 +78,7 @@ class UAV(Agent):
         The Uav picks up an Item at a BaseStation if the Uav is on the way to the BaseStation
         :param item: the Item that is picked up
         """
-        if self.state == 3 and item is not None:
+        if self.state == 1 and item is not None:
             self.item = item
             # Set the new destination
             self.destination = self.item.get_destination()
@@ -107,6 +110,14 @@ class UAV(Agent):
         # Notify model that a delivery was made
         # TODO: Make this more beautiful!
         self.model.number_of_delivered_items = + 1
+
+    def arrive_at_base_station(self):
+        """
+        The Uav arrives at the BaseStation
+        """
+        print(' Agent: {}  Arrived at BaseStation {} '.format(self.id, self.destination))
+        # Update state
+        self.state = 1
 
     def move_to(self, pos):
         """

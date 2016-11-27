@@ -10,23 +10,37 @@ class Repellent(Agent):
         self.pos = pos
         # TODO: Make this configurable
         self.strength = 100.00
+        self.model.repellent_schedule.add(self)
         pass
 
     def step(self):
+        """
+        Advance the Repellent on step
+        """
+        # Weaken the Repellent
         self.weaken()
+        # If the strength of the Repellent is below 0
         if self.strength <= 0:
+            # ... Remove it from the grid
             self.model.perceived_world_grid._remove_agent(self.pos, self)
+            # ... and from the schedule
+            self.model.repellent_schedule.remove(self)
         pass
 
     def weaken(self):
+        """
+        Weaken a Repellents strength
+        """
         # TODO: Make this configurable
-        decrease = -1.1
-        self.strength *= decrease
+        decrease = 0.25
+        self.strength -= decrease
 
     def strengthen(self):
+        """
+        Reset a Repellents strength
+        """
         # TODO: Make this configurable
-        increase = 1.1
-        self.strength *= increase
+        self.strength = 100.00
 
     def get_position(self):
         """

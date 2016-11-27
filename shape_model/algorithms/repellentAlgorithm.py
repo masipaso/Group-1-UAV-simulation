@@ -15,12 +15,15 @@ class Algorithm:
         Compute the possible steps based on the available steps
         :return: a list of Steps
         """
-        if self.uav.pos == self.uav.destination:
+        if self.uav.destination is None:
+            # If the Uav does not have a destination, do nothing but wait
+            return None
+        elif self.uav.pos == self.uav.destination:
             print(' Agent: {}  is at its Destination, {}'.format(self.uav.id, self.uav.destination))
             print(' Agent: {}  Needed {} steps and took this walk: {}'.format(self.uav.id,len(self.uav.walk)-1, self.uav.walk))
-            return []
+            return None
         else:
-            available_steps = self.get_available_steps()
+            available_steps = self.get_available_steps
             possible_steps = []
 
             for available_step in available_steps:
@@ -28,40 +31,53 @@ class Algorithm:
                 # Check for the real world
                 if not self.uav.model.grid.is_cell_empty(available_step.pos):
                     cell_contents = self.uav.model.grid.get_cell_list_contents([available_step.pos])
-                    possible = True
+                    possible = []
                     for obstacle in cell_contents:
-                        if type(obstacle) is Obstacle or type(obstacle) is Repellent:
-                            possible = False
-                    if possible:
+                        if type(obstacle) is Obstacle:
+                            # If there is an Obstacle the Uav cant go there
+                            possible.append(False)
+                        else:
+                            # If there is a BaseStation or a Uav
+                            possible.append(True)
+                    # If there is one reason to add the available_step to the possible_steps, do it
+                    if True in possible:
                         possible_steps.append(available_step)
                 # Check for the perceived world
                 elif not self.uav.model.perceived_world_grid.is_cell_empty(available_step.pos):
                     cell_contents = self.uav.model.perceived_world_grid.get_cell_list_contents([available_step.pos])
-                    possible = True
+                    possible = []
                     for obstacle in cell_contents:
-                        if type(obstacle) is Obstacle or type(obstacle) is Repellent:
-                            possible = False
-                    if possible:
+                        if type(obstacle) is Obstacle:
+                            # If there is an Obstacle the Uav cant go there
+                            possible.append(False)
+                        elif type(obstacle) is Repellent:
+                            # If there is a Repellent the Uav might go there based on the strength and the possible
+                            # decrease in distance
+                            weighted_distance = available_step.distance + (available_step.distance * obstacle.strength / 100)
+                            available_step.distance = weighted_distance
+                            # In theory, the Uav can go there
+                            possible.append(True)
+                        else:
+                            # If there is a BaseStation or a Uav
+                            possible.append(True)
+                    # If there is one reason to add the available_step to the possible_steps, do it
+                    if True in possible:
                         possible_steps.append(available_step)
                 else:
                     possible_steps.append(available_step)
 
+            # Sort all possible steps to adjust the order for weighted distances
+            possible_steps.sort(key=lambda step: step.distance)
             return possible_steps
 
+    @property
     def get_available_steps(self):
         """
         Get all available steps in the real world and the perceived world
         :return: a list of Steps
         """
-        # Get the cells of the real world
+        # Get the cells of the real world as these contain all available cells
         neighborhood_real_world = self.uav.model.grid.get_neighborhood(
-            self.uav.pos,
-            moore=True,
-            include_center=False,
-            radius=1)
-
-        # Get the cells of the perceived world
-        neighborhood_perceived_world = self.uav.model.perceived_world_grid.get_neighborhood(
             self.uav.pos,
             moore=True,
             include_center=False,
@@ -70,11 +86,6 @@ class Algorithm:
         available_steps = []
 
         for cell in neighborhood_real_world:
-            distance = self.uav.get_euclidean_distance(self.uav.destination, cell)
-            available_step = Step(distance=distance, pos=cell)
-            available_steps.append(available_step)
-
-        for cell in neighborhood_perceived_world:
             distance = self.uav.get_euclidean_distance(self.uav.destination, cell)
             available_step = Step(distance=distance, pos=cell)
             available_steps.append(available_step)
@@ -108,7 +119,7 @@ class Algorithm:
         # Store the current position of the Uav to access it later
         last_position = self.uav.pos
 
-        if possible_steps is []:
+        if possible_steps is None:
             print("no next steps")
             return
         else:

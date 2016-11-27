@@ -5,7 +5,7 @@ from mesa.visualization.modules import CanvasGrid
 from shape_model.agents.repellent import Repellent
 from shape_model.agents.baseStation import BaseStation
 from shape_model.agents.item import Item
-from shape_model.agents.uav import UAV
+from shape_model.agents.uav import Uav
 
 
 class PerceivedWorldGrid(CanvasGrid):
@@ -36,7 +36,7 @@ class PerceivedWorldGrid(CanvasGrid):
             portrayal["Color"] = "#FFC319"
             portrayal["Shape"] = "rect"
             portrayal["Layer"] = 1
-        elif type(agent) is UAV:
+        elif type(agent) is Uav:
             if agent.state == 1:
                 portrayal["Color"] = "#C0FF00"
             else:
@@ -48,7 +48,8 @@ class PerceivedWorldGrid(CanvasGrid):
             portrayal["Shape"] = "rect"
             portrayal["Layer"] = 1
         elif type(agent) is Repellent:
-            portrayal["Color"] = "#ff0000"
+            opacity = round(agent.strength / 100, 1)
+            portrayal["Color"] = "rgba(255, 0, 0, " + str(opacity) + ")"
             portrayal["Shape"] = "rect"
             portrayal["Layer"] = 1
         else:

@@ -2,7 +2,7 @@ from mesa.visualization.modules import CanvasGrid
 
 from shape_model.agents.baseStation import BaseStation
 from shape_model.agents.obstacle import Obstacle
-from shape_model.agents.uav import UAV
+from shape_model.agents.uav import Uav
 
 
 class RealWorldGrid(CanvasGrid):
@@ -37,7 +37,7 @@ class RealWorldGrid(CanvasGrid):
             portrayal["Color"] = "#FFC319"
             portrayal["Shape"] = "rect"
             portrayal["Layer"] = 1
-        elif type(agent) is UAV:
+        elif type(agent) is Uav:
             if agent.state == 1:
                 portrayal["Color"] = "#C0FF00"
             else:

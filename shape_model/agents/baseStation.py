@@ -18,21 +18,36 @@ class BaseStation(Agent):
         pass
 
     def step(self):
-        if len(self.items) < 1:
-        #if random.randint(1, 10) <= 1:
+        # A BaseStation creates an Item with a probability of ...
+        # TODO: Make this configurable
+        probability_to_create_item = 8
+        if random.randint(1, 100) <= probability_to_create_item:
+            self.create_item()
+
+    def create_item(self):
+        # The Item is placed at a random location
+        x = random.randrange(self.model.width)
+        y = random.randrange(self.model.height)
+        # ... but only if the cell is not occupied with an Obstacle or BaseStation
+        # TODO: Make it possible that Items can be created at cells that already have an Item, a Uav or a Repellent
+        while not self.model.grid.is_cell_empty((x, y)) or not self.model.perceived_world_grid.is_cell_empty((x, y)):
             x = random.randrange(self.model.width)
             y = random.randrange(self.model.height)
-            while not self.model.grid.is_cell_empty((x, y))\
-                    or not self.model.perceived_world_grid.is_cell_empty((x, y)):
-                x = random.randrange(self.model.width)
-                y = random.randrange(self.model.height)
-            item_destination = (x, y)
-            item_priority = random.randint(1, 10)
-            item = Item(destination=item_destination, priority=item_priority, id=str(self.id) + "_" + str(len(self.items)))
-            self.items.append(item)
-            self.model.perceived_world_grid.place_agent(item, item_destination)
-            print("Created item {}, destination: {}, priority: {}".format(item.id, item.destination, item.priority))
-            self.sort_items_by_priority()
+        item_destination = (x, y)
+        # The Item revceives a random priority between 1 and ...
+        # TODO: Make this configurable
+        max_item_priority = 10
+        item_priority = random.randint(1, max_item_priority)
+        # Create the Item
+        item = Item(destination=item_destination, priority=item_priority, id=str(self.id) + "_" + str(len(self.items)))
+        # Place the Item on the perceived world grid
+        # TODO: Decide if the Item should be visible on the real world grid
+        self.model.perceived_world_grid.place_agent(item, item_destination)
+        # Add the Item to the BaseStation
+        self.items.append(item)
+        print("Created item {}, destination: {}, priority: {}".format(item.id, item.destination, item.priority))
+        # Sort the items by priority
+        self.sort_items_by_priority()
 
     def pickup_item(self):
         """
