@@ -69,9 +69,9 @@ class Uav(Agent):
         if pos1 == pos2:
             return 0
         else:
-            p0d0= math.pow(pos1[0]-pos2[0],2)
-            p1d1= math.pow(pos1[1]-pos2[1],2)
-            return math.sqrt(p0d0+p1d1)
+            p0d0 = math.pow(pos1[0] - pos2[0], 2)
+            p1d1 = math.pow(pos1[1] - pos2[1], 2)
+            return math.sqrt(p0d0 + p1d1)
 
     def pick_up_item(self, item):
         """
@@ -109,7 +109,7 @@ class Uav(Agent):
         self.state = 3
         # Notify model that a delivery was made
         # TODO: Make this more beautiful!
-        self.model.number_of_delivered_items = + 1
+        self.model.number_of_delivered_items += 1
 
     def arrive_at_base_station(self):
         """
