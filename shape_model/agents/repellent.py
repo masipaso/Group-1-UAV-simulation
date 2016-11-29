@@ -43,6 +43,8 @@ class Repellent(Agent):
         """
         Reset a Repellents strength
         """
+
+        # TODO: Should we increase this by a number instead of setting it to a fixed value?
         self.strength = self.initialStrength
 
     def get_position(self):
