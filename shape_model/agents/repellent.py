@@ -1,4 +1,5 @@
 from mesa import Agent
+import configparser
 
 
 class Repellent(Agent):
@@ -6,11 +7,16 @@ class Repellent(Agent):
     A Repellent is an indicator that the cell in which the repellent is placed is not a good choice to move to
     """
     def __init__(self, model, pos):
+        config = configparser.ConfigParser()
+        config.read('./config.ini')
+        self.initialStrength = config.getint('Repellent','initialStrength')
+        self.decreaseBy = config.getint('Repellent','decreaseBy')
         self.model = model
         self.pos = pos
-        # TODO: Make this configurable
-        self.strength = 100.00
+        self.strength = self.initialStrength
         self.model.repellent_schedule.add(self)
+
+
         pass
 
     def step(self):
@@ -31,16 +37,13 @@ class Repellent(Agent):
         """
         Weaken a Repellents strength
         """
-        # TODO: Make this configurable
-        decrease = 0.25
-        self.strength -= decrease
+        self.strength -= self.decreaseBy
 
     def strengthen(self):
         """
         Reset a Repellents strength
         """
-        # TODO: Make this configurable
-        self.strength = 100.00
+        self.strength = self.initialStrength
 
     def get_position(self):
         """

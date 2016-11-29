@@ -1,4 +1,5 @@
 import random
+import configparser
 
 from mesa import Agent
 
@@ -10,6 +11,11 @@ class BaseStation(Agent):
     A BaseStation is an Agent that cannot move
     """
     def __init__(self, model,pos,id):
+        config = configparser.ConfigParser()
+        config.read('./config.ini')
+        self.probability_to_create_item = config.getint('Basestation','probability_to_create_item')
+        self.max_item_priority = config.config.getint('Basestation','max_item_priority')
+
         self.model = model
         self.pos = pos
         self.id = id
@@ -19,9 +25,8 @@ class BaseStation(Agent):
 
     def step(self):
         # A BaseStation creates an Item with a probability of ...
-        # TODO: Make this configurable
-        probability_to_create_item = 8
-        if random.randint(1, 100) <= probability_to_create_item:
+
+        if random.randint(1, 100) <= self.probability_to_create_item:
             self.create_item()
 
     def create_item(self):
