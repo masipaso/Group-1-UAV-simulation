@@ -14,7 +14,7 @@ class BaseStation(Agent):
         config = configparser.ConfigParser()
         config.read('./config.ini')
         self.probability_to_create_item = config.getint('Basestation','probability_to_create_item')
-        self.max_item_priority = config.config.getint('Basestation','max_item_priority')
+        self.max_item_priority = config.getint('Basestation','max_item_priority')
 
         self.model = model
         self.pos = pos

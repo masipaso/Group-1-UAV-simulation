@@ -35,6 +35,7 @@ class WorldModel(Model):
         self.height = config.getint('Grid', 'height')
         self.number_of_base_stations = config.getint('Basestation', 'number_of_base_stations')
         self.number_of_uavs = config.getint('Uav', 'number_of_uavs')
+        self.number_of_repellents= 0
 
         # Add a grid that is used to visualize the 'actual' world
         self.grid = TwoMultiGrid(self.height, self.width, torus=False)
@@ -48,6 +49,7 @@ class WorldModel(Model):
                 "Items (Waiting)": self.compute_number_of_items,
                 "Items (Picked up)": self.compute_number_of_picked_up_items,
                 "Items (Delivered)": self.compute_number_of_delivered_items,
+                "Average Walk Length": self.compute_average_walk_length,
              }
         )
 
@@ -66,6 +68,8 @@ class WorldModel(Model):
         self.schedule.step()
         self.repellent_schedule.step()
         self.datacollector.collect(self)
+        dataframe = self.datacollector.get_model_vars_dataframe()
+        dataframe.to_csv('out.csv')
 
     def populate_grid(self):
         """
@@ -211,3 +215,17 @@ class WorldModel(Model):
         :return: number of items that are already delivered
         """
         return model.number_of_delivered_items
+
+    @staticmethod
+    def compute_average_walk_length(model):
+        average_walks = []
+        sum_walks = 0
+
+        for uav in model.schedule.agents_by_type[Uav]:
+            for elem in uav.get_walk_lengths():
+                average_walks.append(elem)
+        if len(average_walks)>0:
+            return sum(average_walks)/len(average_walks)
+        else: return 0
+
+

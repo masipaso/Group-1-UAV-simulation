@@ -9,8 +9,8 @@ class Repellent(Agent):
     def __init__(self, model, pos):
         config = configparser.ConfigParser()
         config.read('./config.ini')
-        self.initialStrength = config.getint('Repellent','initialStrength')
-        self.decreaseBy = config.getint('Repellent','decreaseBy')
+        self.initialStrength = config.getfloat('Repellent','initialStrength')
+        self.decreaseBy = config.getfloat('Repellent','decreaseBy')
         self.model = model
         self.pos = pos
         self.strength = self.initialStrength
