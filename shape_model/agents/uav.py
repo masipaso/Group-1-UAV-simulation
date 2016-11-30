@@ -20,8 +20,12 @@ class Uav(Agent):
         self.item = None
         self.state = 1
         self.base_stations = base_stations
+        #self.algorithm = Algorithm(self)
         self.algorithm = Algorithm(self)
         self.last_repellent = 2
+        self.realWalk = []
+        self.walklengths= []
+        self.obstacleList = []
         pass
 
     def step(self):
@@ -100,11 +104,14 @@ class Uav(Agent):
         self.destination = target_base_station.pos
         print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}'.format(self.id, self.item.id, self.pos,
                                                                                        self.destination))
+        print(' Agent: {} Walk taken: {}, Length: {}'.format(self.id,self.realWalk,len(self.realWalk)))
         # Deliver the Item
         self.item.deliver(self.model.perceived_world_grid)
         self.item = None
         # Clear out the previous walk
         self.walk = []
+        self.walklengths.append(len(self.realWalk))
+        self.realWalk = []
         # Update state
         self.state = 3
         # Notify model that a delivery was made
@@ -129,3 +136,6 @@ class Uav(Agent):
         self.model.perceived_world_grid.move_agent(self, pos)
         # Update the position on the agent, because the move_agent function does not do that for us!
         self.pos = pos
+
+    def get_walk_lengths(self):
+            return  self.walklengths

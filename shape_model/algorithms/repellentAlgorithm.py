@@ -138,7 +138,7 @@ class Algorithm:
 
             # Adding the new position to the walk
             self.uav.walk.append((new_position, new_distance))
-
+            self.uav.realWalk.append((new_position, new_distance))
             # Iterate through the walk in reverse order to find inconsistencies
             for index, step_taken in enumerate(reversed(self.uav.walk)):
                 # If the step is further away than the position on which the Uav planted the last repellent, break
