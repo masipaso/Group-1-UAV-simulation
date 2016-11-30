@@ -66,6 +66,8 @@ class WorldModel(Model):
         self.schedule.step()
         self.repellent_schedule.step()
         self.datacollector.collect(self)
+        dataframe = self.datacollector.get_model_vars_dataframe()
+        dataframe.to_csv('out.csv')
 
     def populate_grid(self):
         """
