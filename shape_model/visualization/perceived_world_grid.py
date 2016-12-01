@@ -37,6 +37,7 @@ class PerceivedWorldGrid(CanvasGrid):
             portrayal["Shape"] = "rect"
             portrayal["Layer"] = 1
         elif type(agent) is Uav:
+            portrayal["Text"] = agent.id
             if agent.state == 1:
                 portrayal["Color"] = "#C0FF00"
             else:
