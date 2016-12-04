@@ -147,20 +147,18 @@ class WorldModel(Model):
                 radius=radius)
             # ... get the content of the cells
             for cell in neighborhood:
-                cell_contents = self.grid.get_cell_list_contents([(x,y)])
+                cell_contents = self.grid.get_cell_list_contents([cell])
                 for obstacle in cell_contents:
                     # ... if there is an Obstacle
                     if type(obstacle) is Obstacle:
                         # ... add the cell to the possible cells
-                        possible_cells.append((x, y))
+                        possible_cells.append(cell)
             # Increase the search radius if there are no possible cells
             radius += 1
-            print(radius)
-            print(possible_cells)
         # If there are possible cells, choose one random cell
         pos = random.choice(possible_cells)
         # Create the BaseStation
-        base_station = BaseStation(model=self, pos=pos, id=id)
+        base_station = BaseStation(model=self, pos=pos, id=id, center=(x, y), range_of_base_station=self.range_of_base_station)
         # Place the BaseStation on the grids
         self.grid.place_agent(base_station, pos)
         self.perceived_world_grid.place_agent(base_station, pos)
