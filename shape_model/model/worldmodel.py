@@ -35,6 +35,8 @@ class WorldModel(Model):
         self.height = config.getint('Grid', 'height')
         self.number_of_base_stations = config.getint('Basestation', 'number_of_base_stations')
         self.number_of_uavs = config.getint('Uav', 'number_of_uavs')
+        self.maxBattery = config.getint('Uav','max_battery')
+        self.batteryLow = config.getint('Uav','battery_low')
         self.number_of_repellents= 0
 
         # Add a grid that is used to visualize the 'actual' world
@@ -102,7 +104,7 @@ class WorldModel(Model):
         # Select one base station randomly
         start_base_station = random.choice(self.schedule.agents_by_type[BaseStation])
         # Create the uav
-        uav = Uav(self, pos=start_base_station.pos, id=id, base_stations=self.schedule.agents_by_type[BaseStation])
+        uav = Uav(self, pos=start_base_station.pos, id=id, maxBattery=self.maxBattery, batteryLow=self.batteryLow, base_stations=self.schedule.agents_by_type[BaseStation])
         # Place the uav on the grids
         self.grid.place_agent(uav, start_base_station.pos)
         self.perceived_world_grid.place_agent(uav, start_base_station.pos)
