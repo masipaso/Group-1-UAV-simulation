@@ -80,7 +80,7 @@ class WorldModel(Model):
         # Create Obstacles
         for j in range(1, self.height, 5):
             for i in range(1, self.width, 5):
-                form = randint(1, 1)
+                form = randint(1, 2)
                 if form == 1:
                     self.make_l(i, j)
                 if form == 2:
