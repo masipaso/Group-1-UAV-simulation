@@ -34,6 +34,7 @@ class WorldModel(Model):
         self.width = config.getint('Grid', 'width')
         self.height = config.getint('Grid', 'height')
         self.number_of_base_stations = config.getint('Basestation', 'number_of_base_stations')
+        self.range_of_base_station = config.getfloat('Basestation', 'range_of_base_station')
         self.number_of_uavs = config.getint('Uav', 'number_of_uavs')
         self.number_of_repellents= 0
 
@@ -78,7 +79,7 @@ class WorldModel(Model):
         # Create Obstacles
         for j in range(1, self.height, 5):
             for i in range(1, self.width, 5):
-                form = randint(1, 1)
+                form = randint(1, 2)
                 if form == 1:
                     self.make_l(i, j)
                 if form == 2:
@@ -87,12 +88,30 @@ class WorldModel(Model):
                     self.make_square(i, j)
 
         # Create BaseStations
-        for i in range(self.number_of_base_stations):
-            self.create_base_station(i)
+        #for i in range(self.number_of_base_stations):
+            #self.create_base_station(i)
+        self.create_base_stations()
 
         # Create Uavs
         for i in range(self.number_of_uavs):
             self.create_uav(i)
+
+    def create_base_stations(self):
+        """
+        Calculate how many base stations need to be created and create them
+        """
+        width = 2 * self.range_of_base_station
+        height = 2 * self.range_of_base_station
+        number_of_base_stations = int((self.width * self.height) / (width * height))
+        x = width
+        y = height
+        for i in range(0, number_of_base_stations):
+            self.create_base_station(i, round(x - self.range_of_base_station), round(y - self.range_of_base_station))
+            if x + width > self.width:
+                y += height
+                x = width
+            else:
+                x += width
 
     def create_uav(self, id):
         """
@@ -109,23 +128,42 @@ class WorldModel(Model):
         # Add the Uav to the schedule
         self.schedule.add(uav)
 
-    def create_base_station(self, id):
+    def create_base_station(self, id, x, y):
+        # def create_base_station(self, id, x_min, x_max, y_min, y_max):
         """
         Create a BaseStation at a random location
         :param id: unique identifier of the BaseStation
         """
-        # Select a random location
-        x = random.randrange(self.width)
-        y = random.randrange(self.height)
-        # ... if there is no Obstacle on that position, choose another location
-        while self.grid.is_cell_empty((x, y)):
-            x = random.randrange(self.width)
-            y = random.randrange(self.height)
+        # Store possible cells
+        possible_cells = []
+        radius = 1
+        # If the center is an empty cell
+        while not possible_cells:
+            # ... get neighboring cells
+            neighborhood = self.grid.get_neighborhood(
+                (x, y),
+                moore=True,
+                include_center=False,
+                radius=radius)
+            # ... get the content of the cells
+            for cell in neighborhood:
+                cell_contents = self.grid.get_cell_list_contents([(x,y)])
+                for obstacle in cell_contents:
+                    # ... if there is an Obstacle
+                    if type(obstacle) is Obstacle:
+                        # ... add the cell to the possible cells
+                        possible_cells.append((x, y))
+            # Increase the search radius if there are no possible cells
+            radius += 1
+            print(radius)
+            print(possible_cells)
+        # If there are possible cells, choose one random cell
+        pos = random.choice(possible_cells)
         # Create the BaseStation
-        base_station = BaseStation(model=self, pos=(x, y), id=id)
+        base_station = BaseStation(model=self, pos=pos, id=id)
         # Place the BaseStation on the grids
-        self.grid.place_agent(base_station, (x, y))
-        self.perceived_world_grid.place_agent(base_station, (x, y))
+        self.grid.place_agent(base_station, pos)
+        self.perceived_world_grid.place_agent(base_station, pos)
         # Add the BaseStation to the schedule
         self.schedule.add(base_station)
 
