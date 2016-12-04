@@ -129,24 +129,19 @@ class JumpPointAlgorithm():
         for elem in self.uav.obstacleList:
             if self.uav.get_euclidean_distance(elem,self.uav.pos) <= 2:
                 obstaclesNearby.append(elem)
+
         # dist(elem,dest) > dist(elem,obst) and distance(uav,dest) > distance(elem,dest)
-        print('MY NEIGHBORS BEFORE WEIGHTING: {}'.format(neighborhood_list))
         if len(obstaclesNearby) >0: #Checke nach Obstacle-Kriterien
             index = 0
             for new_pos,new_distance_to_destination in neighborhood_list:
-                #new_pos = neighbor[0]
-                #new_distance_to_destination = neighbor[1]
-
                 for obst in obstaclesNearby:
                     if new_distance_to_destination > self.uav.get_euclidean_distance(new_pos,obst) and new_distance_to_destination < self.uav.get_euclidean_distance(self.uav.pos,self.uav.destination):
-                        #neighborhood_list.append((new_pos,new_distance_to_destination*self.weight))
                         neighborhood_list[index] = (new_pos,new_distance_to_destination*self.weight)
                 index += 1
 
         # Sort neighborhood list
-        print('MY NEIGHBORS BEFORE SORTING: {}'.format(neighborhood_list))
+
         neighborhood_list = sorted(neighborhood_list, key=lambda distance: distance[1])
-        print('MY NEIGHBORS AFTER SORTING: {}'.format(neighborhood_list))
         last_position = self.uav.pos
         new_position = neighborhood_list.pop(0)[0]
         print('Trying to move to {}'.format(new_position))

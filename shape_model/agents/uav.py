@@ -21,6 +21,8 @@ class Uav(Agent):
         self.state = 1
         self.base_stations = base_stations
         #self.algorithm = Algorithm(self)
+        self.initial_delivery_distance = 0
+        self.initial_delivery_distance_divided_by_average_walk_length = []
         self.algorithm = Algorithm(self)
         self.last_repellent = 2
         self.realWalk = []
@@ -90,6 +92,7 @@ class Uav(Agent):
             self.state = 2
             # Clear out the previous walk
             self.walk = []
+            self.initial_delivery_distance = self.get_euclidean_distance(self.pos,self.destination)
             print(' Agent: {} Received Item {}. Delivering to {}. Distance to Destination: {}'.format(self.id, item.id,
                                                                                                       self.destination,
                                                                                                       self.get_euclidean_distance(
@@ -111,6 +114,8 @@ class Uav(Agent):
         # Clear out the previous walk
         self.walk = []
         self.walklengths.append(len(self.realWalk))
+        self.initial_delivery_distance_divided_by_average_walk_length.append(len(self.realWalk)/self.initial_delivery_distance)
+        self.initial_delivery_distance = []
         self.realWalk = []
         # Update state
         self.state = 3
@@ -138,4 +143,7 @@ class Uav(Agent):
         self.pos = pos
 
     def get_walk_lengths(self):
-            return  self.walklengths
+        return self.walklengths
+
+    def get_initial_delivery_distance_divided_by_average_walk_length(self):
+        return self.initial_delivery_distance_divided_by_average_walk_length

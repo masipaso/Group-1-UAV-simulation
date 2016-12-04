@@ -1,7 +1,7 @@
 import configparser
 import random
 from random import randint
-
+import numpy as np
 from mesa import Model
 from mesa.datacollection import DataCollector
 
@@ -51,6 +51,8 @@ class WorldModel(Model):
                 "Items (Picked up)": self.compute_number_of_picked_up_items,
                 "Items (Delivered)": self.compute_number_of_delivered_items,
                 "Average Walk Length": self.compute_average_walk_length,
+                "Standard Deviation of Average Walk Lengths": self.compute_standard_deviation_walklengths,
+                "Walklength Divided by Distance": self.compute_walklength_divided_by_distance,
              }
         )
 
@@ -255,7 +257,6 @@ class WorldModel(Model):
     @staticmethod
     def compute_average_walk_length(model):
         average_walks = []
-        sum_walks = 0
 
         for uav in model.schedule.agents_by_type[Uav]:
             for elem in uav.get_walk_lengths():
@@ -264,4 +265,26 @@ class WorldModel(Model):
             return sum(average_walks)/len(average_walks)
         else: return 0
 
+    @staticmethod
+    def compute_standard_deviation_walklengths(model):
+        average_walks = []
 
+        for uav in model.schedule.agents_by_type[Uav]:
+            for elem in uav.get_walk_lengths():
+                average_walks.append(elem)
+        if len(average_walks) > 0:
+            return np.std(average_walks)
+        else:
+            return 0
+
+    @staticmethod
+    def compute_walklength_divided_by_distance(model):
+        length_by_distance = []
+
+        for uav in model.schedule.agents_by_type[Uav]:
+            for elem in uav.get_initial_delivery_distance_divided_by_average_walk_length():
+                length_by_distance.append(elem)
+        if len(length_by_distance) > 0:
+            return sum(length_by_distance)/len(length_by_distance)
+        else:
+            return 0
