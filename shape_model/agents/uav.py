@@ -83,6 +83,8 @@ class Uav(Agent):
                             self.state = 2
                             self.destination = self.item.destination
                             break
+                    else:
+                        return
             self.battery -= 1
             self.algorithm.run()
 
