@@ -133,8 +133,8 @@ class Algorithm:
             # Move Uav
             self.uav.move_to(new_position)
             new_distance = self.uav.get_euclidean_distance(self.uav.pos, self.uav.destination)
-            print(' Agent: {}  Moves from {} to {}. Distance to Destination: {}'.format(self.uav.id, last_position,
-                                                                                        new_position, new_distance))
+            print(' Agent: {}  Moves from {} to {}. Distance to Destination: {}. Battery: {}'.format(self.uav.id, last_position,
+                                                                                        new_position, new_distance, self.uav.battery))
 
             # Adding the new position to the walk
             self.uav.walk.append((new_position, new_distance))

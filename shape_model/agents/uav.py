@@ -9,9 +9,9 @@ from shape_model.algorithms.repellentAlgorithm import Algorithm
 class Uav(Agent):
     """
     A Uav is an Agent that can move. It transports Item from BaseStations to their destination
-    State: 1: idle at BaseStation, 2: carrying an Item, 3: on the way to a BaseStation, 4: ....
+    State: 1: idle at BaseStation, 2: carrying an Item, 3: on the way to a BaseStation, 4: battery low, 5: ....
     """
-    def __init__(self, model, pos, id, base_stations=[]):
+    def __init__(self, model, pos, id, maxBattery, batteryLow, base_stations=[]):
         self.model = model
         self.pos = pos
         self.id = id
@@ -19,14 +19,16 @@ class Uav(Agent):
         self.walk = []
         self.item = None
         self.state = 1
+        self.battery = maxBattery
+        self.maxBattery = maxBattery
+        self.batteryLow = batteryLow
         self.base_stations = base_stations
-        #self.algorithm = Algorithm(self)
         self.initial_delivery_distance = 0
         self.initial_delivery_distance_divided_by_average_walk_length = []
         self.algorithm = Algorithm(self)
         self.last_repellent = 2
         self.realWalk = []
-        self.walklengths= []
+        self.walklengths = []
         self.obstacleList = []
         pass
 
@@ -40,6 +42,8 @@ class Uav(Agent):
         # If the Uav is on the way to a BaseStation
         elif self.state == 3:
             # ... keep running
+            self.battery -= 1
+            self.batteryCheck()
             self.algorithm.run()
         # If the Uav is idle at a BaseStation
         elif self.state == 1:
@@ -60,9 +64,50 @@ class Uav(Agent):
         # If the Uav is delivering an Item but is not at the destination
         elif self.state == 2:
             # ... keep finding the destination
+            self.battery -= 1
+            self.batteryCheck()
             self.algorithm.run()
+        elif self.state == 4:
+            for c in self.base_stations:
+                # If the Uav is at Base station, charge..
+                if c.pos == self.pos:
+                    self.battery += 10
+                    print(' Agent: {}  charges battery. Battery: {}'.format(self.id, self.battery))
+                    # If battery is full
+                    if self.battery >= self.maxBattery:
+                        self.battery = self.maxBattery
+                        print(' Agent: {}  has full Battery'.format(self.id))
+                        if self.item == None:
+                            self.state = 1
+                            break
+                        else:
+                            self.state = 2
+                            self.destination = self.item.destination
+                            break
+                    else:
+                        return
+            self.battery -= 1
+            self.algorithm.run()
+
         else:
             return
+
+    def batteryCheck(self):
+        if self.battery < self.batteryLow:
+            self.state = 4
+            self.destination = self.getClosestBaseStation()
+            print(' Agent: {}  has low Battery. going to Base Station: {}'.format(self.id, self.destination))
+
+    def getClosestBaseStation(self):
+        aux = self.base_stations[1]
+        for i in self.base_stations:
+            if self.get_euclidean_distance(self.pos, i.pos) < self.get_euclidean_distance(self.pos, aux.pos):
+                auxpos = i.pos
+                aux = i
+            else:
+                auxpos = aux.pos
+                aux = i
+        return auxpos
 
     @staticmethod
     def get_euclidean_distance(pos1, pos2):
@@ -92,12 +137,12 @@ class Uav(Agent):
             self.state = 2
             # Clear out the previous walk
             self.walk = []
-            self.initial_delivery_distance = self.get_euclidean_distance(self.pos,self.destination)
-            print(' Agent: {} Received Item {}. Delivering to {}. Distance to Destination: {}'.format(self.id, item.id,
+            self.initial_delivery_distance = self.get_euclidean_distance(self.pos, self.destination)
+            print(' Agent: {} Received Item {}. Delivering to {}. Distance to Destination: {}. Battery: {}'.format(self.id, item.id,
                                                                                                       self.destination,
                                                                                                       self.get_euclidean_distance(
                                                                                                         self.pos,
-                                                                                                        self.destination)))
+                                                                                                        self.destination),self.battery))
 
     def deliver_item(self):
         """
@@ -105,9 +150,9 @@ class Uav(Agent):
         """
         target_base_station = random.choice(self.base_stations)
         self.destination = target_base_station.pos
-        print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}'.format(self.id, self.item.id, self.pos,
-                                                                                       self.destination))
-        print(' Agent: {} Walk taken: {}, Length: {}'.format(self.id,self.realWalk,len(self.realWalk)))
+        print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}. Battery: {}'.format(self.id, self.item.id, self.pos,
+                                                                                       self.destination, self.battery))
+        print(' Agent: {} Walk taken: {}, Length: {}.'.format(self.id,self.realWalk,len(self.realWalk)))
         # Deliver the Item
         self.item.deliver(self.model.perceived_world_grid)
         self.item = None
@@ -127,7 +172,7 @@ class Uav(Agent):
         """
         The Uav arrives at the BaseStation
         """
-        print(' Agent: {}  Arrived at BaseStation {} '.format(self.id, self.destination))
+        print(' Agent: {}  Arrived at BaseStation {}. Battery: {} '.format(self.id, self.destination, self.battery))
         # Update state
         self.state = 1
 
