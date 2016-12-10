@@ -38,10 +38,7 @@ class RealWorldGrid(CanvasGrid):
             portrayal["Shape"] = "rect"
             portrayal["Layer"] = 1
         elif type(agent) is Uav:
-            if agent.state == 1:
-                portrayal["Color"] = "#C0FF00"
-            else:
-                portrayal["Color"] = "#00CDFF"
+            portrayal["Color"] = "rgb(0, 205, 255)"
             portrayal["Shape"] = "rect"
             portrayal["Layer"] = 2
         else:

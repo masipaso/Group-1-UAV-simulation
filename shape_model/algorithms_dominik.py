@@ -115,7 +115,7 @@ class JumpPointAlgorithm():
             cellcontents = self.uav.model.grid.get_cell_list_contents(neighbor)
             for obs in cellcontents:
                 if type(obs) is Obstacle:
-                    self.uav.obstacleList.append(neighbor)
+                    self.uav.obstacle_list.append(neighbor)
                     obstacleFound = 1
                     break
             if not obstacleFound == 1:
@@ -126,7 +126,7 @@ class JumpPointAlgorithm():
 
         # Finde Obstacles in 5 Entfernung
             ## cut out obsts
-        for elem in self.uav.obstacleList:
+        for elem in self.uav.obstacle_list:
             if self.uav.get_euclidean_distance(elem,self.uav.pos) <= 2:
                 obstaclesNearby.append(elem)
 
@@ -154,7 +154,7 @@ class JumpPointAlgorithm():
 
         # Adding the new position to the walk
         self.uav.walk.append((new_position, new_distance))
-        self.uav.realWalk.append((new_position, new_distance))
+        self.uav.real_walk.append((new_position, new_distance))
 
 
 

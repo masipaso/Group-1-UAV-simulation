@@ -65,7 +65,7 @@ class BaseStation(Agent):
         # Sort the items by priority
         self.sort_items_by_priority()
 
-    def pickup_item(self):
+    def get_item(self):
         """
         Assigns an Item to a Uav
         :return: either an Item, if one is available, or None
@@ -94,3 +94,10 @@ class BaseStation(Agent):
         if picked_up:
             return self.picked_up_items
         return len(self.items)
+
+    def get_pos(self):
+        """
+        Get the position of the Base Station
+        :return: tuple of coordinates
+        """
+        return self.pos

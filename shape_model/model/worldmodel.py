@@ -33,11 +33,10 @@ class WorldModel(Model):
         # Set parameters
         self.width = config.getint('Grid', 'width')
         self.height = config.getint('Grid', 'height')
-        self.number_of_base_stations = config.getint('Basestation', 'number_of_base_stations')
         self.range_of_base_station = config.getfloat('Basestation', 'range_of_base_station')
-        self.number_of_uavs = config.getint('Uav', 'number_of_uavs')
-        self.maxBattery = config.getint('Uav','max_battery')
-        self.batteryLow = config.getint('Uav','battery_low')
+        self.number_of_uavs_per_base_station = config.getint('Uav', 'number_of_uavs_per_base_station')
+        self.max_battery = config.getint('Uav','max_battery')
+        self.battery_low = config.getint('Uav','battery_low')
         self.number_of_repellents= 0
 
         # Add a grid that is used to visualize the 'actual' world
@@ -53,7 +52,7 @@ class WorldModel(Model):
                 "Items (Picked up)": self.compute_number_of_picked_up_items,
                 "Items (Delivered)": self.compute_number_of_delivered_items,
                 "Average Walk Length": self.compute_average_walk_length,
-                "Standard Deviation of Average Walk Lengths": self.compute_standard_deviation_walklengths,
+                "Standard Deviation of Average Walk Lengths": self.compute_standard_deviation_walk_lengths,
                 "Walklength Divided by Distance": self.compute_walklength_divided_by_distance,
              }
         )
@@ -92,13 +91,14 @@ class WorldModel(Model):
                     self.make_square(i, j)
 
         # Create BaseStations
-        #for i in range(self.number_of_base_stations):
-            #self.create_base_station(i)
         self.create_base_stations()
 
         # Create Uavs
-        for i in range(self.number_of_uavs):
-            self.create_uav(i)
+        id = 0
+        for base_station in self.schedule.agents_by_type[BaseStation]:
+            id += 1
+            for i in range(self.number_of_uavs_per_base_station):
+                self.create_uav(id + i, base_station)
 
     def create_base_stations(self):
         """
@@ -117,18 +117,16 @@ class WorldModel(Model):
             else:
                 x += width
 
-    def create_uav(self, id):
+    def create_uav(self, id, base_station):
         """
         Create a Uav
         :param id: unique identifier of the Uav
         """
-        # Select one base station randomly
-        start_base_station = random.choice(self.schedule.agents_by_type[BaseStation])
         # Create the uav
-        uav = Uav(self, pos=start_base_station.pos, id=id, maxBattery=self.maxBattery, batteryLow=self.batteryLow, base_stations=self.schedule.agents_by_type[BaseStation])
+        uav = Uav(self, pos=base_station.get_pos(), id=id, max_battery=self.max_battery, battery_low=self.battery_low, base_station=base_station)
         # Place the uav on the grids
-        self.grid.place_agent(uav, start_base_station.pos)
-        self.perceived_world_grid.place_agent(uav, start_base_station.pos)
+        self.grid.place_agent(uav, base_station.get_pos())
+        self.perceived_world_grid.place_agent(uav, base_station.get_pos())
         # Add the Uav to the schedule
         self.schedule.add(uav)
 
@@ -268,7 +266,7 @@ class WorldModel(Model):
         else: return 0
 
     @staticmethod
-    def compute_standard_deviation_walklengths(model):
+    def compute_standard_deviation_walk_lengths(model):
         average_walks = []
 
         for uav in model.schedule.agents_by_type[Uav]:
