@@ -85,6 +85,5 @@ class PerceivedWorldGrid(CanvasGrid):
             pos: Tuple of new position to move the agent to.
 
         """
-        print("my move function")
         self._remove_agent(agent.pos, agent)
         self._place_agent(pos, agent)
