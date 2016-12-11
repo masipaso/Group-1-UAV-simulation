@@ -37,17 +37,22 @@ class PerceivedWorldGrid(CanvasGrid):
             portrayal["Shape"] = "rect"
             portrayal["Layer"] = 1
         elif type(agent) is Uav:
-            portrayal["Text"] = agent.id
-            if agent.state == 1:
-                portrayal["Color"] = "#C0FF00"
-            else:
-                portrayal["Color"] = "#00CDFF"
+            opacity = round(agent.current_charge / 100, 1)
+            if opacity == 0:
+                opacity = 0.1
+            portrayal["Color"] = "rgba(0, 255, 255, " + str(opacity) + ")"
+
+            if agent.state == 6:
+                portrayal["Color"] = "rgb(255, 0, 255)"
+
+            portrayal["text"] = agent.id
+            portrayal["text_color"] = "#000000"
             portrayal["Shape"] = "rect"
-            portrayal["Layer"] = 2
+            portrayal["Layer"] = 3
         elif type(agent) is Item:
             portrayal["Color"] = "#008000"
             portrayal["Shape"] = "rect"
-            portrayal["Layer"] = 1
+            portrayal["Layer"] = 2
         elif type(agent) is Repellent:
             opacity = round(agent.strength / 100, 1)
             portrayal["Color"] = "rgba(255, 0, 0, " + str(opacity) + ")"
