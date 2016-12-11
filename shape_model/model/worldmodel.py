@@ -33,10 +33,10 @@ class WorldModel(Model):
         # Set parameters
         self.width = config.getint('Grid', 'width')
         self.height = config.getint('Grid', 'height')
-        self.number_of_base_stations = config.getint('Basestation', 'number_of_base_stations')
-        self.number_of_uavs = config.getint('Uav', 'number_of_uavs')
-        self.maxBattery = config.getint('Uav','max_battery')
-        self.batteryLow = config.getint('Uav','battery_low')
+        self.range_of_base_station = config.getfloat('Basestation', 'range_of_base_station')
+        self.number_of_uavs_per_base_station = config.getint('Uav', 'number_of_uavs_per_base_station')
+        self.max_battery = config.getint('Uav','max_battery')
+        self.battery_low = config.getint('Uav','battery_low')
         self.number_of_repellents= 0
 
         # Add a grid that is used to visualize the 'actual' world
@@ -52,7 +52,7 @@ class WorldModel(Model):
                 "Items (Picked up)": self.compute_number_of_picked_up_items,
                 "Items (Delivered)": self.compute_number_of_delivered_items,
                 "Average Walk Length": self.compute_average_walk_length,
-                "Standard Deviation of Average Walk Lengths": self.compute_standard_deviation_walklengths,
+                "Standard Deviation of Average Walk Lengths": self.compute_standard_deviation_walk_lengths,
                 "Walklength Divided by Distance": self.compute_walklength_divided_by_distance,
              }
         )
@@ -91,45 +91,79 @@ class WorldModel(Model):
                     self.make_square(i, j)
 
         # Create BaseStations
-        for i in range(self.number_of_base_stations):
-            self.create_base_station(i)
+        self.create_base_stations()
 
         # Create Uavs
-        for i in range(self.number_of_uavs):
-            self.create_uav(i)
+        id = 0
+        for base_station in self.schedule.agents_by_type[BaseStation]:
+            id += 1
+            for i in range(self.number_of_uavs_per_base_station):
+                self.create_uav(id + i, base_station)
 
-    def create_uav(self, id):
+    def create_base_stations(self):
+        """
+        Calculate how many base stations need to be created and create them
+        """
+        width = 2 * self.range_of_base_station
+        height = 2 * self.range_of_base_station
+        number_of_base_stations = int((self.width * self.height) / (width * height))
+        x = width
+        y = height
+        for i in range(0, number_of_base_stations):
+            self.create_base_station(i, round(x - self.range_of_base_station), round(y - self.range_of_base_station))
+            if x + width > self.width:
+                y += height
+                x = width
+            else:
+                x += width
+
+    def create_uav(self, id, base_station):
         """
         Create a Uav
         :param id: unique identifier of the Uav
         """
-        # Select one base station randomly
-        start_base_station = random.choice(self.schedule.agents_by_type[BaseStation])
         # Create the uav
-        uav = Uav(self, pos=start_base_station.pos, id=id, maxBattery=self.maxBattery, batteryLow=self.batteryLow, base_stations=self.schedule.agents_by_type[BaseStation])
+        uav = Uav(self, pos=base_station.get_pos(), id=id, max_battery=self.max_battery, battery_low=self.battery_low, base_station=base_station)
         # Place the uav on the grids
-        self.grid.place_agent(uav, start_base_station.pos)
-        self.perceived_world_grid.place_agent(uav, start_base_station.pos)
+        self.grid.place_agent(uav, base_station.get_pos())
+        self.perceived_world_grid.place_agent(uav, base_station.get_pos())
         # Add the Uav to the schedule
         self.schedule.add(uav)
 
-    def create_base_station(self, id):
+    def create_base_station(self, id, x, y):
+        # def create_base_station(self, id, x_min, x_max, y_min, y_max):
         """
         Create a BaseStation at a random location
         :param id: unique identifier of the BaseStation
         """
-        # Select a random location
-        x = random.randrange(self.width)
-        y = random.randrange(self.height)
-        # ... if there is no Obstacle on that position, choose another location
-        while self.grid.is_cell_empty((x, y)):
-            x = random.randrange(self.width)
-            y = random.randrange(self.height)
+        # Store possible cells
+        possible_cells = []
+        radius = 1
+        # If the center is an empty cell
+        while not possible_cells:
+            # ... get neighboring cells
+            neighborhood = self.grid.get_neighborhood(
+                (x, y),
+                moore=True,
+                include_center=False,
+                radius=radius)
+            # ... get the content of the cells
+            for cell in neighborhood:
+                cell_contents = self.grid.get_cell_list_contents([cell])
+                for obstacle in cell_contents:
+                    # ... if there is an Obstacle
+                    if type(obstacle) is Obstacle:
+                        # ... add the cell to the possible cells
+                        possible_cells.append(cell)
+            # Increase the search radius if there are no possible cells
+            radius += 1
+        # If there are possible cells, choose one random cell
+        pos = random.choice(possible_cells)
         # Create the BaseStation
-        base_station = BaseStation(model=self, pos=(x, y), id=id)
+        base_station = BaseStation(model=self, pos=pos, id=id, center=(x, y), range_of_base_station=self.range_of_base_station)
         # Place the BaseStation on the grids
-        self.grid.place_agent(base_station, (x, y))
-        self.perceived_world_grid.place_agent(base_station, (x, y))
+        self.grid.place_agent(base_station, pos)
+        self.perceived_world_grid.place_agent(base_station, pos)
         # Add the BaseStation to the schedule
         self.schedule.add(base_station)
 
@@ -232,7 +266,7 @@ class WorldModel(Model):
         else: return 0
 
     @staticmethod
-    def compute_standard_deviation_walklengths(model):
+    def compute_standard_deviation_walk_lengths(model):
         average_walks = []
 
         for uav in model.schedule.agents_by_type[Uav]:
