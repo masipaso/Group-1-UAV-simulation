@@ -10,11 +10,26 @@ var RealWorldCanvas = function(canvas_width, canvas_height, grid_width, grid_hei
 	$("h2").css("text-align", "center");
 	$("h2").css("width", canvas_width);
 
+	// Create stuff (TO BE REMOVED -> Add to template)
+	// ------------
+	var controlsTag = "<div class='controls'></div>"
+	$("body").append(controlsTag);
+	var toggleTag = "<button class='toggleButton'>Toggle!</button>"
+	$(".controls").append(toggleTag);
+
+	$(".toggleButton").click(function() {
+	    if ($("canvas.realWorld").is(":visible")) {
+	        $("canvas.realWorld").css("display", "none");
+	    } else {
+	        $("canvas.realWorld").css("display", "block");
+	    }
+	})
+
     // Create background canvas
     // ------------------------
     // Create the tag
     var backgroundCanvasTag = "<canvas width='" + canvas_width + "' height='" + canvas_height + "' ";
-    backgroundCanvasTag += "style='position: absolute; left 0;'></canvas>";
+    backgroundCanvasTag += "style='position: absolute; left: 0; display: block'></canvas>";
     // Append it to the body
     var backgroundCanvas = $(backgroundCanvasTag)[0];
     $("body").append(backgroundCanvas);
@@ -24,8 +39,8 @@ var RealWorldCanvas = function(canvas_width, canvas_height, grid_width, grid_hei
     // Create foreground canvas
     // ------------------------
 	// Create the tag
-	var foregroundCanvasTag = "<canvas width='" + canvas_width + "' height='" + canvas_height + "' ";
-	foregroundCanvasTag += "style='border:1px solid red; position: absolute; left 0;'></canvas>";
+	var foregroundCanvasTag = "<canvas class='realWorld' width='" + canvas_width + "' height='" + canvas_height + "' ";
+	foregroundCanvasTag += "style='position: absolute; left: 0;'></canvas>";
 	// Append it to body
 	var foregroundCanvas = $(foregroundCanvasTag)[0];
 	$("body").append(foregroundCanvas);
