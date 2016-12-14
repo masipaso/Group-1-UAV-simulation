@@ -40,7 +40,6 @@ class RealWorldGrid(VisualizationElement):
         portrayal = {"Filled": "true"}
 
         if type(agent) is Obstacle:
-            return
             portrayal["Color"] = "rgba(0, 0, 0, 0.4)"
             portrayal["Type"] = "Obstacle"
             portrayal["Layer"] = 1
