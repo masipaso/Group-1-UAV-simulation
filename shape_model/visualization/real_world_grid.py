@@ -40,17 +40,18 @@ class RealWorldGrid(VisualizationElement):
         portrayal = {"Filled": "true"}
 
         if type(agent) is Obstacle:
+            return
             portrayal["Color"] = "rgba(0, 0, 0, 0.4)"
-            portrayal["Shape"] = "rect"
-            portrayal["Layer"] = 0
+            portrayal["Type"] = "Obstacle"
+            portrayal["Layer"] = 1
         elif type(agent) is BaseStation:
             portrayal["Color"] = "#FFC319"
-            portrayal["Shape"] = "rect"
-            portrayal["Layer"] = 1
+            portrayal["Type"] = "BaseStation"
+            portrayal["Layer"] = 2
         elif type(agent) is Uav:
             portrayal["Type"] = "Uav"
             portrayal["Color"] = "rgb(0, 205, 255)"
-            portrayal["Layer"] = 2
+            portrayal["Layer"] = 3
         else:
             return
 
@@ -61,9 +62,9 @@ class RealWorldGrid(VisualizationElement):
 
     def render(self, model):
         grid_state = defaultdict(list)
-        for x in range(model.perceived_world_grid.width):
-            for y in range(model.perceived_world_grid.height):
-                cell_objects = model.perceived_world_grid.get_cell_list_contents([(x, y)])
+        for x in range(model.grid.width):
+            for y in range(model.grid.height):
+                cell_objects = model.grid.get_cell_list_contents([(x, y)])
                 for obj in cell_objects:
                     portrayal = self.world_portrayal(obj)
                     if portrayal:

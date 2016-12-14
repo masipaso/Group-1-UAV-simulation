@@ -2,6 +2,7 @@ from mesa.space import MultiGrid
 
 from shape_model.agents.repellent import Repellent
 
+
 class TwoMultiGrid(MultiGrid):
 
     def __init__(self, width, height, torus):

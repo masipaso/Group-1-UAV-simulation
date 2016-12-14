@@ -173,7 +173,7 @@ class WorldModel(Model):
         :param i:
         :param j:
         """
-        obstacle = Obstacle(self,(i, j))
+        obstacle = Obstacle(self, (i, j))
         self.grid.place_agent(obstacle, (i, j))
 
         for x in range(1, 4, 1):
@@ -184,7 +184,7 @@ class WorldModel(Model):
             obstacle = Obstacle(self, (i + y, j))
             self.grid.place_agent(obstacle, (i + y, j))
 
-    def make_u(self,i , j):
+    def make_u(self, i, j):
         """
         Create a u-shaped obstacle at a defined position
         :param i:
