@@ -3,7 +3,7 @@ import random
 
 from mesa import Agent
 
-from shape_model.algorithms.repellentAlgorithm import Algorithm
+from delivery.algorithms.repellentAlgorithm import Algorithm
 
 
 class Uav(Agent):

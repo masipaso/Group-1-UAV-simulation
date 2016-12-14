@@ -1,6 +1,6 @@
-from shape_model.agents.repellent import Repellent
-from shape_model.agents.obstacle import Obstacle
-from shape_model.utils.step import Step
+from delivery.agents.repellent import Repellent
+from delivery.agents.obstacle import Obstacle
+from delivery.utils.step import Step
 
 
 class Algorithm:

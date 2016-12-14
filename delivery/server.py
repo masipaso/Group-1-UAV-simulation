@@ -3,9 +3,9 @@ import configparser
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import ChartModule
 
-from shape_model.model.worldmodel import WorldModel
-from shape_model.visualization.perceived_world_grid import PerceivedWorldGrid
-from shape_model.visualization.real_world_grid import RealWorldGrid
+from delivery.model.worldmodel import WorldModel
+from delivery.visualization.perceived_world_grid import PerceivedWorldGrid
+from delivery.visualization.real_world_grid import RealWorldGrid
 
 
 def launch_world_model():
@@ -35,6 +35,7 @@ def launch_world_model():
     )
 
     # Create Server
-    server = ModularServer(WorldModel, [real_world_grid, perceived_world_grid, chart], "Delivery Simulation")
+    server = ModularServer(WorldModel, [real_world_grid], "Delivery Simulation")
+    # server = ModularServer(WorldModel, [real_world_grid, perceived_world_grid, chart], "Delivery Simulation")
     server.port = 8521
     server.launch()

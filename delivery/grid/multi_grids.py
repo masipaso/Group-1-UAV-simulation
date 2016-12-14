@@ -1,6 +1,6 @@
 from mesa.space import MultiGrid
 
-from shape_model.agents.repellent import Repellent
+from delivery.agents.repellent import Repellent
 
 
 class TwoMultiGrid(MultiGrid):

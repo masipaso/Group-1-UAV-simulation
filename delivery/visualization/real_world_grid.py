@@ -2,14 +2,14 @@ from mesa.visualization.ModularVisualization import VisualizationElement
 
 from collections import defaultdict
 
-from shape_model.agents.baseStation import BaseStation
-from shape_model.agents.obstacle import Obstacle
-from shape_model.agents.uav import Uav
+from delivery.agents.baseStation import BaseStation
+from delivery.agents.obstacle import Obstacle
+from delivery.agents.uav import Uav
 
 
 class RealWorldGrid(VisualizationElement):
 
-    local_includes = ["shape_model/visualization/js/RealWorldCanvas.js"]
+    local_includes = ["delivery/visualization/js/RealWorldCanvas.js"]
 
     def __init__(self, grid_width, grid_height, canvas_width=500, canvas_height=500):
         """

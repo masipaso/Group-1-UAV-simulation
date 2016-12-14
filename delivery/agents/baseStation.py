@@ -3,7 +3,7 @@ import configparser
 
 from mesa import Agent
 
-from shape_model.agents.item import Item
+from delivery.agents.item import Item
 
 
 class BaseStation(Agent):

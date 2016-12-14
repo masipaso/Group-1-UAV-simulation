@@ -1,8 +1,8 @@
 import random
 
 
-from shape_model.agents.baseStation import BaseStation
-from shape_model.agents.obstacle import Obstacle
+from delivery.agents.baseStation import BaseStation
+from delivery.agents.obstacle import Obstacle
 
 
 class UAV_Algorithm():

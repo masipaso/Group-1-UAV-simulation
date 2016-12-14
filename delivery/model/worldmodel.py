@@ -5,11 +5,11 @@ import numpy as np
 from mesa import Model
 from mesa.datacollection import DataCollector
 
-from shape_model.agents.baseStation import BaseStation
-from shape_model.agents.obstacle import Obstacle
-from shape_model.agents.uav import Uav
-from shape_model.grid.multi_grids import TwoMultiGrid
-from shape_model.schedule.schedule import RandomActivationByType
+from delivery.agents.baseStation import BaseStation
+from delivery.agents.obstacle import Obstacle
+from delivery.agents.uav import Uav
+from delivery.grid.multi_grids import TwoMultiGrid
+from delivery.schedule.schedule import RandomActivationByType
 
 
 class WorldModel(Model):
