@@ -42,15 +42,15 @@ class RealWorldGrid(VisualizationElement):
         if type(agent) is Obstacle:
             portrayal["Color"] = "rgba(0, 0, 0, 0.4)"
             portrayal["Type"] = "Obstacle"
-            portrayal["Layer"] = 1
+            portrayal["Layer"] = 0
         elif type(agent) is BaseStation:
             portrayal["Color"] = "#FFC319"
             portrayal["Type"] = "BaseStation"
-            portrayal["Layer"] = 2
+            portrayal["Layer"] = 1
         elif type(agent) is Uav:
             portrayal["Type"] = "Uav"
             portrayal["Color"] = "rgb(0, 205, 255)"
-            portrayal["Layer"] = 3
+            portrayal["Layer"] = 2
         else:
             return
 

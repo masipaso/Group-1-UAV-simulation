@@ -39,7 +39,7 @@ var RealWorldVisualization = function(height, width, gridWidth, gridHeight, cont
 
 	// Find max radius of the circle that can be inscribed (fit) into the
     // cell of the grid.
-	var maxR = Math.min(cellHeight, cellWidth)/2 - 1;
+	this.maxR = Math.min(cellHeight, cellWidth)/2 - 1;
 
 	// Draw all layers
 	this.drawLayers = function(data) {
@@ -58,11 +58,13 @@ var RealWorldVisualization = function(height, width, gridWidth, gridHeight, cont
             p.y = gridHeight - p.y - 1;
 			if (p.Type == "Uav")
 			    this.drawCircle(p.x, p.y, p.r, p.Color, p.Filled, p.text, p.text_color);
-			if (p.Type == "BaseStation")
+			if (p.Type == "BaseStation") {
 			    this.drawRectangle(p.x, p.y, p.w, p.h, p.Color, p.Filled, p.text, p.text_color);
-			if (p.Type == "Obstacle")
+			}
+			if (p.Type == "Obstacle") {
 			    return
 			    this.drawRectangle(p.x, p.y, p.w, p.h, p.Color, p.Filled, p.text, p.text_color);
+			}
 		}
 	};
 
@@ -81,7 +83,8 @@ var RealWorldVisualization = function(height, width, gridWidth, gridHeight, cont
 	this.drawCircle = function(x, y, radius, color, fill, text, text_color) {
 		var cx = (x + 0.5) * cellWidth;
 		var cy = (y + 0.5) * cellHeight;
-		var r = radius * maxR;
+		var r = radius || 1;
+		r = r * this.maxR;
 
 		context.beginPath();
 		context.arc(cx, cy, r, 0, Math.PI * 2, false);
