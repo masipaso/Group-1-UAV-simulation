@@ -1,7 +1,7 @@
 import configparser
 import random
-from random import randint
 import numpy as np
+from PIL import Image
 from mesa import Model
 from mesa.datacollection import DataCollector
 
@@ -25,6 +25,10 @@ class WorldModel(Model):
         # Read config.cfg
         config = configparser.ConfigParser()
         config.read('./config.ini')
+
+        # Read  and parse landscape
+        landscape = Image.open('./delivery/visualization/images/potsdam_osm2.jpg')
+        self.landscape = landscape.load()
 
         # Configure schedule for Uavs and BaseStations
         self.schedule = RandomActivationByType(self)
@@ -79,19 +83,31 @@ class WorldModel(Model):
         """
         Populate the grid with Obstacles, BaseStations and Uavs
         """
+
+        # Read landscape to get locations of obstacles
+        for j in range(1, self.height):
+            for i in range(1, self.width):
+                r, g, b = self.landscape[i, j]
+                if self.is_obstacle_color(r, g, b):
+                    obstacle = Obstacle(self, (i, self.height - j))
+                    self.grid.place_agent(obstacle, (i, self.height - j))
+
+        print("Obstacles done")
+
         # Create Obstacles
-        for j in range(1, self.height, 5):
-            for i in range(1, self.width, 5):
-                form = randint(1, 2)
-                if form == 1:
-                    self.make_l(i, j)
-                if form == 2:
-                    self.make_u(i, j)
-                if form == 3:
-                    self.make_square(i, j)
+        # for j in range(1, self.height, 5):
+        #     for i in range(1, self.width, 5):
+        #         form = randint(1, 2)
+        #         if form == 1:
+        #             self.make_l(i, j)
+        #         if form == 2:
+        #             self.make_u(i, j)
+        #         if form == 3:
+        #             self.make_square(i, j)
 
         # Create BaseStations
         self.create_base_stations()
+        print("BaseStations done")
 
         # Create Uavs
         id = 0
@@ -99,6 +115,14 @@ class WorldModel(Model):
             id += 1
             for i in range(self.number_of_uavs_per_base_station):
                 self.create_uav(id + i, base_station)
+
+        print("UAVs done")
+
+    @staticmethod
+    def is_obstacle_color(r, g, b):
+        grey = range(120, 177)
+        # print(r, g, b)
+        return r in grey and g in grey and b in grey
 
     def create_base_stations(self):
         """
