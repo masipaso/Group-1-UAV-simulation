@@ -1,6 +1,7 @@
 from delivery.agents.repellent import Repellent
 from delivery.agents.obstacle import Obstacle
 from delivery.utils.step import Step
+import math
 
 
 class Algorithm:
@@ -20,43 +21,37 @@ class Algorithm:
 
         for available_step in available_steps:
             # Only add an available_step to the possible_steps if there is no Repellent or Obstacle at the position
-            # Check for the real world
-            if not self.uav.model.grid.is_cell_empty(available_step.pos):
-                cell_contents = self.uav.model.grid.get_cell_list_contents([available_step.pos])
-                possible = []
-                for obstacle in cell_contents:
-                    if type(obstacle) is Obstacle:
-                        # If there is an Obstacle the Uav cant go there
-                        possible.append(False)
-                    else:
-                        # If there is a BaseStation or a Uav
-                        possible.append(True)
-                # If there is one reason to add the available_step to the possible_steps, do it
-                if True in possible:
+
+            # Check the obstacle list
+            # ... if there is no Obstacle
+            if not math.isclose(self.uav.model.obstacles[available_step.pos[0], available_step.pos[1]], 1, rel_tol=1e-5):
+                # ... then there might be a BaseStation (2) or nothing (0)
+                # If there is a BaseStation, add the step to the possible_steps
+                if math.isclose(self.uav.model.obstacles[available_step.pos[0], available_step.pos[1]], 2, rel_tol=1e-5):
                     possible_steps.append(available_step)
-            # Check for the perceived world
-            elif not self.uav.model.perceived_world_grid.is_cell_empty(available_step.pos):
-                cell_contents = self.uav.model.perceived_world_grid.get_cell_list_contents([available_step.pos])
-                possible = []
-                for obstacle in cell_contents:
-                    if type(obstacle) is Obstacle:
-                        # If there is an Obstacle the Uav cant go there
-                        possible.append(False)
-                    elif type(obstacle) is Repellent:
-                        # If there is a Repellent the Uav might go there based on the strength and the possible
-                        # decrease in distance
-                        weighted_distance = available_step.distance + (available_step.distance * obstacle.strength / 100)
-                        available_step.distance = weighted_distance
-                        # In theory, the Uav can go there
-                        possible.append(True)
+                # ... in any other case, query the perceived grid for Repellent information
+                else:
+                    # If there is something at that position
+                    if not self.uav.model.perceived_world_grid.is_cell_empty(available_step.pos):
+                        cell_contents = self.uav.model.perceived_world_grid.get_cell_list_contents([available_step.pos])
+                        possible = []
+                        # ... check the content
+                        for obstacle in cell_contents:
+                            # If there is a Repellent
+                            if type(obstacle) is Repellent:
+                                # ... the Uav might go there based on the strength and the possible decrease in distance
+                                weighted_distance = available_step.distance + (available_step.distance *
+                                                                               obstacle.strength / 100)
+                                available_step.distance = weighted_distance
+                                # Add the step with the weighted_distance to the possible_steps
+                                possible.append(True)
+                            else:
+                                possible.append(True)
+                        # If there is one reason to add the available_step to the possible_steps, do it
+                        if True in possible:
+                            possible_steps.append(available_step)
                     else:
-                        # If there is a BaseStation or a Uav
-                        possible.append(True)
-                # If there is one reason to add the available_step to the possible_steps, do it
-                if True in possible:
-                    possible_steps.append(available_step)
-            else:
-                possible_steps.append(available_step)
+                        possible_steps.append(available_step)
 
         # Sort all possible steps to adjust the order for weighted distances
         possible_steps.sort(key=lambda step: step.distance)

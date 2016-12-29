@@ -25,9 +25,16 @@ var RealWorldCanvas = function(canvas_width, canvas_height, grid_width, grid_hei
   // -------------------------
   var drawController = new RealWorldVisualization(canvas_width, canvas_height, grid_width, grid_height, foregroundContext, backgroundContext);
 
+  // Store if the background was already created
+  this.hasBackground = false;
+
   this.render = function(data) {
     drawController.resetCanvas();
-    drawController.drawBackground(data);
+    // Only draw background if there is no background
+    if (!this.hasBackground) {
+      drawController.drawBackground(data);
+      this.hasBackground = true;
+    }
     drawController.drawForeground(data);
   };
 
@@ -56,8 +63,8 @@ var RealWorldVisualization = function(height, width, gridWidth, gridHeight, fore
    */
   this.drawBackground = function(layers) {
     var that = this;
-    that.drawObstacles(layers[0])
-    return;
+    //    that.drawObstacles(layers[0])
+    //    return;
     maxX = cellWidth * gridWidth;
     maxY = cellHeight * gridHeight;
 
@@ -66,14 +73,15 @@ var RealWorldVisualization = function(height, width, gridWidth, gridHeight, fore
       coords: {
         latitude: 52.402115,
         longitude: 13.067914
-//        latitude: 29.736864,
-//        longitude: -95.437573
+        //        latitude: 29.736864,
+        //        longitude: -95.437573
       }
     };
 
     // Create image
     var backgroundImage = new Image();
-    var google_tile = "http://maps.google.com/maps/api/staticmap?sensor=false&center=" + position.coords.latitude + "," + position.coords.longitude + "&zoom=18&size=" + gridWidth+ "x" + gridHeight + "&scale=1&maptype=roadmap";
+    var google_tile = "http://maps.google.com/maps/api/staticmap?sensor=false&center=" + position.coords.latitude + "," + position.coords.longitude + "&zoom=18&size=" + gridWidth + "x" + gridHeight + "&scale=1&maptype=roadmap";
+    var google_tile = "http://127.0.0.1:8521/images/test800x800.jpg"
     // Load the map into the image
     backgroundImage.src = google_tile;
 
@@ -81,6 +89,9 @@ var RealWorldVisualization = function(height, width, gridWidth, gridHeight, fore
     backgroundImage.onload = function() {
       // Draw background image
       backgroundContext.drawImage(backgroundImage, 0, 0, width, height);
+
+      // Draw grid lines
+      // that.drawGridLines()
 
       // Draw obstacles
       that.drawObstacles(layers[0])
@@ -195,6 +206,26 @@ var RealWorldVisualization = function(height, width, gridWidth, gridHeight, fore
     uavImage.onload = function() {
       foregroundContext.drawImage(uavImage, x0, y0, cellWidth * 2, cellHeight * 2);
     };
+  };
+
+  this.drawGridLines = function() {
+    backgroundContext.beginPath();
+    backgroundContext.strokeStyle = "#eee";
+    maxX = cellWidth * gridWidth;
+    maxY = cellHeight * gridHeight;
+
+    // Draw horizontal grid lines:
+    for (var y = 0; y <= maxY; y += cellHeight) {
+      backgroundContext.moveTo(0, y + 0.5);
+      backgroundContext.lineTo(maxX, y + 0.5);
+    }
+
+    for (var x = 0; x <= maxX; x += cellWidth) {
+      backgroundContext.moveTo(x + 0.5, 0);
+      backgroundContext.lineTo(x + 0.5, maxY);
+    }
+
+    backgroundContext.stroke();
   };
 
   // RESET

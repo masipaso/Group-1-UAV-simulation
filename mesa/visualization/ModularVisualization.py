@@ -206,8 +206,11 @@ class ModularServer(tornado.web.Application):
                       {"path": os.path.dirname(__file__) + "/templates"})
     local_handler = (r'/local/(.*)', tornado.web.StaticFileHandler,
                      {"path": ''})
+    images_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__))) + "/delivery" + "/visualization" + "/images"
+    image_handler = (r'/images/(.*)', tornado.web.StaticFileHandler,
+                      {"path": images_path})
 
-    handlers = [page_handler, socket_handler, static_handler, local_handler]
+    handlers = [page_handler, socket_handler, static_handler, local_handler, image_handler]
 
     settings = {"debug": True,
                 "autoreload": False,

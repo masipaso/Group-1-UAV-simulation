@@ -1,6 +1,8 @@
 import configparser
 import random
+import math
 import numpy as np
+from random import randint
 from PIL import Image
 from mesa import Model
 from mesa.datacollection import DataCollector
@@ -27,7 +29,7 @@ class WorldModel(Model):
         config.read('./config.ini')
 
         # Read  and parse landscape
-        landscape = Image.open('./delivery/visualization/images/potsdam_osm2.jpg')
+        landscape = Image.open('./delivery/visualization/images/test800x800.jpg')
         self.landscape = landscape.load()
 
         # Configure schedule for Uavs and BaseStations
@@ -37,6 +39,7 @@ class WorldModel(Model):
         # Set parameters
         self.width = config.getint('Grid', 'width')
         self.height = config.getint('Grid', 'height')
+        self.pixel_ratio = config.getint('Grid', 'pixel_ratio')
         self.range_of_base_station = config.getfloat('Basestation', 'range_of_base_station')
         self.number_of_uavs_per_base_station = config.getint('Uav', 'number_of_uavs_per_base_station')
         self.max_battery = config.getint('Uav','max_battery')
@@ -62,7 +65,11 @@ class WorldModel(Model):
         )
 
         # In the beginning there are no delivered Items
+        # TODO: Make this beautiful
         self.number_of_delivered_items = 0
+
+        # Store all obstacles
+        self.obstacles = np.zeros(shape=[self.width, self.height])
 
         # Populate the grid with obstacles and stuff
         self.populate_grid()
@@ -84,15 +91,27 @@ class WorldModel(Model):
         Populate the grid with Obstacles, BaseStations and Uavs
         """
 
+        multiplier = max(round(self.pixel_ratio / 2), 1)
+        print(self.width, self.height, self.pixel_ratio, multiplier)
+
         # Read landscape to get locations of obstacles
-        for j in range(1, self.height):
-            for i in range(1, self.width):
+        for j in range(1, self.height, multiplier):
+            for i in range(1, self.width, multiplier):
                 r, g, b = self.landscape[i, j]
                 if self.is_obstacle_color(r, g, b):
-                    obstacle = Obstacle(self, (i, self.height - j))
-                    self.grid.place_agent(obstacle, (i, self.height - j))
+                    fill_cells_x = []
+                    fill_cells_y = []
+                    for k in range(0, multiplier):
+                        fill_cells_x.append(i - k)
+                        fill_cells_y.append(self.height - j - k)
 
-        print("Obstacles done")
+                    for x in fill_cells_x:
+                        if 0 < x < self.width:
+                            for y in fill_cells_y:
+                                if 0 < y < self.height:
+                                    self.create_obstacle(x, y)
+                                else:
+                                    break
 
         # Create Obstacles
         # for j in range(1, self.height, 5):
@@ -104,6 +123,8 @@ class WorldModel(Model):
         #             self.make_u(i, j)
         #         if form == 3:
         #             self.make_square(i, j)
+
+        print("Obstacles done")
 
         # Create BaseStations
         self.create_base_stations()
@@ -120,9 +141,8 @@ class WorldModel(Model):
 
     @staticmethod
     def is_obstacle_color(r, g, b):
-        grey = range(120, 177)
-        # print(r, g, b)
-        return r in grey and g in grey and b in grey
+        black = range(0, 10)
+        return r in black and g in black and b in black
 
     def create_base_stations(self):
         """
@@ -141,55 +161,97 @@ class WorldModel(Model):
             else:
                 x += width
 
-    def create_uav(self, id, base_station):
+    def create_uav(self, uid, base_station):
         """
         Create a Uav
-        :param id: unique identifier of the Uav
+        :param uid: unique identifier of the Uav
+        :param base_station: the assigned BaseStation
         """
         # Create the uav
-        uav = Uav(self, pos=base_station.get_pos(), id=id, max_battery=self.max_battery, battery_low=self.battery_low, base_station=base_station)
+        uav = Uav(self, pos=base_station.get_pos(), id=uid, max_battery=self.max_battery, battery_low=self.battery_low, base_station=base_station)
         # Place the uav on the grids
         self.grid.place_agent(uav, base_station.get_pos())
         self.perceived_world_grid.place_agent(uav, base_station.get_pos())
         # Add the Uav to the schedule
         self.schedule.add(uav)
 
-    def create_base_station(self, id, x, y):
-        # def create_base_station(self, id, x_min, x_max, y_min, y_max):
+    def create_base_station(self, bid, x, y):
         """
         Create a BaseStation at a random location
-        :param id: unique identifier of the BaseStation
+        :param bid: unique identifier of the BaseStation
+        :param x:
+        :param y:
         """
-        # Store possible cells
-        possible_cells = []
+        # Store available cells
+        available_cells = []
         radius = 1
         # If the center is an empty cell
-        while not possible_cells:
-            # ... get neighboring cells
-            neighborhood = self.grid.get_neighborhood(
-                (x, y),
-                moore=True,
-                include_center=False,
-                radius=radius)
-            # ... get the content of the cells
-            for cell in neighborhood:
-                cell_contents = self.grid.get_cell_list_contents([cell])
-                for obstacle in cell_contents:
-                    # ... if there is an Obstacle
-                    if type(obstacle) is Obstacle:
-                        # ... add the cell to the possible cells
-                        possible_cells.append(cell)
+        while not available_cells:
+            # ... get neighboring cells and center cell
+            check_cells_x = [x, x + radius, x - radius]
+            check_cells_y = [y, y + radius, y - radius]
+
+            # ... search the neighborhood and center
+            for x in check_cells_x:
+                if 0 < x < self.width:
+                    for y in check_cells_y:
+                        if 0 < y < self.height:
+                            # ... check if there is an obstacle
+                            if math.isclose(self.obstacles[x, y], 1, rel_tol=1e-5):
+                                # ... and add the cell to the list of possible cells
+                                available_cells.append((x, y))
+                        else:
+                            break
+                else:
+                    break
+
             # Increase the search radius if there are no possible cells
             radius += 1
-        # If there are possible cells, choose one random cell
+
+        # If there are available cells, choose the cell that has at least one non-obstacle-neighbor
+        # Store possible cells
+        possible_cells = []
+        for cell in available_cells:
+            # ... get neighboring cells
+            check_cells_x = [x, x + radius, x - radius]
+            check_cells_y = [y, y + radius, y - radius]
+
+            for x in check_cells_x:
+                if 0 < x < self.width:
+                    for y in check_cells_y:
+                        if 0 < y < self.height:
+                            # Don't check the actual cell because we already know that it has an obstacle
+                            if x is not cell[0] and y is not cell[1]:
+                                # ... check if there is an obstacle
+                                if not math.isclose(self.obstacles[x, y], 1, rel_tol=1e-5):
+                                    # ... and add the cell to the list of possible cells
+                                    possible_cells.append((cell[0], cell[1]))
+
+        # If there are possible cells, choose one at random
         pos = random.choice(possible_cells)
         # Create the BaseStation
-        base_station = BaseStation(model=self, pos=pos, id=id, center=(x, y), range_of_base_station=self.range_of_base_station)
+        base_station = BaseStation(model=self, pos=pos, id=bid, center=(x, y), range_of_base_station=self.range_of_base_station)
         # Place the BaseStation on the grids
         self.grid.place_agent(base_station, pos)
         self.perceived_world_grid.place_agent(base_station, pos)
         # Add the BaseStation to the schedule
         self.schedule.add(base_station)
+
+        # Add the BaseStation to the obstacle list
+        self.create_obstacle(pos[0], pos[1], 2)
+
+    def create_obstacle(self, x, y, value=1):
+        """
+        Create one obstacle at the given position; the Obstacle can be either an Obstacle (value=1)
+        or a BaseStation(value=2)
+        :param x: x coordinate
+        :param y: y coordinate
+        :param value: the value that is stored at the given position
+        :return:
+        """
+        self.obstacles[x][y] = value
+        # obstacle = Obstacle(self, (x, y))
+        # self.grid.place_agent(obstacle, (x, y))
 
     def make_l(self, i, j):
         """
@@ -197,16 +259,13 @@ class WorldModel(Model):
         :param i:
         :param j:
         """
-        obstacle = Obstacle(self, (i, j))
-        self.grid.place_agent(obstacle, (i, j))
+        self.create_obstacle(i, j)
 
         for x in range(1, 4, 1):
-            obstacle = Obstacle(self, (i, j + x))
-            self.grid.place_agent(obstacle, (i, j + x))
+            self.create_obstacle(i, j + x)
 
         for y in range(1, 4, 1):
-            obstacle = Obstacle(self, (i + y, j))
-            self.grid.place_agent(obstacle, (i + y, j))
+            self.create_obstacle(i + y, j)
 
     def make_u(self, i, j):
         """
@@ -214,18 +273,14 @@ class WorldModel(Model):
         :param i:
         :param j:
         """
-        obstacle = Obstacle(self, (i, j))
-        self.grid.place_agent(obstacle, (i, j))
+        self.create_obstacle(i, j)
 
         for x in range(1, 4, 1):
-            obstacle = Obstacle(self, (i, j + x))
-            self.grid.place_agent(obstacle, (i, j + x))
-            obstacle = Obstacle(self, (i + 3, j + x))
-            self.grid.place_agent(obstacle, (i + 3, j + x))
+            self.create_obstacle(i, j + x)
+            self.create_obstacle(i + 3, j + x)
 
         for y in range(1, 4, 1):
-            obstacle = Obstacle(self, (i + y, j))
-            self.grid.place_agent(obstacle, (i + y, j))
+            self.create_obstacle(i + y, j)
 
     def make_square(self, i, j):
         """
@@ -234,19 +289,14 @@ class WorldModel(Model):
         :param j:
         """
         for x in range(1, 4, 1):
-            obstacle = Obstacle(self, (i, j + x))
-            self.grid.place_agent(obstacle, (i, j + x))
-            obstacle = Obstacle(self, (i+3, j + x))
-            self.grid.place_agent(obstacle, (i +3 , j + x))
+            self.create_obstacle(i, j + x)
+            self.create_obstacle(i+3, j + x)
 
         for y in range(0, 4, 1):
-            obstacle = Obstacle(self, (i + y, j))
-            self.grid.place_agent(obstacle, (i + y, j))
+            self.create_obstacle(i + y, j)
 
-        obstacle = Obstacle(self, (i + 1, j + 3))
-        self.grid.place_agent(obstacle, (i + 1, j + 3))
-        obstacle = Obstacle(self, (i + 2, j + 3))
-        self.grid.place_agent(obstacle, (i + 2, j + 3))
+        self.create_obstacle(i + 1, j + 3)
+        self.create_obstacle(i + 2, j + 3)
 
     @staticmethod
     def compute_number_of_items(model):

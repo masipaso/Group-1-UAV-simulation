@@ -188,11 +188,13 @@
 		/* Canvas */
 		canvas.background {
 			background: #c9c9c9;
+			z-index: 0;
 		}
 		canvas.real-world {
 			position: absolute;
 			left: 0;
 			top: 0;
+			z-index: 1;
 		}
 	</style>
 
@@ -201,7 +203,8 @@
 <body>
 
 	<nav class="navbar navbar-fixed-top navbar-light bg-faded">
-	  <a class="navbar-brand" href="#">{{ model_name }}</a>
+	  <!--<a class="navbar-brand" href="#">{{ model_name }}</a>-->
+		<span id="mouse-position"></span>
 	</nav>
 
 	<div class="container-fluid">
@@ -248,6 +251,8 @@
 
 				<hr>
 				<h6>Current step: <span id="current-step">0</span></h6>
+				<hr>
+				<span id="mouse-position1"></span>
 			</div>
 		</div>
 	</div>
@@ -283,6 +288,26 @@
 		// FPS
 		$("#controls-fps").change(function() {
 			changeFPS($(this).val());
+		});
+
+		/**
+		* Mouse events
+		*/
+		function getMousePosition(canvas, event) {
+			var rect = canvas.getBoundingClientRect();
+			return {
+				x: event.clientX - rect.left,
+				y: event.clientY - rect.top
+			};
+		};
+
+
+		$( document ).ready(function() {
+			var realWorld = $(".real-world")[0];
+			realWorld.addEventListener('mousemove', function(event) {
+				var mousePosition = getMousePosition(realWorld, event);
+				$("#mouse-position").html("x: " + mousePosition.x + ", y: " + mousePosition.y);
+			});
 		});
 	</script>
 </body>
