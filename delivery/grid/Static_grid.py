@@ -1,4 +1,6 @@
 import numpy as np
+import math
+
 
 class StaticGrid:
     """
@@ -14,6 +16,11 @@ class StaticGrid:
         :param landscape: A loaded Image file which has only two colors (black and white).
                         Black are obstacles and white is nothing.
         """
+        # Constants
+        self.BASE_STATION = 2
+        self.OBSTACLE = 1
+        self.EMPTY = 0
+
         self.height = height
         self.width = width
         self.pixel_ratio = pixel_ratio
@@ -24,7 +31,8 @@ class StaticGrid:
 
     def populate_grid(self):
         """
-        Parse the landscape and populate the grid with the parsed information
+        Parse the landscape and populate the grid with the parsed information.
+        Whenever there is a black pixel, create an Obstacle at the position
         """
         multiplier = max(round(self.pixel_ratio / 2), 1)
 
@@ -43,7 +51,7 @@ class StaticGrid:
                         if 0 < x < self.width:
                             for y in fill_cells_y:
                                 if 0 < y < self.height:
-                                    self.create_obstacle(x, y)
+                                    self.place_obstacle((x, y))
                                 else:
                                     break
 
@@ -89,3 +97,58 @@ class StaticGrid:
         """
         x, y = pos
         return x < 0 or x >= self.width or y < 0 or y >= self.height
+
+    def place_obstacle(self, pos):
+        """
+        Place an obstacle at the given position
+        :param pos: Tuple of coordinates
+        """
+        self._place_agent(pos, self.OBSTACLE)
+
+    def place_base_station(self, pos):
+        """
+        Place an obstacle at the given position
+        :param pos: Tuple of coordinates
+        """
+        self._place_agent(pos, self.BASE_STATION)
+
+    def _place_agent(self, pos, type):
+        """
+        Place a specific type of obstacle at the given position
+        :param pos: Tuple of coordinates
+        :param type: 1 = Obstacle, 2 = BaseStation
+        """
+        x, y = pos
+        self.grid[x][y] = type
+
+    def is_cell_empty(self, pos):
+        """
+        Checks if a cell is empty
+        :param pos: Tuple of coordinates
+        :return: True if the cell is empty. Otherwise, False
+        """
+        x, y = pos
+        return True if math.isclose(self.grid[x, y], self.EMPTY, rel_tol=1e-5) else False
+
+    def is_obstacle_at(self, pos):
+        """
+        Checks if a cell contains an Obstacle
+        :param pos: Tuple of coordinates
+        :return: True if the cell contains an Obstacle. Otherwise, False
+        """
+        x, y = pos
+        return True if math.isclose(self.grid[x, y], self.OBSTACLE, rel_tol=1e-5) else False
+
+    def is_base_station_at(self, pos):
+        """
+        Checks if a cell contains a BaseStation
+        :param pos: Tuple of coordinates
+        :return: True if the cell contains a BaseStation. Otherwise, False
+        """
+        x, y = pos
+        return True if math.isclose(self.grid[x, y], self.BASE_STATION, rel_tol=1e-5) else False
+
+    @staticmethod
+    def is_obstacle_color(r, g, b):
+        black = range(0, 10)
+        return r in black and g in black and b in black
