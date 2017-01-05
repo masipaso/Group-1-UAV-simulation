@@ -32,7 +32,7 @@ class WorldModel(Model):
         config.read('./config.ini')
 
         # Read landscape
-        background_image = Image.open('./delivery/visualization/images/test800x800.jpg')
+        background_image = Image.open('./delivery/visualization/images/city500x500.jpg')
         background = background_image.load()
 
         # Configure schedule for Uavs and BaseStations

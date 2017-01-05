@@ -81,7 +81,7 @@ var RealWorldVisualization = function(height, width, gridWidth, gridHeight, fore
     // Create image
     var backgroundImage = new Image();
     var google_tile = "http://maps.google.com/maps/api/staticmap?sensor=false&center=" + position.coords.latitude + "," + position.coords.longitude + "&zoom=18&size=" + gridWidth + "x" + gridHeight + "&scale=1&maptype=roadmap";
-    var google_tile = "http://127.0.0.1:8521/images/test800x800.jpg"
+    var google_tile = "http://127.0.0.1:8521/images/city500x500_landscape.jpg"
     // Load the map into the image
     backgroundImage.src = google_tile;
 
