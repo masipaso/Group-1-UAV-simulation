@@ -2,7 +2,7 @@ import unittest
 from delivery.agents.baseStation import BaseStation
 from delivery.model.worldmodel import WorldModel
 
-class baseStationTest(unittest.TestCase):
+class baseStation_Test(unittest.TestCase):
     def setUp(self):
         self.model = WorldModel()
         self.baseStation = BaseStation(model=self.model, pos=(2, 2), id=1, center=(2, 2), range_of_base_station=250)
