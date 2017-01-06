@@ -1,11 +1,15 @@
-from mesa.visualization.modules import CanvasGrid
+from mesa.visualization.ModularVisualization import VisualizationElement
 
-from shape_model.agents.baseStation import BaseStation
-from shape_model.agents.obstacle import Obstacle
-from shape_model.agents.uav import Uav
+from collections import defaultdict
+
+from delivery.agents.baseStation import BaseStation
+from delivery.agents.obstacle import Obstacle
+from delivery.agents.uav import Uav
 
 
-class RealWorldGrid(CanvasGrid):
+class RealWorldGrid(VisualizationElement):
+
+    local_includes = ["delivery/visualization/js/RealWorldCanvas.js"]
 
     def __init__(self, grid_width, grid_height, canvas_width=500, canvas_height=500):
         """
@@ -15,7 +19,14 @@ class RealWorldGrid(CanvasGrid):
         :param canvas_width: Width of the canvas to draw in the client, in pixels
         :param canvas_height: Height of the canvas to draw in the client, in pixels
         """
-        super().__init__(self.world_portrayal, grid_width, grid_height, canvas_width, canvas_height)
+        self.canvas_height = canvas_height
+        self.canvas_width = canvas_width
+        self.grid_width = grid_width
+        self.grid_height = grid_height
+
+        new_element = ("new RealWorldCanvas({}, {}, {}, {})".
+                       format(self.canvas_width, self.canvas_height, self.grid_width, self.grid_height))
+        self.js_code = "elements.push(" + new_element + ");"
 
     def world_portrayal(self, agent):
         """
@@ -26,20 +37,19 @@ class RealWorldGrid(CanvasGrid):
         if agent is None:
             return
 
-        portrayal = {"Shape": "circle",
-                     "Filled": "true"}
+        portrayal = {"Filled": "true"}
 
         if type(agent) is Obstacle:
             portrayal["Color"] = "rgba(0, 0, 0, 0.4)"
-            portrayal["Shape"] = "rect"
+            portrayal["Type"] = "Obstacle"
             portrayal["Layer"] = 0
         elif type(agent) is BaseStation:
             portrayal["Color"] = "#FFC319"
-            portrayal["Shape"] = "rect"
+            portrayal["Type"] = "BaseStation"
             portrayal["Layer"] = 1
         elif type(agent) is Uav:
+            portrayal["Type"] = "Uav"
             portrayal["Color"] = "rgb(0, 205, 255)"
-            portrayal["Shape"] = "rect"
             portrayal["Layer"] = 2
         else:
             return
@@ -48,6 +58,20 @@ class RealWorldGrid(CanvasGrid):
         portrayal["h"] = 1
 
         return portrayal
+
+    def render(self, model):
+        grid_state = defaultdict(list)
+        for x in range(model.grid.width):
+            for y in range(model.grid.height):
+                cell_objects = model.grid.get_cell_list_contents([(x, y)])
+                for obj in cell_objects:
+                    portrayal = self.world_portrayal(obj)
+                    if portrayal:
+                        portrayal["x"] = x
+                        portrayal["y"] = y
+                        grid_state[portrayal["Layer"]].append(portrayal)
+
+        return grid_state
 
     def move_agent(self, agent, pos):
         """
@@ -59,6 +83,5 @@ class RealWorldGrid(CanvasGrid):
             pos: Tuple of new position to move the agent to.
 
         """
-        print("my move function")
         self._remove_agent(agent.pos, agent)
         self._place_agent(pos, agent)

@@ -2,10 +2,10 @@ from collections import defaultdict
 
 from mesa.visualization.modules import CanvasGrid
 
-from shape_model.agents.repellent import Repellent
-from shape_model.agents.baseStation import BaseStation
-from shape_model.agents.item import Item
-from shape_model.agents.uav import Uav
+from delivery.agents.repellent import Repellent
+from delivery.agents.baseStation import BaseStation
+from delivery.agents.item import Item
+from delivery.agents.uav import Uav
 
 
 class PerceivedWorldGrid(CanvasGrid):
@@ -90,6 +90,5 @@ class PerceivedWorldGrid(CanvasGrid):
             pos: Tuple of new position to move the agent to.
 
         """
-        print("my move function")
         self._remove_agent(agent.pos, agent)
         self._place_agent(pos, agent)

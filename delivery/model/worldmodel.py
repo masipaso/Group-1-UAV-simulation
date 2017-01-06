@@ -1,16 +1,21 @@
 import configparser
 import random
-from random import randint
+import math
 import numpy as np
+from random import randint
+from PIL import Image
 from mesa import Model
 from mesa.datacollection import DataCollector
 
-from shape_model.agents.baseStation import BaseStation
-from shape_model.agents.obstacle import Obstacle
-from shape_model.agents.uav import Uav
-from shape_model.grid.multi_grids import TwoMultiGrid
-from shape_model.schedule.schedule import RandomActivationByType
+from delivery.grid.Static_grid import StaticGrid
 
+from delivery.agents.baseStation import BaseStation
+from delivery.agents.obstacle import Obstacle
+from delivery.agents.uav import Uav
+from delivery.grid.multi_grids import TwoMultiGrid
+from delivery.schedule.schedule import RandomActivationByType
+
+# TODO: Describe what all these variables do!
 
 class WorldModel(Model):
     """
@@ -26,6 +31,10 @@ class WorldModel(Model):
         config = configparser.ConfigParser()
         config.read('./config.ini')
 
+        # Read landscape
+        background_image = Image.open('./delivery/visualization/images/city500x500.jpg')
+        background = background_image.load()
+
         # Configure schedule for Uavs and BaseStations
         self.schedule = RandomActivationByType(self)
         # Configure schedule for Repellents
@@ -33,16 +42,23 @@ class WorldModel(Model):
         # Set parameters
         self.width = config.getint('Grid', 'width')
         self.height = config.getint('Grid', 'height')
+        self.pixel_ratio = config.getint('Grid', 'pixel_ratio')
         self.range_of_base_station = config.getfloat('Basestation', 'range_of_base_station')
         self.number_of_uavs_per_base_station = config.getint('Uav', 'number_of_uavs_per_base_station')
         self.max_battery = config.getint('Uav','max_battery')
         self.battery_low = config.getint('Uav','battery_low')
-        self.number_of_repellents= 0
+        self.number_of_repellents = 0
 
+        # TODO: We should be able to remove "TwoMultiGrid" or at least rename "perceived_world_grid" should only contain
+        # TODO: Repellents and Items(currently it holds the Repellents, UAVs, BaseStations and Items). The UAVs and
+        # TODO: BaseStations are represented on the "real_world_grid".
         # Add a grid that is used to visualize the 'actual' world
         self.grid = TwoMultiGrid(self.height, self.width, torus=False)
         # Add a grid that is used to visualize the perceived world
         self.perceived_world_grid = TwoMultiGrid(self.height, self.width, torus=False)
+
+        # Create the StaticGrid that contains the landscape (Obstacles, BaseStations, ...)
+        self.landscape = StaticGrid(self.width, self.height, self.pixel_ratio, background)
 
         # Add data collector
         self.datacollector = DataCollector(
@@ -53,11 +69,12 @@ class WorldModel(Model):
                 "Items (Delivered)": self.compute_number_of_delivered_items,
                 "Average Walk Length": self.compute_average_walk_length,
                 "Standard Deviation of Average Walk Lengths": self.compute_standard_deviation_walk_lengths,
-                "Walklength Divided by Distance": self.compute_walklength_divided_by_distance,
+                "Walklength Divided by Distance": self.compute_walk_length_divided_by_distance,
              }
         )
 
         # In the beginning there are no delivered Items
+        # TODO: Make this beautiful
         self.number_of_delivered_items = 0
 
         # Populate the grid with obstacles and stuff
@@ -79,26 +96,23 @@ class WorldModel(Model):
         """
         Populate the grid with Obstacles, BaseStations and Uavs
         """
-        # Create Obstacles
-        for j in range(1, self.height, 5):
-            for i in range(1, self.width, 5):
-                form = randint(1, 2)
-                if form == 1:
-                    self.make_l(i, j)
-                if form == 2:
-                    self.make_u(i, j)
-                if form == 3:
-                    self.make_square(i, j)
+
+        # Populate the background with static Obstacles
+        self.landscape.populate_grid()
+        print("Obstacles done")
 
         # Create BaseStations
         self.create_base_stations()
+        print("BaseStations done")
 
-        # Create Uavs
+        # Create UAVs
         id = 0
         for base_station in self.schedule.agents_by_type[BaseStation]:
             id += 1
             for i in range(self.number_of_uavs_per_base_station):
                 self.create_uav(id + i, base_station)
+
+        print("UAVs done")
 
     def create_base_stations(self):
         """
@@ -110,119 +124,79 @@ class WorldModel(Model):
         x = width
         y = height
         for i in range(0, number_of_base_stations):
-            self.create_base_station(i, round(x - self.range_of_base_station), round(y - self.range_of_base_station))
+            self.create_base_station(i, (round(x - self.range_of_base_station), round(y - self.range_of_base_station)))
             if x + width > self.width:
                 y += height
                 x = width
             else:
                 x += width
 
-    def create_uav(self, id, base_station):
+    def create_base_station(self, bid, pos):
+        """
+        Create a BaseStation at a given position or close to it
+        :param bid: unique identifier of the BaseStation
+        :param pos: Tuple of coordinates
+        """
+        x, y = pos
+        # Store available cells
+        available_cells = []
+        radius = 1
+        # If the center is an empty cell
+        while not available_cells:
+            # ... get neighboring cells and center cell
+            neighborhood = self.landscape.get_neighborhood(pos, True, radius)
+
+            # ... search the neighborhood and center
+            for coordinates in neighborhood:
+                # ... check if there is an obstacle
+                if self.landscape.is_obstacle_at(coordinates):
+                    # ... and add the cell to the list of possible cells
+                    available_cells.append(coordinates)
+
+            # Increase the search radius if there are no possible cells
+            radius += 1
+
+        # If there are available cells, choose the cell that has at least one non-obstacle-neighbor
+        # Store possible cells
+        possible_cells = []
+        for cell in available_cells:
+            # ... get neighboring cells without center cell
+            neighborhood = self.landscape.get_neighborhood(cell, False, 1)
+
+            # ... search the neighborhood
+            for coordinates in neighborhood:
+                # ... check if there is an obstacle
+                if not self.landscape.is_obstacle_at(coordinates):
+                    # ... and add the cell to the list of possible cells if there is one adjacent cell
+                    # without an Obstacle
+                    possible_cells.append(cell)
+                    break
+
+        # If there are possible cells, choose one at random
+        pos = random.choice(possible_cells)
+        # Create the BaseStation
+        base_station = BaseStation(model=self, pos=pos, id=bid, center=(x, y),
+                                   range_of_base_station=self.range_of_base_station)
+        # Place the BaseStation on the grid
+        self.grid.place_agent(base_station, pos)
+        # Place the BaseStation on the landscape
+        self.landscape.place_base_station(pos)
+        # Add the BaseStation to the schedule
+        self.schedule.add(base_station)
+
+    def create_uav(self, uid, base_station):
         """
         Create a Uav
-        :param id: unique identifier of the Uav
+        :param uid: unique identifier of the Uav
+        :param base_station: the assigned BaseStation
         """
         # Create the uav
-        uav = Uav(self, pos=base_station.get_pos(), id=id, max_battery=self.max_battery, battery_low=self.battery_low, base_station=base_station)
+        uav = Uav(self, pos=base_station.get_pos(), id=uid, max_battery=self.max_battery, battery_low=self.battery_low, base_station=base_station)
         # Place the uav on the grids
         self.grid.place_agent(uav, base_station.get_pos())
         self.perceived_world_grid.place_agent(uav, base_station.get_pos())
         # Add the Uav to the schedule
         self.schedule.add(uav)
-
-    def create_base_station(self, id, x, y):
-        # def create_base_station(self, id, x_min, x_max, y_min, y_max):
-        """
-        Create a BaseStation at a random location
-        :param id: unique identifier of the BaseStation
-        """
-        # Store possible cells
-        possible_cells = []
-        radius = 1
-        # If the center is an empty cell
-        while not possible_cells:
-            # ... get neighboring cells
-            neighborhood = self.grid.get_neighborhood(
-                (x, y),
-                moore=True,
-                include_center=False,
-                radius=radius)
-            # ... get the content of the cells
-            for cell in neighborhood:
-                cell_contents = self.grid.get_cell_list_contents([cell])
-                for obstacle in cell_contents:
-                    # ... if there is an Obstacle
-                    if type(obstacle) is Obstacle:
-                        # ... add the cell to the possible cells
-                        possible_cells.append(cell)
-            # Increase the search radius if there are no possible cells
-            radius += 1
-        # If there are possible cells, choose one random cell
-        pos = random.choice(possible_cells)
-        # Create the BaseStation
-        base_station = BaseStation(model=self, pos=pos, id=id, center=(x, y), range_of_base_station=self.range_of_base_station)
-        # Place the BaseStation on the grids
-        self.grid.place_agent(base_station, pos)
-        self.perceived_world_grid.place_agent(base_station, pos)
-        # Add the BaseStation to the schedule
-        self.schedule.add(base_station)
-
-    def make_l(self, i, j):
-        """
-        Create a l-shaped obstacle at a defined position
-        :param i:
-        :param j:
-        """
-        obstacle = Obstacle(self,(i, j))
-        self.grid.place_agent(obstacle, (i, j))
-
-        for x in range(1, 4, 1):
-            obstacle = Obstacle(self, (i, j + x))
-            self.grid.place_agent(obstacle, (i, j + x))
-
-        for y in range(1, 4, 1):
-            obstacle = Obstacle(self, (i + y, j))
-            self.grid.place_agent(obstacle, (i + y, j))
-
-    def make_u(self,i , j):
-        """
-        Create a u-shaped obstacle at a defined position
-        :param i:
-        :param j:
-        """
-        obstacle = Obstacle(self, (i, j))
-        self.grid.place_agent(obstacle, (i, j))
-
-        for x in range(1, 4, 1):
-            obstacle = Obstacle(self, (i, j + x))
-            self.grid.place_agent(obstacle, (i, j + x))
-            obstacle = Obstacle(self, (i + 3, j + x))
-            self.grid.place_agent(obstacle, (i + 3, j + x))
-
-        for y in range(1, 4, 1):
-            obstacle = Obstacle(self, (i + y, j))
-            self.grid.place_agent(obstacle, (i + y, j))
-
-    def make_square(self, i, j):
-        """
-        Create a square-shaped obstacle at a defined position
-        :param i:
-        :param j:
-        """
-        for x in range(1, 4, 1):
-            obstacle = Obstacle(self, (i, j + x))
-            self.grid.place_agent(obstacle, (i, j + x))
-            obstacle = Obstacle(self, (i+3, j + x))
-            self.grid.place_agent(obstacle, (i +3 , j + x))
-
-        for y in range(0, 4, 1):
-            obstacle = Obstacle(self, (i + y, j))
-            self.grid.place_agent(obstacle, (i + y, j))
-
-        obstacle = Obstacle(self, (i + 1, j + 3))
-        self.grid.place_agent(obstacle, (i + 1, j + 3))
-        obstacle = Obstacle(self, (i + 2, j + 3))
-        self.grid.place_agent(obstacle, (i + 2, j + 3))
 
     @staticmethod
     def compute_number_of_items(model):
@@ -278,7 +252,7 @@ class WorldModel(Model):
             return 0
 
     @staticmethod
-    def compute_walklength_divided_by_distance(model):
+    def compute_walk_length_divided_by_distance(model):
         length_by_distance = []
 
         for uav in model.schedule.agents_by_type[Uav]:

@@ -3,7 +3,7 @@ import random
 
 from mesa import Agent
 
-from shape_model.algorithms.repellentAlgorithm import Algorithm
+from delivery.algorithms.repellentAlgorithm import Algorithm
 
 
 class Uav(Agent):
@@ -18,6 +18,7 @@ class Uav(Agent):
         6: stranded without battery life left
     """
     def __init__(self, model, pos, id, max_battery, battery_low, base_station):
+        # TODO: Why do we have the model here? This should not be available
         self.model = model
         self.pos = pos
         self.id = id
