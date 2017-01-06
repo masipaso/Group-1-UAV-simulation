@@ -47,9 +47,9 @@ def create_WorldModel_test_suite():
 
 # Run Tests
 print("Running Tests")
-#create_BaseStation_suite().run(result=result)
-#create_UAV_suite().run(result=result)
-#create_TwoMultiGrid_test_suite().run(result=result)
+create_BaseStation_suite().run(result=result)
+create_UAV_suite().run(result=result)
+create_TwoMultiGrid_test_suite().run(result=result)
 create_WorldModel_test_suite().run(result=result)
 
 
