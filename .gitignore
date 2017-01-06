@@ -1,8 +1,7 @@
 .idea/workspace.xml
 .idea/misc.xml
 **/.DS_Store
-**/shape_model/.DS_Store
-**/shape_model/__pycache__/.DS_Store
 **/*.pyc
-shape_model/__pycache__/*.pyc
+shape_model/*.*
 *.csv
+*.xlsx
