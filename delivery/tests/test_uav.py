@@ -155,3 +155,62 @@ class UAV_test(unittest.TestCase):
 
         # Test if current_charge = max_charge
         self.assertEqual(self.uav.current_charge,self.uav.max_battery)
+
+    def test_arrive_at_base_station(self):
+        self.uav.state = 7
+        # 1st Test: idle = True, charge = False
+        self.uav.arrive_at_base_station(idle=True,charge=False)
+        self.assertEqual(self.uav.state,1)
+
+        # 2nd Test: idle = False, charge = True
+        self.uav.state = 7
+        self.uav.arrive_at_base_station(idle=False,charge=True)
+        self.assertEqual(self.uav.state, 5)
+
+        # 3rd Test: idle = charge = True
+        self.uav.state = 7
+        self.uav.arrive_at_base_station(idle=True,charge=True)
+        self.assertEqual(self.uav.state,1)
+
+        # 4th Test: idle = charge = False
+        self.uav.state = 7
+        self.uav.arrive_at_base_station(idle=False, charge= False)
+        self.assertEqual(self.uav.state,7)
+
+    def test_move_to(self):
+        self.model.grid.place_agent(self.uav, self.uav.pos)
+        self.model.perceived_world_grid.place_agent(self.uav, self.uav.pos)
+        self.uav.move_to((40,40))
+
+        self.assertEqual(self.uav.pos,(40,40))
+
+
+    def test_get_euclidean_distance(self):
+
+        # 1st Test: Distance = 1
+        pos1 = (40,40)
+        pos2 = (41,40)
+        distance = 1
+        computed_distance = self.uav.get_euclidean_distance(pos1,pos2)
+        self.assertEqual(computed_distance,distance)
+
+        # 2nd Test: Distance = 10, x changed
+        pos1 = (40,40)
+        pos2 = (50,40)
+        distance = 10
+        computed_distance = self.uav.get_euclidean_distance(pos1,pos2)
+        self.assertEqual(computed_distance,distance)
+
+        # 3rd Test: Distance = 10, y changed
+        pos1 = (40,40)
+        pos2 = (40,50)
+        distance = 10
+        computed_distance = self.uav.get_euclidean_distance(pos1,pos2)
+        self.assertEqual(computed_distance,distance)
+
+        # 3rd Test: Distance = 14.142135623730951, x,y changed
+        pos1 = (40,40)
+        pos2 = (30,30)
+        distance = 14.142135623730951
+        computed_distance = self.uav.get_euclidean_distance(pos1,pos2)
+        self.assertEqual(computed_distance,distance)

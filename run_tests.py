@@ -1,5 +1,7 @@
 from delivery.tests.test_baseStation import baseStation_Test
 from delivery.tests.test_uav import UAV_test
+from delivery.tests.test_multi_grids import TwoMultiGrid_test
+
 import unittest
 
 # Creating Results
@@ -22,6 +24,17 @@ def create_UAV_suite():
     suite.addTest(UAV_test('test_deliver_item'))
     suite.addTest(UAV_test('test_check_battery'))
     suite.addTest(UAV_test('test_charge_battery'))
+    suite.addTest(UAV_test('test_arrive_at_base_station'))
+    suite.addTest(UAV_test('test_move_to'))
+    suite.addTest(UAV_test('test_get_euclidean_distance'))
+
+    return suite
+
+def create_TwoMultiGrid_test_suite():
+    # Creating Test Suite for: UAV
+    suite = unittest.TestSuite()
+    suite.addTest(TwoMultiGrid_test('test_move_agent'))
+    suite.addTest(TwoMultiGrid_test('test_get_repellent_on'))
 
 
     return suite
@@ -30,7 +43,8 @@ def create_UAV_suite():
 # Run Tests
 print("Running Tests")
 #create_BaseStation_suite().run(result=result)
-create_UAV_suite().run(result=result)
+#create_UAV_suite().run(result=result)
+create_TwoMultiGrid_test_suite().run(result=result)
 
 
 print("\n"*5)
