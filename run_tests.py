@@ -15,6 +15,8 @@ def create_BaseStation_suite():
     suite.addTest(baseStation_Test('test_create_item'))
     suite.addTest(baseStation_Test('test_get_item'))
     suite.addTest(baseStation_Test('test_get_number_of_items'))
+    suite.addTest(baseStation_Test('test_sort_items_by_priority'))
+    suite.addTest(baseStation_Test('test_get_pos'))
     return suite
 
 def create_UAV_suite():
@@ -55,10 +57,10 @@ def create_Repellent_suite():
 # Run Tests
 print("Running Tests")
 create_BaseStation_suite().run(result=result)
-create_UAV_suite().run(result=result)
-create_TwoMultiGrid_test_suite().run(result=result)
-create_WorldModel_test_suite().run(result=result)
-create_Repellent_suite().run(result=result)
+#create_UAV_suite().run(result=result)
+#create_TwoMultiGrid_test_suite().run(result=result)
+#create_WorldModel_test_suite().run(result=result)
+#create_Repellent_suite().run(result=result)
 
 
 print("\n"*5)
