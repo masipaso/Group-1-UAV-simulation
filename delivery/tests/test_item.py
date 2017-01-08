@@ -2,7 +2,7 @@ import unittest
 from delivery.agents.item  import Item
 from mesa.space import MultiGrid
 
-class Item_test(unittest.TestCase):
+class Item_Test(unittest.TestCase):
     def setUp(self):
         self.item = Item(destination=(10,10),priority=1,id=0)
 

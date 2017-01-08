@@ -4,7 +4,8 @@ from delivery.tests.test_multi_grids import TwoMultiGrid_test
 from delivery.tests.test_worldmodel import worldModel_Test
 from delivery.tests.test_repellent import repellent_Test
 from delivery.tests.test_static_grid import staticGrid_Test
-from delivery.tests.test_item import Item_test
+from delivery.tests.test_item import Item_Test
+from delivery.tests.test_obstacle import Obstacle_Test
 
 import unittest
 
@@ -72,8 +73,15 @@ def create_StaticGrid_suite():
 def create_Item_test_suite():
     # Creating Test Suite
     suite = unittest.TestSuite()
-    suite.addTest(Item_test('test_deliver'))
-    suite.addTest(Item_test('test_get_destination'))
+    suite.addTest(Item_Test('test_deliver'))
+    suite.addTest(Item_Test('test_get_destination'))
+    return suite
+
+def create_Obstacle_test_suite():
+    # Creating Test Suite
+    suite = unittest.TestSuite()
+    suite.addTest(Obstacle_Test('test_get_position'))
+
     return suite
 
 # Run Tests
@@ -85,7 +93,7 @@ create_WorldModel_test_suite().run(result=result)
 create_Repellent_suite().run(result=result)
 create_StaticGrid_suite().run(result=result)
 create_Item_test_suite().run(result=result)
-
+create_Obstacle_test_suite().run(result=result)
 
 print("\n"*5)
 
