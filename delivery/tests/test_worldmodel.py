@@ -1,12 +1,32 @@
 from delivery.model.worldmodel import WorldModel
 from delivery.agents.baseStation import BaseStation
 from delivery.agents.uav import Uav
-
+import configparser
 import unittest
+from mesa.datacollection import DataCollector
+
 
 class worldModel_Test(unittest.TestCase):
     def setUp(self):
         self.model = WorldModel()
+
+    def test_init(self):
+        config = configparser.ConfigParser()
+        config.read('./config.ini')
+        self.assertEqual(self.model.width,config.getint('Grid', 'width'))
+        self.assertEqual(self.model.height,config.getint('Grid', 'height'))
+        self.assertEqual(self.model.pixel_ratio,config.getint('Grid', 'pixel_ratio'))
+        self.assertEqual(self.model.range_of_base_station,config.getfloat('Basestation', 'range_of_base_station'))
+        self.assertEqual(self.model.number_of_uavs_per_base_station,config.getint('Uav', 'number_of_uavs_per_base_station'))
+        self.assertEqual(self.model.max_battery,config.getint('Uav','max_battery'))
+        self.assertEqual(self.model.battery_low,config.getint('Uav','battery_low'))
+        self.assertEqual(self.model.number_of_repellents,0)
+        self.assertEqual(self.model.grid.width,config.getint('Grid', 'width'))
+        self.assertEqual(self.model.grid.height,config.getint('Grid', 'height'))
+        self.assertEqual(self.model.landscape.width, config.getint('Grid', 'width'))
+        self.assertEqual(self.model.landscape.height, config.getint('Grid', 'height'))
+        self.assertEqual(self.model.number_of_delivered_items,0)
+        self.assertIsInstance(self.model.datacollector,DataCollector)
 
 
     def test_create_base_station(self):

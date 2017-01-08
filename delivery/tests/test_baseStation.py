@@ -8,6 +8,13 @@ class baseStation_Test(unittest.TestCase):
         self.model = WorldModel()
         self.baseStation = BaseStation(model=self.model, pos=(2, 2), id=1, center=(2, 2), range_of_base_station=250)
 
+    def test_init(self):
+        self.assertEqual(self.baseStation.model,self.model)
+        self.assertEqual(self.baseStation.pos,(2,2))
+        self.assertEqual(self.baseStation.id,1)
+        self.assertEqual(self.baseStation.center,(2,2))
+        self.assertEqual(self.baseStation.range_of_base_station,250)
+
     def test_create_item(self):
 
         #Think of more cases for the method

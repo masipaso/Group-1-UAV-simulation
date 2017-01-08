@@ -11,6 +11,13 @@ class UAV_test(unittest.TestCase):
         self.baseStation = BaseStation(model=self.model, pos=(200, 200), id=1, center=(200, 200), range_of_base_station=250)
         self.uav = Uav(model=self.model, pos=(200,200),id=1,max_battery=1000,battery_low=20,base_station=self.baseStation)
 
+    def test_init(self):
+        self.assertEqual(self.uav.model,self.model)
+        self.assertEqual(self.uav.pos,(200,200))
+        self.assertEqual(self.uav.id,1)
+        self.assertEqual(self.uav.max_battery,1000)
+        self.assertEqual(self.uav.battery_low,20)
+        self.assertEqual(self.uav.base_station,self.baseStation)
 
     def test_pickup_item(self):
         # Set state of UAV to 4, so no item should be picked up

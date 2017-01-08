@@ -6,6 +6,10 @@ class Item_Test(unittest.TestCase):
     def setUp(self):
         self.item = Item(destination=(10,10),priority=1,id=0)
 
+    def test_init(self):
+        self.assertEqual(self.item.destination,(10,10))
+        self.assertEqual(self.item.priority,1)
+        self.assertEqual(self.item.id,0)
 
     def test_deliver(self):
         # Test if after deliver() the item is removed from the grid

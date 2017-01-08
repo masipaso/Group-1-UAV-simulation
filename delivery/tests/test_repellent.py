@@ -14,6 +14,13 @@ class repellent_Test(unittest.TestCase):
         self.initialStrength = config.getfloat('Repellent', 'initialStrength')
         self.decreaseBy = config.getfloat('Repellent', 'decreaseBy')
 
+    def test_init(self):
+        self.assertEqual(self.repellent.decreaseBy,self.decreaseBy)
+        self.assertEqual(self.repellent.initialStrength,self.initialStrength)
+        self.assertEqual(self.repellent.model,self.model)
+        self.assertEqual(self.repellent.pos,(30,30))
+        self.assertIn(self.repellent,self.model.repellent_schedule.agents)
+
     def test_step(self):
         # Prerequisites: placing repellent on grid and add to scheduler
         self.model.perceived_world_grid.place_agent(self.repellent,self.repellent.pos)

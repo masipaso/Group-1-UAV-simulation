@@ -7,6 +7,10 @@ class TwoMultiGrid_test(unittest.TestCase):
     def setUp(self):
         self.grid = TwoMultiGrid(width=100, height=100,torus=False)
 
+    def test_init(self):
+        self.assertEqual(self.grid.width,100)
+        self.assertEqual(self.grid.height,100)
+        self.assertEqual(self.grid.torus,False)
 
     def test_move_agent(self):
         agent = Repellent(model=WorldModel(),pos=(30,30))

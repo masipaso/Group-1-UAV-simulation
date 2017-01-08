@@ -15,10 +15,20 @@ class staticGrid_Test(unittest.TestCase):
 
         self.width = config.getint('Grid', 'width')
         self.height = config.getint('Grid', 'height')
-        pixel_ratio = config.getint('Grid', 'pixel_ratio')
+        self.pixel_ratio = config.getint('Grid', 'pixel_ratio')
         background_image = Image.open('./delivery/visualization/images/city500x500.jpg')
-        background = background_image.load()
-        self.grid = StaticGrid(self.width,self.height,pixel_ratio,background)
+        self.background = background_image.load()
+        self.grid = StaticGrid(self.width,self.height,self.pixel_ratio,self.background)
+
+    def test_init(self):
+        self.assertEqual(self.grid.width,self.width)
+        self.assertEqual(self.grid.height,self.height)
+        self.assertEqual(self.grid.pixel_ratio,self.pixel_ratio)
+        self.assertEqual(self.grid.landscape,self.background)
+        self.assertEqual(self.grid.BASE_STATION,2)
+        self.assertEqual(self.grid.OBSTACLE,1)
+        self.assertEqual(self.grid.EMPTY,0)
+        self.assertIsNotNone(self.grid.grid)
 
     def test_get_neighborhood(self):
         # 1st Test: Default values for method: include_center = False, radius = 1 return same value as not specifying them

@@ -15,6 +15,7 @@ result = unittest.TestResult()
 def create_BaseStation_suite():
     # Creating Test Suite
     suite = unittest.TestSuite()
+    suite.addTest(baseStation_Test('test_init'))
     suite.addTest(baseStation_Test('test_create_item'))
     suite.addTest(baseStation_Test('test_get_item'))
     suite.addTest(baseStation_Test('test_get_number_of_items'))
@@ -25,6 +26,7 @@ def create_BaseStation_suite():
 def create_UAV_suite():
     # Creating Test Suite
     suite = unittest.TestSuite()
+    suite.addTest(UAV_test('test_init'))
     suite.addTest(UAV_test('test_pickup_item'))
     suite.addTest(UAV_test('test_deliver_item'))
     suite.addTest(UAV_test('test_check_battery'))
@@ -37,6 +39,7 @@ def create_UAV_suite():
 def create_TwoMultiGrid_test_suite():
     # Creating Test Suite
     suite = unittest.TestSuite()
+    suite.addTest(TwoMultiGrid_test('test_init'))
     suite.addTest(TwoMultiGrid_test('test_move_agent'))
     suite.addTest(TwoMultiGrid_test('test_get_repellent_on'))
     return suite
@@ -44,6 +47,7 @@ def create_TwoMultiGrid_test_suite():
 def create_WorldModel_test_suite():
     # Creating Test Suite
     suite = unittest.TestSuite()
+    suite.addTest(worldModel_Test('test_init'))
     suite.addTest(worldModel_Test('test_create_base_station'))
     suite.addTest(worldModel_Test('test_create_uav'))
     return suite
@@ -51,6 +55,7 @@ def create_WorldModel_test_suite():
 def create_Repellent_suite():
     # Creating Test Suite
     suite = unittest.TestSuite()
+    suite.addTest(repellent_Test('test_init'))
     suite.addTest(repellent_Test('test_step'))
     suite.addTest(repellent_Test('test_weaken'))
     suite.addTest(repellent_Test('test_strengthen'))
@@ -60,6 +65,7 @@ def create_Repellent_suite():
 def create_StaticGrid_suite():
     # Creating Test Suite
     suite = unittest.TestSuite()
+    suite.addTest(staticGrid_Test('test_init'))
     suite.addTest(staticGrid_Test('test_get_neighborhood'))
     suite.addTest(staticGrid_Test('test_out_of_bounds'))
     suite.addTest(staticGrid_Test('test_place_obstacle'))
@@ -73,6 +79,7 @@ def create_StaticGrid_suite():
 def create_Item_test_suite():
     # Creating Test Suite
     suite = unittest.TestSuite()
+    suite.addTest(Item_Test('test_init'))
     suite.addTest(Item_Test('test_deliver'))
     suite.addTest(Item_Test('test_get_destination'))
     return suite
@@ -80,6 +87,7 @@ def create_Item_test_suite():
 def create_Obstacle_test_suite():
     # Creating Test Suite
     suite = unittest.TestSuite()
+    suite.addTest(Obstacle_Test('test_init'))
     suite.addTest(Obstacle_Test('test_get_position'))
 
     return suite
