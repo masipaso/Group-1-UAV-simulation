@@ -3,6 +3,7 @@ from delivery.tests.test_uav import UAV_test
 from delivery.tests.test_multi_grids import TwoMultiGrid_test
 from delivery.tests.test_worldmodel import worldModel_Test
 from delivery.tests.test_repellent import repellent_Test
+from delivery.tests.test_static_grid import staticGrid_Test
 
 import unittest
 
@@ -54,13 +55,27 @@ def create_Repellent_suite():
     suite.addTest(repellent_Test('test_get_position'))
     return suite
 
+def create_StaticGrid_suite():
+    # Creating Test Suite
+    suite = unittest.TestSuite()
+    suite.addTest(staticGrid_Test('test_get_neighborhood'))
+    suite.addTest(staticGrid_Test('test_out_of_bounds'))
+    suite.addTest(staticGrid_Test('test_place_obstacle'))
+    suite.addTest(staticGrid_Test('test_place_base_station'))
+    suite.addTest(staticGrid_Test('test_is_cell_empty'))
+    suite.addTest(staticGrid_Test('test_place_agent'))
+    suite.addTest(staticGrid_Test('test_is_obstacle_at'))
+    suite.addTest(staticGrid_Test('test_is_base_station_at'))
+    return suite
+
 # Run Tests
 print("Running Tests")
 create_BaseStation_suite().run(result=result)
-#create_UAV_suite().run(result=result)
-#create_TwoMultiGrid_test_suite().run(result=result)
-#create_WorldModel_test_suite().run(result=result)
-#create_Repellent_suite().run(result=result)
+create_UAV_suite().run(result=result)
+create_TwoMultiGrid_test_suite().run(result=result)
+create_WorldModel_test_suite().run(result=result)
+create_Repellent_suite().run(result=result)
+create_StaticGrid_suite().run(result=result)
 
 
 print("\n"*5)
