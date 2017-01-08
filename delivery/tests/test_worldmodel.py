@@ -31,16 +31,8 @@ class worldModel_Test(unittest.TestCase):
 
     def test_create_uav(self):
         # Test: Place a uav at a valid position
-        self.model.landscape.place_obstacle((30,30))
-        self.model.create_base_station(123,(30,30))
 
-        # Find the base station that we just placed
-        base = None
-        for elem in self.model.grid.get_cell_list_contents((30, 30)):
-            if isinstance(elem, BaseStation):
-                base = elem
-                break
-
+        base = BaseStation(model=self.model, pos=(30, 30), id=1, center=(30, 30), range_of_base_station=250)
         self.model.create_uav(uid=123,base_station=base)
 
         # Find UAV in grid
@@ -53,7 +45,7 @@ class worldModel_Test(unittest.TestCase):
                 break
 
         # Test: UAV is in grid
-        self.assertTrue(found)
+        self.assertTrue(uav.id,123)
 
         # Test: UAV is in perceived_world_grid
         found = False
@@ -61,12 +53,14 @@ class worldModel_Test(unittest.TestCase):
         for elem in self.model.perceived_world_grid.get_cell_list_contents((30, 30)):
             if isinstance(elem, Uav):
                 uav = elem
-                found = True
+
                 break
 
-        self.assertTrue(found)
+        # Is it in perceived_world_grid?
+        self.assertTrue(uav.id,123)
 
         # Test: The UAV has to be added to the schedule
         self.assertIn(uav,self.model.schedule.agents)
+
 
 
