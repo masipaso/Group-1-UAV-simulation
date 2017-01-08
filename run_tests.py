@@ -2,13 +2,12 @@ from delivery.tests.test_baseStation import baseStation_Test
 from delivery.tests.test_uav import UAV_test
 from delivery.tests.test_multi_grids import TwoMultiGrid_test
 from delivery.tests.test_worldmodel import worldModel_Test
+from delivery.tests.test_repellent import repellent_Test
 
 import unittest
 
 # Creating Results
 result = unittest.TestResult()
-
-
 
 def create_BaseStation_suite():
     # Creating Test Suite
@@ -44,6 +43,14 @@ def create_WorldModel_test_suite():
     suite.addTest(worldModel_Test('test_create_uav'))
     return suite
 
+def create_Repellent_suite():
+    # Creating Test Suite
+    suite = unittest.TestSuite()
+    suite.addTest(repellent_Test('test_step'))
+    suite.addTest(repellent_Test('test_weaken'))
+    suite.addTest(repellent_Test('test_strengthen'))
+    suite.addTest(repellent_Test('test_get_position'))
+    return suite
 
 # Run Tests
 print("Running Tests")
@@ -51,6 +58,7 @@ create_BaseStation_suite().run(result=result)
 create_UAV_suite().run(result=result)
 create_TwoMultiGrid_test_suite().run(result=result)
 create_WorldModel_test_suite().run(result=result)
+create_Repellent_suite().run(result=result)
 
 
 print("\n"*5)
