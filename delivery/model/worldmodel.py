@@ -48,6 +48,7 @@ class WorldModel(Model):
         self.max_battery = config.getint('Uav','max_battery')
         self.battery_low = config.getint('Uav','battery_low')
         self.number_of_repellents = 0
+        self.steps = 0
 
         # TODO: We should be able to remove "TwoMultiGrid" or at least rename "perceived_world_grid" should only contain
         # TODO: Repellents and Items(currently it holds the Repellents, UAVs, BaseStations and Items). The UAVs and
@@ -88,6 +89,7 @@ class WorldModel(Model):
         Advance the model one step
         """
         self.schedule.step()
+        self.steps = self.steps+1
         self.repellent_schedule.step()
         self.item_schedule.step()
         self.datacollector.collect(self)

@@ -1,6 +1,7 @@
 import math
 import random
-
+from delivery.grid.multi_grids import TwoMultiGrid
+from delivery.agents.repellent import Repellent
 from mesa import Agent
 
 from delivery.algorithms.repellentAlgorithm import Algorithm
@@ -26,6 +27,10 @@ class Uav(Agent):
         self.walk = []
         self.item = None
         self.state = 1
+
+        # Create my own grid for repellents and item destinations
+        self.grid = TwoMultiGrid(height=self.model.grid.height,width=self.model.grid.width,torus=self.model.grid.torus)
+
         # Battery
         self.current_charge = max_battery
         self.max_battery = max_battery
@@ -48,6 +53,7 @@ class Uav(Agent):
         Advance the Uav one step
         """
         # If the UAV is IDLE at a Base Station
+        self.find_uavs_close()
         if self.state == 1:
             if self.base_station.pos == self.pos:
                 # ... try to pick up an Item if one is available
@@ -154,6 +160,7 @@ class Uav(Agent):
             self.item = item
             # Set the new destination
             self.destination = self.item.get_destination()
+            self.grid._place_agent(pos=item.destination,agent=item)
             # Update state
             self.state = 2
             # Clear out the previous walk
@@ -178,7 +185,7 @@ class Uav(Agent):
         print(' Agent: {}  Needed {} steps and took this walk: {}'.format(self.id, len(self.walk) - 1,
                                                                           self.walk))
         # Deliver the Item
-        self.item.deliver(self.model.perceived_world_grid)
+        self.item.deliver(self.grid)
         # Remove item from model's item_schedule
         self.model.item_schedule.remove(self.item)
         self.item = None
@@ -215,7 +222,7 @@ class Uav(Agent):
         """
         # Move the agent on both grids
         self.model.grid.move_agent(self, pos)
-        self.model.perceived_world_grid.move_agent(self, pos)
+        #self.model.perceived_world_grid.move_agent(self, pos)
         # Update the position on the agent, because the move_agent function does not do that for us!
         self.pos = pos
 
@@ -224,3 +231,37 @@ class Uav(Agent):
 
     def get_initial_delivery_distance_divided_by_average_walk_length(self):
         return self.initial_delivery_distance_divided_by_average_walk_length
+
+    def find_uavs_close(self):
+        neighboorhood = self.model.grid.get_neighborhood(pos=self.pos,moore=True,include_center=False,radius=2)
+        # The worst loop ever!
+        if self.model.steps <= 100:
+            return
+        for pos in neighboorhood:
+            for obj in self.model.grid.get_cell_list_contents(pos):
+                if isinstance(obj,Uav):
+                    print("Agent {} and {} exchanging grid".format(self.id,obj.id))
+                    other_grid = obj.get_grid(self)
+
+                    # Actual program logic for grid exchange: finding repellents on other grid and check if I update mine
+                    # Very slow and random selection of neighboring UAV
+                    for x in range(0,other_grid.width-1):
+                        for y in range(0,other_grid.height-1):
+                            other_repellent = other_grid.get_repellent_on((x,y))
+                            my_repellent = self.grid.get_repellent_on((x,y))
+                            if not other_repellent == None:
+                                if my_repellent == None:
+
+                                    # Placing a new repellent if I do not know this one already
+                                    new_repellent = Repellent(self.model, (x,y))
+                                    new_repellent.strength = other_repellent.strength
+                                    self.grid.place_agent(agent=new_repellent,pos=(x,y))
+
+                                else:
+                                    # Repellent already placed at my own grid, which strength do I take now??
+                                    print("HMMMM, WHAT NOW?")
+
+
+
+    def get_grid(self,uav):
+        return self.grid
