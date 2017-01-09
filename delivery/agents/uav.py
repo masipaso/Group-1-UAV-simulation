@@ -283,8 +283,10 @@ class Uav(Agent):
             base_stations_by_distance.sort(key=lambda tup: tup[1])
         return base_stations_by_distance.pop(0)[0]
 
+
     def choose_base_station_to_pick_up_item_from(self):
         # Based on number of items and distance of BaseStation, select next BaseStation to pick up items from
+        # This should be decentralized in the next step!
         base_stations = self.model.schedule.agents_by_type[BaseStation]
         base_stations_by_distance = []
         for station in base_stations:
