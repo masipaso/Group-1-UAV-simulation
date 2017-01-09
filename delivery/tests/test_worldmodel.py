@@ -82,5 +82,57 @@ class worldModel_Test(unittest.TestCase):
         # Test: The UAV has to be added to the schedule
         self.assertIn(uav,self.model.schedule.agents)
 
+    def test_compute_number_of_items(self):
+        # Hard to test with specific values. But at least can test if my self-computed values match the values from the method...
+        # 1st Test: No items created. Value should be 0
 
+        self.assertEqual(self.model.compute_number_of_items(self.model),0)
+
+
+        # Let us do some 1000 steps and hope some items were created
+        for i in range(1,1000):
+            self.model.step()
+
+        # 2nd Test: Numbers should still match after 1000 steps!
+        number_of_items = 0
+        for base_station in self.model.schedule.agents_by_type[BaseStation]:
+            number_of_items += base_station.get_number_of_items()
+
+        self.assertEqual(self.model.compute_number_of_items(self.model), number_of_items)
+
+    def test_computer_number_of_picked_up_items(self):
+        # Hard to test with specific values. But at least can test if my self-computed values match the values from the method..
+        # 1st Test: No items created. Value should be 0
+        self.assertEqual(self.model.compute_number_of_picked_up_items(self.model),0)
+
+        # Let us do some 1000 steps and hope some items were created
+        for i in range(1, 1000):
+            self.model.step()
+
+        # Make sure, we actually really created items at least..
+        while self.model.compute_number_of_items(self.model) == 0:
+            self.model.step
+
+        number_of_picked_up_items = 0
+        for base_station in self.model.schedule.agents_by_type[BaseStation]:
+            number_of_picked_up_items += base_station.get_number_of_items(picked_up=True)
+        return number_of_picked_up_items
+
+        # 2nd Test: Numbers of picked up items
+        self.assertEqual(self.model.compute_number_of_picked_up_items(self.model),number_of_picked_up_items)
+
+    def test_compute_number_of_delivered_items(self):
+        # Hard to test with specific values. But at least can test if my self-computed values match the values from the method..
+        # 1st Test: no items created, none delivered. 0 should be result
+        self.assertEqual(self.model.compute_number_of_delivered_items(self.model),0)
+
+        # Let us do some 1000 steps and hope some items were created
+        for i in range(1, 1000):
+            self.model.step()
+
+        # 2nd Test: Numbers should still match after 1000 steps!
+        self.assertEqual(self.model.compute_number_of_delivered_items(self.model),self.model.number_of_delivered_items)
+
+    def test_compute_average_walk_length(self):
+        print("puhh..")
 

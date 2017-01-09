@@ -46,8 +46,11 @@ def create_TwoMultiGrid_test_suite():
 
 def create_WorldModel_test_suite():
     # Creating Test Suite
-    suite = unittest.TestSuite()
+    suite = unittest.TestSuite() # test_computer_number_of_picked_up__items
     suite.addTest(worldModel_Test('test_init'))
+    suite.addTest(worldModel_Test('test_compute_number_of_items'))
+    suite.addTest(worldModel_Test('test_computer_number_of_picked_up_items'))
+    suite.addTest(worldModel_Test('test_computer_number_of_delivered_items'))
     suite.addTest(worldModel_Test('test_create_base_station'))
     suite.addTest(worldModel_Test('test_create_uav'))
     return suite
@@ -94,14 +97,14 @@ def create_Obstacle_test_suite():
 
 # Run Tests
 print("Running Tests")
-create_BaseStation_suite().run(result=result)
-create_UAV_suite().run(result=result)
-create_TwoMultiGrid_test_suite().run(result=result)
+#create_BaseStation_suite().run(result=result)
+#create_UAV_suite().run(result=result)
+#create_TwoMultiGrid_test_suite().run(result=result)
 create_WorldModel_test_suite().run(result=result)
-create_Repellent_suite().run(result=result)
-create_StaticGrid_suite().run(result=result)
-create_Item_test_suite().run(result=result)
-create_Obstacle_test_suite().run(result=result)
+#create_Repellent_suite().run(result=result)
+#create_StaticGrid_suite().run(result=result)
+#create_Item_test_suite().run(result=result)
+#create_Obstacle_test_suite().run(result=result)
 
 print("\n"*5)
 
