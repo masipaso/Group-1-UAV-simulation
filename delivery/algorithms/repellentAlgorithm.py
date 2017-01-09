@@ -73,7 +73,7 @@ class Algorithm:
             if expected_distance < actual_distance:
                 print("Path was longer than expected!")
                 # If there is already a repellent on that position ...
-                repellent = self.uav.model.perceived_world_grid.get_repellent_on(last_position)
+                repellent = self.uav.grid.get_repellent_on(last_position)
                 if repellent is not None:
                     # ... increase its effect
                     print("There is already a repellent on that pos - increasing its effect!")
@@ -81,8 +81,8 @@ class Algorithm:
                 else:
                     # ... or create a new one
                     print("There is no repellent on that pos - creating one!")
-                    repellent = Repellent(self.uav.model, last_position)
-                    self.uav.model.perceived_world_grid.place_agent(repellent, last_position)
+                    repellent = Repellent(self.uav.model, last_position,self.uav.grid)
+                    self.uav.grid.place_agent(repellent, last_position)
                     self.uav.walk.remove(self.uav.walk[index])
                 break
 
@@ -107,8 +107,8 @@ class Algorithm:
                 # ... in any other case, query the perceived grid for Repellent information
                 else:
                     # If there is something at that position
-                    if not self.uav.model.perceived_world_grid.is_cell_empty(available_step.pos):
-                        cell_contents = self.uav.model.perceived_world_grid.get_cell_list_contents([available_step.pos])
+                    if not self.uav.grid.is_cell_empty(available_step.pos):
+                        cell_contents = self.uav.grid.get_cell_list_contents([available_step.pos])
                         possible = []
                         # ... check the content
                         for obstacle in cell_contents:
@@ -168,3 +168,4 @@ class Algorithm:
             x = abs(pos1[0] - pos2[0])
             y = abs(pos1[1] - pos2[1])
             return max(x, y)
+
