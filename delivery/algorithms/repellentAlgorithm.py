@@ -81,7 +81,7 @@ class Algorithm:
                 else:
                     # ... or create a new one
                     print("There is no repellent on that pos - creating one!")
-                    repellent = Repellent(self.uav.model, last_position)
+                    repellent = Repellent(self.uav.model, last_position,self.uav.grid)
                     self.uav.grid.place_agent(repellent, last_position)
                     self.uav.walk.remove(self.uav.walk[index])
                 break

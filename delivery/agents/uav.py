@@ -235,7 +235,7 @@ class Uav(Agent):
     def find_uavs_close(self):
         neighboorhood = self.model.grid.get_neighborhood(pos=self.pos,moore=True,include_center=False,radius=2)
         # The worst loop ever!
-        if self.model.steps <= 100:
+        if self.model.steps <= 50:
             return
         for pos in neighboorhood:
             for obj in self.model.grid.get_cell_list_contents(pos):
@@ -253,13 +253,16 @@ class Uav(Agent):
                                 if my_repellent == None:
 
                                     # Placing a new repellent if I do not know this one already
-                                    new_repellent = Repellent(self.model, (x,y))
+                                    new_repellent = Repellent(self.model, (x,y),self.grid)
                                     new_repellent.strength = other_repellent.strength
                                     self.grid.place_agent(agent=new_repellent,pos=(x,y))
 
                                 else:
                                     # Repellent already placed at my own grid, which strength do I take now??
-                                    print("HMMMM, WHAT NOW?")
+                                    if my_repellent.get_last_updated_at() < other_repellent.get_last_updated_at():
+                                        print("Agent: {} updates repellent from {}".format(self.id,obj.id))
+                                        my_repellent.strength = other_repellent.strength
+                                        my_repellent.last_updated_at = self.model.steps
 
 
 
