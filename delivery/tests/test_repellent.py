@@ -1,13 +1,15 @@
 import unittest
 from delivery.agents.repellent import Repellent
 from delivery.model.worldmodel import WorldModel
+from delivery.grid.multi_grids import TwoMultiGrid
 import configparser
 
 class repellent_Test(unittest.TestCase):
 
     def setUp(self):
         self.model = WorldModel()
-        self.repellent = Repellent(model=self.model,pos=(30,30))
+        self.grid = TwoMultiGrid(width=100, height=100, torus=False)
+        self.repellent = Repellent(model=self.model,pos=(30,30),grid=self.grid)
 
         config = configparser.ConfigParser()
         config.read('./config.ini')
@@ -23,8 +25,8 @@ class repellent_Test(unittest.TestCase):
 
     def test_step(self):
         # Prerequisites: placing repellent on grid and add to scheduler
-        self.model.perceived_world_grid.place_agent(self.repellent,self.repellent.pos)
-        self.model.schedule.add(self.repellent)
+        self.grid.place_agent(self.repellent,self.repellent.pos)
+        self.model.repellent_schedule.add(self.repellent)
 
         # 1st Test: strength > 0 = initialStrength. Expected result: strength = initialStrength - decreaseBy and repellent not removed from scheduler and grid
         self.repellent.step()
@@ -32,17 +34,20 @@ class repellent_Test(unittest.TestCase):
 
         found = False
 
-        for elem in self.model.perceived_world_grid.get_cell_list_contents((30, 30)):
+        for elem in self.grid.get_cell_list_contents((30, 30)):
             if isinstance(elem, Repellent):
                 found = True
                 break
 
         self.assertTrue(found)
 
-        self.assertIn(self.repellent, self.model.schedule.agents)
+        self.assertIn(self.repellent, self.model.repellent_schedule.agents)
 
         # 2nd Test: strength = 0. Expected result: agent removed from schedule and grid, and strength = 0 -decreaseBy
         self.repellent.strength = 0
+        self.repellent.step()
+        self.assertNotIn(self.repellent,self.repellent.grid)
+        self.assertNotIn(self.repellent,self.model.repellent_schedule.agents)
 
 
     def test_strengthen(self):

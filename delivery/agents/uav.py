@@ -2,6 +2,9 @@ import math
 import random
 from delivery.grid.multi_grids import TwoMultiGrid
 from delivery.agents.repellent import Repellent
+from delivery.agents.baseStation import BaseStation
+
+
 from mesa import Agent
 
 from delivery.algorithms.repellentAlgorithm import Algorithm
@@ -20,6 +23,7 @@ class Uav(Agent):
     """
     def __init__(self, model, pos, id, max_battery, battery_low, base_station):
         # TODO: Why do we have the model here? This should not be available
+
         self.model = model
         self.pos = pos
         self.id = id
@@ -130,7 +134,7 @@ class Uav(Agent):
         """
         if self.current_charge < self.battery_low:
             self.state = 4
-            self.destination = self.base_station.get_pos()
+            self.destination = self.choose_base_station_for_charging()
             print(' Agent: {}  has low Battery. going to Base Station: {}'.format(self.id, self.destination))
         if self.current_charge <= 0:
             self.state = 6
@@ -260,7 +264,7 @@ class Uav(Agent):
                                 else:
                                     # Repellent already placed at my own grid, which strength do I take now??
                                     if my_repellent.get_last_updated_at() < other_repellent.get_last_updated_at():
-                                        print("Agent: {} updates repellent from {}".format(self.id,obj.id))
+                                        print("Agent {} updates repellent from Agent {}. Old strength: {}, New: {}".format(self.id,obj.id,my_repellent.strength,other_repellent.strength))
                                         my_repellent.strength = other_repellent.strength
                                         my_repellent.last_updated_at = self.model.steps
 
@@ -268,3 +272,15 @@ class Uav(Agent):
 
     def get_grid(self,uav):
         return self.grid
+
+    def choose_base_station_for_charging(self):
+        # Based on euclidean distance, select closest baseStation
+        base_stations = self.model.schedule.agents_by_type[BaseStation]
+        base_stations_by_distance = []
+        for station in base_stations:
+            base_stations_by_distance.append((station.pos,self.get_euclidean_distance(self.pos,station.pos)))
+            base_stations_by_distance.sort(key=lambda tup: tup[1])
+        return base_stations_by_distance.pop(0)[0]
+
+
+

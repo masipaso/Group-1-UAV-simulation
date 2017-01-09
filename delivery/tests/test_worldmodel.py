@@ -94,11 +94,11 @@ class worldModel_Test(unittest.TestCase):
         self.assertEqual(self.model.compute_number_of_items(self.model),0)
 
 
-        # Let us do some 1000 steps and hope some items were created
-        for i in range(1,1000):
+        # Let us do some 150 steps and hope some items were created
+        for i in range(1,150):
             self.model.step()
 
-        # 2nd Test: Numbers should still match after 1000 steps!
+        # 2nd Test: Numbers should still match after 150 steps!
         number_of_items = 0
         for base_station in self.model.schedule.agents_by_type[BaseStation]:
             number_of_items += base_station.get_number_of_items()
@@ -110,8 +110,8 @@ class worldModel_Test(unittest.TestCase):
         # 1st Test: No items created. Value should be 0
         self.assertEqual(self.model.compute_number_of_picked_up_items(self.model),0)
 
-        # Let us do some 1000 steps and hope some items were created
-        for i in range(1, 1000):
+        # Let us do some 150 steps and hope some items were created
+        for i in range(1, 150):
             self.model.step()
 
         # Make sure, we actually really created items at least..
@@ -131,11 +131,11 @@ class worldModel_Test(unittest.TestCase):
         # 1st Test: no items created, none delivered. 0 should be result
         self.assertEqual(self.model.compute_number_of_delivered_items(self.model),0)
 
-        # Let us do some 1000 steps and hope some items were created
-        for i in range(1, 1000):
+        # Let us do some 150 steps and hope some items were created
+        for i in range(1, 150):
             self.model.step()
 
-        # 2nd Test: Numbers should still match after 1000 steps!
+        # 2nd Test: Numbers should still match after 150 steps!
         self.assertEqual(self.model.compute_number_of_delivered_items(self.model),self.model.number_of_delivered_items)
 
     def test_compute_average_walk_length(self):
@@ -143,8 +143,8 @@ class worldModel_Test(unittest.TestCase):
         # 1st Test: Result should be zero in the beginning
         self.assertEqual(self.model.compute_average_walk_length(self.model),0)
 
-        # 2nd Test: After 1000 steps, result should be same as my own calculation
-        for i in range(1,1000):
+        # 2nd Test: After 150 steps, result should be same as my own calculation
+        for i in range(1,150):
             self.model.step()
 
         average_walks = []
@@ -164,8 +164,8 @@ class worldModel_Test(unittest.TestCase):
         # 1st Test: Result should be zero in the beginning
         self.assertEqual(self.model.compute_standard_deviation_walk_lengths(self.model),0)
 
-        # 2nd Test: After 1000 steps, result should be same as my own calculation
-        for i in range(1, 1000):
+        # 2nd Test: After 150 steps, result should be same as my own calculation
+        for i in range(1, 150):
             self.model.step()
 
         stddev = 0
@@ -185,8 +185,8 @@ class worldModel_Test(unittest.TestCase):
         # 1st Test: Result should be zero in the beginning
         self.assertEqual(self.model.compute_walk_length_divided_by_distance(self.model),0)
 
-        # 2nd Test: After 1000 steps, result should be same as my own calculation
-        for i in range(1, 1000):
+        # 2nd Test: After 150 steps, result should be same as my own calculation
+        for i in range(1, 150):
             self.model.step()
 
         length_by_distance = []
@@ -206,13 +206,13 @@ class worldModel_Test(unittest.TestCase):
         # 1st Test: Should be zero in the beginning
         self.assertEqual(self.model.compute_item_average_lifetime(self.model),0)
 
-        # After 1000 steps, value should be changed
-        for i in range(1,1000):
+        # After 150 steps, value should be changed
+        for i in range(1,150):
             self.model.step()
 
         result = 0
         for item in self.model.item_schedule.agents:
             result = result + item.lifetime
 
-        # 2nd Test: After 1000 steps...
+        # 2nd Test: After 150 steps...
         self.assertEqual(self.model.compute_item_average_lifetime(self.model),result/len(self.model.item_schedule.agents))
