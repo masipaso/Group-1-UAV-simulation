@@ -5,3 +5,4 @@
 shape_model/*.*
 *.csv
 *.xlsx
+.idea/*.*
