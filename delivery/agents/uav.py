@@ -179,6 +179,8 @@ class Uav(Agent):
                                                                           self.walk))
         # Deliver the Item
         self.item.deliver(self.model.perceived_world_grid)
+        # Remove item from model's item_schedule
+        self.model.item_schedule.remove(self.item)
         self.item = None
         # Clear out the previous walk
         self.walk = []

@@ -61,6 +61,9 @@ class BaseStation(Agent):
         self.model.perceived_world_grid.place_agent(item, item_destination)
         # Add the Item to the BaseStation
         self.items.append(item)
+
+        # Add the Item to the scheduler of the model
+        self.model.item_schedule.add(item)
         print("Created item {}, destination: {}, priority: {}".format(item.id, item.destination, item.priority))
         # Sort the items by priority
         self.sort_items_by_priority()

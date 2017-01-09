@@ -4,6 +4,7 @@ from delivery.agents.uav import Uav
 import configparser
 import unittest
 from mesa.datacollection import DataCollector
+from delivery.schedule.schedule import RandomActivationByType
 import numpy as np
 
 
@@ -28,6 +29,9 @@ class worldModel_Test(unittest.TestCase):
         self.assertEqual(self.model.landscape.height, config.getint('Grid', 'height'))
         self.assertEqual(self.model.number_of_delivered_items,0)
         self.assertIsInstance(self.model.datacollector,DataCollector)
+        self.assertIsInstance(self.model.schedule,RandomActivationByType)
+        self.assertIsInstance(self.model.repellent_schedule, RandomActivationByType)
+        self.assertIsInstance(self.model.item_schedule, RandomActivationByType)
 
 
     def test_create_base_station(self):
@@ -197,8 +201,18 @@ class worldModel_Test(unittest.TestCase):
 
         self.assertEqual(self.model.compute_walk_length_divided_by_distance(self.model),result)
 
+    def test_compute_item_average_lifetime(self):
+        # Hard to test with specific values. But at least can test if my self-computed values match the values from the method...
+        # 1st Test: Should be zero in the beginning
+        self.assertEqual(self.model.compute_item_average_lifetime(self.model),0)
 
+        # After 1000 steps, value should be changed
+        for i in range(1,1000):
+            self.model.step()
 
+        result = 0
+        for item in self.model.item_schedule.agents:
+            result = result + item.lifetime
 
-
-
+        # 2nd Test: After 1000 steps...
+        self.assertEqual(self.model.compute_item_average_lifetime(self.model),result/len(self.model.item_schedule.agents))

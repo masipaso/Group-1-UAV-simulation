@@ -10,6 +10,7 @@ class Item_Test(unittest.TestCase):
         self.assertEqual(self.item.destination,(10,10))
         self.assertEqual(self.item.priority,1)
         self.assertEqual(self.item.id,0)
+        self.assertEqual(self.item.lifetime,0)
 
     def test_deliver(self):
         # Test if after deliver() the item is removed from the grid
@@ -24,3 +25,22 @@ class Item_Test(unittest.TestCase):
         # Test if this method returns the correct destination
         self.assertEqual(self.item.destination,self.item.get_destination())
 
+    def test_step(self):
+        # 1st Test: Run step and check if lifetime has increased
+        self.item.step()
+        self.assertEqual(self.item.lifetime,1)
+
+        # 2nd Test: Item has been delivered. Lifetime should not have increased
+        self.item.lifetime = 10
+        self.item.delivered = True
+        self.item.step()
+        self.assertEqual(self.item.lifetime,10)
+
+    def test_get_lifetime(self):
+        # Test: Run get_lifetime and check if correct lifetime is returned
+        # 1st Test: In the beginning get_lifetime = 0
+        self.assertEqual(self.item.get_lifetime(),0)
+
+        # 2nd Test: After 1 step, get_lifetime = 1
+        self.item.step()
+        self.assertEqual(self.item.get_lifetime(),1)

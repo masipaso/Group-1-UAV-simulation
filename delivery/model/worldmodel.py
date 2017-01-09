@@ -1,8 +1,6 @@
 import configparser
 import random
-import math
 import numpy as np
-from random import randint
 from PIL import Image
 from mesa import Model
 from mesa.datacollection import DataCollector
@@ -10,7 +8,7 @@ from mesa.datacollection import DataCollector
 from delivery.grid.Static_grid import StaticGrid
 
 from delivery.agents.baseStation import BaseStation
-from delivery.agents.obstacle import Obstacle
+from delivery.agents.item import Item
 from delivery.agents.uav import Uav
 from delivery.grid.multi_grids import TwoMultiGrid
 from delivery.schedule.schedule import RandomActivationByType
@@ -39,6 +37,8 @@ class WorldModel(Model):
         self.schedule = RandomActivationByType(self)
         # Configure schedule for Repellents
         self.repellent_schedule = RandomActivationByType(self)
+        # Configure schedule for items
+        self.item_schedule = RandomActivationByType(self)
         # Set parameters
         self.width = config.getint('Grid', 'width')
         self.height = config.getint('Grid', 'height')
@@ -70,6 +70,7 @@ class WorldModel(Model):
                 "Average Walk Length": self.compute_average_walk_length,
                 "Standard Deviation of Average Walk Lengths": self.compute_standard_deviation_walk_lengths,
                 "Walklength Divided by Distance": self.compute_walk_length_divided_by_distance,
+                "Average lifetime of item": self.compute_item_average_lifetime,
              }
         )
 
@@ -88,6 +89,7 @@ class WorldModel(Model):
         """
         self.schedule.step()
         self.repellent_schedule.step()
+        self.item_schedule.step()
         self.datacollector.collect(self)
         dataframe = self.datacollector.get_model_vars_dataframe()
         dataframe.to_csv('out.csv')
@@ -262,3 +264,14 @@ class WorldModel(Model):
             return sum(length_by_distance)/len(length_by_distance)
         else:
             return 0
+
+    @staticmethod
+    def compute_item_average_lifetime(model):
+        result = 0
+        if not model.item_schedule.agents_by_type[Item] == []:
+            for item in model.item_schedule.agents:
+                result = result + item.lifetime
+            return result / len(model.item_schedule.agents)
+        else:
+            return 0
+
