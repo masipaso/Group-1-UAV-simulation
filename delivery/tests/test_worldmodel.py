@@ -4,6 +4,7 @@ from delivery.agents.uav import Uav
 import configparser
 import unittest
 from mesa.datacollection import DataCollector
+import numpy as np
 
 
 class worldModel_Test(unittest.TestCase):
@@ -100,7 +101,7 @@ class worldModel_Test(unittest.TestCase):
 
         self.assertEqual(self.model.compute_number_of_items(self.model), number_of_items)
 
-    def test_computer_number_of_picked_up_items(self):
+    def test_compute_number_of_picked_up_items(self):
         # Hard to test with specific values. But at least can test if my self-computed values match the values from the method..
         # 1st Test: No items created. Value should be 0
         self.assertEqual(self.model.compute_number_of_picked_up_items(self.model),0)
@@ -134,5 +135,70 @@ class worldModel_Test(unittest.TestCase):
         self.assertEqual(self.model.compute_number_of_delivered_items(self.model),self.model.number_of_delivered_items)
 
     def test_compute_average_walk_length(self):
-        print("puhh..")
+        # Hard to test with specific values. But at least can test if my self-computed values match the values from the method...
+        # 1st Test: Result should be zero in the beginning
+        self.assertEqual(self.model.compute_average_walk_length(self.model),0)
+
+        # 2nd Test: After 1000 steps, result should be same as my own calculation
+        for i in range(1,1000):
+            self.model.step()
+
+        average_walks = []
+        walklength = 0
+        for uav in self.model.schedule.agents_by_type[Uav]:
+            for elem in uav.get_walk_lengths():
+                average_walks.append(elem)
+        if len(average_walks) > 0:
+            walklength = sum(average_walks) / len(average_walks)
+        else:
+            walklength = 0
+
+        self.assertEqual(self.model.compute_average_walk_length(self.model), walklength)
+
+    def test_compute_standard_deviation_walk_lengths(self):
+        # Hard to test with specific values. But at least can test if my self-computed values match the values from the method...
+        # 1st Test: Result should be zero in the beginning
+        self.assertEqual(self.model.compute_standard_deviation_walk_lengths(self.model),0)
+
+        # 2nd Test: After 1000 steps, result should be same as my own calculation
+        for i in range(1, 1000):
+            self.model.step()
+
+        stddev = 0
+        average_walks = []
+        for uav in self.model.schedule.agents_by_type[Uav]:
+            for elem in uav.get_walk_lengths():
+                average_walks.append(elem)
+        if len(average_walks) > 0:
+            stddev= np.std(average_walks)
+        else:
+            stddev = 0
+
+        self.assertEqual(self.model.compute_standard_deviation_walk_lengths(self.model),stddev)
+
+    def test_compute_walk_length_divided_by_distance(self):
+        # Hard to test with specific values. But at least can test if my self-computed values match the values from the method...
+        # 1st Test: Result should be zero in the beginning
+        self.assertEqual(self.model.compute_walk_length_divided_by_distance(self.model),0)
+
+        # 2nd Test: After 1000 steps, result should be same as my own calculation
+        for i in range(1, 1000):
+            self.model.step()
+
+        length_by_distance = []
+        result = 0
+        for uav in self.model.schedule.agents_by_type[Uav]:
+            for elem in uav.get_initial_delivery_distance_divided_by_average_walk_length():
+                length_by_distance.append(elem)
+        if len(length_by_distance) > 0:
+            result = sum(length_by_distance) / len(length_by_distance)
+        else:
+            result = 0
+
+        self.assertEqual(self.model.compute_walk_length_divided_by_distance(self.model),result)
+
+
+
+
+
 
