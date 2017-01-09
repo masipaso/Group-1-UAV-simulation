@@ -28,7 +28,7 @@ class baseStation_Test(unittest.TestCase):
 
         # Check if item is on perceived_world_grid at its destination position
         self.assertIn(member=item,container=self.model.perceived_world_grid.get_cell_list_contents(item.destination))
-        self.assertIn(member=item,container=self.model.item_schedule)
+        self.assertIn(member=item,container=self.model.item_schedule.agents)
 
     def test_get_item(self):
         #1st Test: no items at baseStation. Expected Result: None

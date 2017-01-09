@@ -6,10 +6,25 @@ from delivery.tests.test_repellent import repellent_Test
 from delivery.tests.test_static_grid import staticGrid_Test
 from delivery.tests.test_item import Item_Test
 from delivery.tests.test_obstacle import Obstacle_Test
+from delivery.tests.test_repellentAlgorithm import repellentAlgorithm_Test
+from sys import stdout
+import sys
 
 import unittest
 
+class output_hider():
+    def __init__(self):
+        self.save_stdout = None
+
+    def hide_output(self):
+        self.save_stdout = sys.stdout
+        sys.stdout = open('trash', 'w')
+
+    def unhide_output(self):
+        sys.stdout = self.save_stdout
+
 # Creating Results
+hider = output_hider()
 result = unittest.TestResult()
 
 def create_BaseStation_suite():
@@ -98,22 +113,70 @@ def create_Obstacle_test_suite():
     suite = unittest.TestSuite()
     suite.addTest(Obstacle_Test('test_init'))
     suite.addTest(Obstacle_Test('test_get_position'))
+    return suite
 
+def create_RepellenAlgorithm_test_suite():
+    # Creating Test Suite
+    suite = unittest.TestSuite()
+    suite.addTest(repellentAlgorithm_Test('test_init'))
+    #suite.addTest(Obstacle_Test('test_get_position'))
     return suite
 
 # Run Tests
 print("Running Tests")
-#create_BaseStation_suite().run(result=result)
+print("Testing BaseStation")
+hider.hide_output()
+
+create_BaseStation_suite().run(result=result)
+hider.unhide_output()
+
+print("Testing UAV")
+hider.hide_output()
+
 create_UAV_suite().run(result=result)
-#create_TwoMultiGrid_test_suite().run(result=result)
-#create_WorldModel_test_suite().run(result=result)
-#create_Repellent_suite().run(result=result)
-#create_StaticGrid_suite().run(result=result)
-#create_Item_test_suite().run(result=result)
-#create_Obstacle_test_suite().run(result=result)
+hider.unhide_output()
 
-print("\n"*5)
+print("Testing TwoMultiGrid")
+hider.hide_output()
 
+create_TwoMultiGrid_test_suite().run(result=result)
+hider.unhide_output()
+
+print("Testing WorldModel")
+hider.hide_output()
+
+create_WorldModel_test_suite().run(result=result)
+hider.unhide_output()
+
+print("Testing Repellent")
+hider.hide_output()
+
+create_Repellent_suite().run(result=result)
+hider.unhide_output()
+
+print("Testing StaticGrid")
+hider.hide_output()
+
+create_StaticGrid_suite().run(result=result)
+hider.unhide_output()
+
+print("Testing Item")
+hider.hide_output()
+
+create_Item_test_suite().run(result=result)
+hider.unhide_output()
+
+print("Testing Obstacle")
+hider.hide_output()
+
+create_Obstacle_test_suite().run(result=result)
+hider.unhide_output()
+
+print("Testing RepellentAlgorithm")
+hider.hide_output()
+
+create_RepellenAlgorithm_test_suite().run(result=result)
+hider.unhide_output()
 
 print('\033[1mTest results (Summary): {}\033[0m'.format(result))
 
@@ -122,7 +185,6 @@ if result.errors != []:
     for err in result.errors:
         print("\033[1m\033[31mError\033[0m: {}".format(err))
 
-print("\n")
 print("\033[1mList of failures (if any):\033[0m")
 if result.failures != []:
     for fail in result.failures:
