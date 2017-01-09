@@ -13,7 +13,7 @@ class TwoMultiGrid_test(unittest.TestCase):
         self.assertEqual(self.grid.torus,False)
 
     def test_move_agent(self):
-        agent = Repellent(model=WorldModel(),pos=(30,30))
+        agent = Repellent(model=WorldModel(),pos=(30,30),grid=self.grid)
         self.grid.place_agent(agent,(30,30))
 
         # 1st Test: Move agent out of grid, IndexError expected
@@ -41,7 +41,7 @@ class TwoMultiGrid_test(unittest.TestCase):
         self.assertEqual(self.grid.get_repellent_on((30,30)),None)
 
         # 2nd Test: Place one repellent in a cell and test if it is a repellent
-        agent = Repellent(model=WorldModel(), pos=(30, 30))
+        agent = Repellent(model=WorldModel(), pos=(30, 30),grid=self.grid)
         self.grid.place_agent(agent,agent.pos)
         self.assertIsInstance(self.grid.get_repellent_on((30,30)),Repellent)
         self.assertIs(self.grid.get_repellent_on((30, 30)), agent)

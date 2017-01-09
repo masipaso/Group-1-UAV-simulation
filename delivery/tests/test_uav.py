@@ -225,6 +225,10 @@ class UAV_test(unittest.TestCase):
     def test_get_grid(self):
         self.assertEqual(self.uav.get_grid(self),self.uav.grid)
 
-    def test_test_find_uavs_close(self):
+    def test_find_uavs_close(self):
         print("NOT YET DEFINED")
         self.assertTrue(True)
+
+    def test_choose_base_station_for_charging(self):
+        print(self.uav.choose_base_station_for_charging())
+        self.assertEqual(True,True)
