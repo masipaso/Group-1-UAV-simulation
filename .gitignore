@@ -6,3 +6,5 @@ shape_model/*.*
 *.csv
 *.xlsx
 .idea/*.*
+.idea/group1.iml
+*.iml
