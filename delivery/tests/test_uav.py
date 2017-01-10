@@ -68,8 +68,8 @@ class UAV_test(unittest.TestCase):
         self.assertEqual(self.uav.walk, [])
         self.assertEqual(self.uav.real_walk,[])
 
-        # Test if new destination is baseStation
-        self.assertEqual(self.uav.destination,self.baseStation.pos)
+        # Test if new destination is baseStation - deprecated because now I select it based on some algorithm!
+        # self.assertEqual(self.uav.destination,self.baseStation.pos)
 
         # Test if state has changed to 3
         self.assertEqual(self.uav.state,3)
@@ -85,8 +85,8 @@ class UAV_test(unittest.TestCase):
         # Test if state is changed to 4
         self.assertEqual(self.uav.state,4)
 
-        # Test if UAV's destination is self.baseStation.pos
-        self.assertEqual(self.uav.destination,self.baseStation.pos)
+        # Test if UAV's destination is self.baseStation.pos - deprecated because now I select it based on some algorithm!
+        # self.assertEqual(self.uav.destination,self.baseStation.pos)
 
         # 2nd test: 0 = current_charge
         self.uav.destination = (50, 50)
@@ -97,8 +97,8 @@ class UAV_test(unittest.TestCase):
         # Test if UAV's state is changed to 6
         self.assertEqual(self.uav.state, 6)
 
-        # Test if UAV's destination is changed
-        self.assertEqual(self.uav.destination,self.baseStation.pos)
+        # Test if UAV's destination is changed - deprecated because now I select it based on some algorithm!
+        # self.assertEqual(self.uav.destination,self.baseStation.pos)
 
 
         # 3rd test: 0 > current_charge
@@ -110,8 +110,8 @@ class UAV_test(unittest.TestCase):
         # Test if UAV's state is changed to 6
         self.assertEqual(self.uav.state, 6)
 
-        # Test if UAV's destination is changed
-        self.assertEqual(self.uav.destination,self.baseStation.pos)
+        # Test if UAV's destination is changed - deprecated because now I select it based on some algorithm!
+        # self.assertEqual(self.uav.destination,self.baseStation.pos)
 
         # 4th Test: 0 < current_charge > low_battery
         self.uav.destination = (50, 50)
@@ -223,12 +223,13 @@ class UAV_test(unittest.TestCase):
         self.assertEqual(computed_distance,distance)
 
     def test_get_grid(self):
-        self.assertEqual(self.uav.get_grid(self),self.uav.grid)
+        self.assertEqual(self.uav.get_grid(),self.uav.grid)
 
     def test_find_uavs_close(self):
         print("NOT YET DEFINED")
         self.assertTrue(True)
 
-    def test_choose_base_station_for_charging(self):
-        print(self.uav.choose_base_station_for_charging())
-        self.assertEqual(True,True)
+    def test_get_nearest_base_station(self):
+        self.assertTrue(True)
+
+

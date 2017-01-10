@@ -57,7 +57,7 @@ class Uav(Agent):
         Advance the Uav one step
         """
         # If the UAV is IDLE at a Base Station
-        self.find_uavs_close()
+
         if self.state == 1:
             if self.base_station.pos == self.pos:
                 # ... try to pick up an Item if one is available
@@ -70,6 +70,7 @@ class Uav(Agent):
             if self.pos == self.destination:
                 self.deliver_item()
             # ... otherwise keep delivering the Item
+            self.find_uavs_close()
             self.algorithm.run()
         # If the UAV is on the way to a Base Station
         elif self.state == 3:
@@ -79,6 +80,7 @@ class Uav(Agent):
                 self.arrive_at_base_station(idle=True, charge=True)
             # .. otherwise keep finding the Base Station
             else:
+                self.find_uavs_close()
                 self.algorithm.run()
         # If the UAV is low on battery life
         elif self.state == 4:
@@ -88,6 +90,7 @@ class Uav(Agent):
                 self.arrive_at_base_station(charge=True)
             # .. otherwise keep finding the Base Station
             else:
+                self.find_uavs_close()
                 self.algorithm.run()
         # If the UAV is charging the battery at a Base Station
         elif self.state == 5 or self.state == 1:
@@ -134,7 +137,7 @@ class Uav(Agent):
         """
         if self.current_charge < self.battery_low:
             self.state = 4
-            self.destination = self.choose_nearest_base_station()
+            self.destination = self.get_nearest_base_station()
             print(' Agent: {}  has low Battery. going to Base Station: {}'.format(self.id, self.destination))
         if self.current_charge <= 0:
             self.state = 6
@@ -244,9 +247,9 @@ class Uav(Agent):
             return
         for pos in neighboorhood:
             for obj in self.model.grid.get_cell_list_contents(pos):
-                if isinstance(obj,Uav):
+                if isinstance(obj,Uav) and obj != self:
                     print("Agent {} and {} exchanging grid".format(self.id,obj.id))
-                    other_grid = obj.get_grid(self)
+                    other_grid = obj.grid
 
                     # Actual program logic for grid exchange: finding repellents on other grid and check if I update mine
                     # Very slow and random selection of neighboring UAV
@@ -254,7 +257,7 @@ class Uav(Agent):
                         for y in range(0,other_grid.height-1):
                             other_repellent = other_grid.get_repellent_on((x,y))
                             my_repellent = self.grid.get_repellent_on((x,y))
-                            if not other_repellent == None:
+                            if other_repellent != None:
                                 if my_repellent == None:
 
                                     # Placing a new repellent if I do not know this one already
@@ -263,18 +266,20 @@ class Uav(Agent):
                                     self.grid.place_agent(agent=new_repellent,pos=(x,y))
 
                                 else:
-                                    # Repellent already placed at my own grid, which strength do I take now??
-                                    if my_repellent.get_last_updated_at() < other_repellent.get_last_updated_at():
+                                    # Repellent already placed at my own grid
+                                    # TODO: Make second part of if clause more intelligent aka avoid exchanging grid if already exchanged upto n steps ago.
+                                    # TODO: So actually never get here in that case
+                                    if my_repellent.get_last_updated_at() < other_repellent.get_last_updated_at() and my_repellent.strength != other_repellent.strength:
                                         print("Agent {} updates repellent from Agent {}. Old strength: {}, New: {}".format(self.id,obj.id,my_repellent.strength,other_repellent.strength))
                                         my_repellent.strength = other_repellent.strength
                                         my_repellent.last_updated_at = self.model.steps
 
 
 
-    def get_grid(self,uav):
+    def get_grid(self):
         return self.grid
 
-    def choose_nearest_base_station(self):
+    def get_nearest_base_station(self):
         # Based on euclidean distance, select closest baseStation
         base_stations = self.model.schedule.agents_by_type[BaseStation]
         base_stations_by_distance = []
@@ -292,5 +297,6 @@ class Uav(Agent):
         for station in base_stations:
             base_stations_by_distance.append((station.pos,self.get_euclidean_distance(self.pos,station.pos),
                                               len(station.items)))
-            sorted(base_stations_by_distance,  key=itemgetter(2,1), reverse=True)
+            sorted(base_stations_by_distance,  key=itemgetter(2,1))
+        print("List of BaseStations: {}".format(base_stations_by_distance))
         return base_stations_by_distance.pop(0)[0]

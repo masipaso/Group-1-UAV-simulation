@@ -48,7 +48,7 @@ class tests_runner():
         suite.addTest(UAV_test('test_get_euclidean_distance'))
         suite.addTest(UAV_test('test_get_grid'))
         suite.addTest(UAV_test('test_find_uavs_close'))
-        suite.addTest(UAV_test('test_choose_base_station_for_charging'))
+        suite.addTest(UAV_test('test_get_nearest_base_station'))
         return suite
 
     def create_TwoMultiGrid_test_suite(self):

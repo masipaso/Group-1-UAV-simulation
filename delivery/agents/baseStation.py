@@ -46,7 +46,7 @@ class BaseStation(Agent):
                              self.center[1] + self.range_of_base_station)
         # ... but only if the cell is not occupied with an Obstacle or BaseStation
         # TODO: Make it possible that Items can be created at cells that already have an Item, a Uav or a Repellent
-        while x > self.model.width or y > self.model.height or not self.model.grid.is_cell_empty((x, y)):# or not self.model.perceived_world_grid.is_cell_empty((x, y)):
+        while x >= self.model.width or y >= self.model.height or not self.model.grid.is_cell_empty((x, y)) or not self.model.perceived_world_grid.is_cell_empty((x, y)):
             x = random.randrange(self.center[0] - self.range_of_base_station,
                                  self.center[0] + self.range_of_base_station)
             y = random.randrange(self.center[1] - self.range_of_base_station,
