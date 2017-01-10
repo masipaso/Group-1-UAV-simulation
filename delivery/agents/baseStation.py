@@ -21,8 +21,8 @@ class BaseStation(Agent):
         """
         config = configparser.ConfigParser()
         config.read('./config.ini')
-        self.probability_to_create_item = config.getint('Basestation','probability_to_create_item')
         self.max_item_priority = config.getint('Basestation','max_item_priority')
+        self.max_items_per_base_station = config.getint('Basestation','max_items_per_base_station')
         self.range_of_base_station = range_of_base_station
 
         self.model = model
@@ -34,8 +34,8 @@ class BaseStation(Agent):
         pass
 
     def step(self):
-        # A BaseStation creates an Item with a probability of ...
-        if random.randint(1, 100) <= self.probability_to_create_item:
+        # A BaseStation creates an Item if max_items_per_base_station has not been reached
+        if len(self.items)< self.max_items_per_base_station:
             self.create_item()
 
     def create_item(self):
