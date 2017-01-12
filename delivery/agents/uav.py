@@ -241,61 +241,62 @@ class Uav(Agent):
         return self.initial_delivery_distance_divided_by_average_walk_length
 
     def find_uavs_close(self):
-        neighboorhood = self.model.grid.get_neighborhood(pos=self.pos,moore=True,include_center=False,radius=2)
+        # TODO: Definition
+        neighborhood = self.model.grid.get_neighborhood(pos=self.pos,moore=True,include_center=False,radius=2)
         # The worst loop ever!
         if self.model.steps <= 50:
             return
-        for pos in neighboorhood:
+        for pos in neighborhood:
             for obj in self.model.grid.get_cell_list_contents(pos):
-                if isinstance(obj,Uav) and obj != self:
-                    print("Agent {} and {} exchanging grid".format(self.id,obj.id))
+                if isinstance(obj ,Uav) and obj is not self:
+                    print("Agent {} and {} exchanging grid".format(self.id, obj.id))
                     other_grid = obj.grid
 
                     # Actual program logic for grid exchange: finding repellents on other grid and check if I update mine
                     # Very slow and random selection of neighboring UAV
-                    for x in range(0,other_grid.width-1):
-                        for y in range(0,other_grid.height-1):
-                            other_repellent = other_grid.get_repellent_on((x,y))
-                            my_repellent = self.grid.get_repellent_on((x,y))
-                            if other_repellent != None:
-                                if my_repellent == None:
+                    for x in range(0, other_grid.width - 1):
+                        for y in range(0, other_grid.height - 1):
+                            other_repellent = other_grid.get_repellent_on((x, y))
+                            my_repellent = self.grid.get_repellent_on((x, y))
+                            if other_repellent is not None:
+                                if my_repellent is None:
 
                                     # Placing a new repellent if I do not know this one already
-                                    new_repellent = Repellent(self.model, (x,y),self.grid)
+                                    new_repellent = Repellent(self.model, (x, y),self.grid)
                                     new_repellent.strength = other_repellent.strength
-                                    self.grid.place_agent(agent=new_repellent,pos=(x,y))
+                                    self.grid.place_agent(agent=new_repellent, pos=(x, y))
 
                                 else:
                                     # Repellent already placed at my own grid
                                     # TODO: Make second part of if clause more intelligent aka avoid exchanging grid if already exchanged upto n steps ago.
                                     # TODO: So actually never get here in that case
-                                    if my_repellent.get_last_updated_at() < other_repellent.get_last_updated_at() and my_repellent.strength != other_repellent.strength:
-                                        print("Agent {} updates repellent from Agent {}. Old strength: {}, New: {}".format(self.id,obj.id,my_repellent.strength,other_repellent.strength))
+                                    if my_repellent.get_last_updated_at() < other_repellent.get_last_updated_at() and my_repellent.strength is not other_repellent.strength:
+                                        print("Agent {} updates repellent from Agent {}. Old strength: {}, New: {}".format(self.id, obj.id, my_repellent.strength, other_repellent.strength))
                                         my_repellent.strength = other_repellent.strength
                                         my_repellent.last_updated_at = self.model.steps
 
-
-
     def get_grid(self):
+        # TODO: Definition
         return self.grid
 
     def get_nearest_base_station(self):
+        # TODO: Definition
         # Based on euclidean distance, select closest baseStation
         base_stations = self.model.schedule.agents_by_type[BaseStation]
         base_stations_by_distance = []
         for station in base_stations:
-            base_stations_by_distance.append((station.pos,self.get_euclidean_distance(self.pos,station.pos)))
+            base_stations_by_distance.append((station.pos, self.get_euclidean_distance(self.pos, station.pos)))
             base_stations_by_distance.sort(key=lambda tup: tup[1])
         return base_stations_by_distance.pop(0)[0]
 
-
     def choose_base_station_to_pick_up_item_from(self):
+        # TODO: Definition
         # Based on number of items and distance of BaseStation, select next BaseStation to pick up items from
         # This should be decentralized in the next step!
         base_stations = self.model.schedule.agents_by_type[BaseStation]
         base_stations_by_distance = []
         for station in base_stations:
-            base_stations_by_distance.append((station.pos,self.get_euclidean_distance(self.pos,station.pos),
+            base_stations_by_distance.append((station.pos, self.get_euclidean_distance(self.pos, station.pos),
                                               len(station.items)))
             sorted(base_stations_by_distance,  key=itemgetter(2,1))
         print("List of BaseStations: {}".format(base_stations_by_distance))

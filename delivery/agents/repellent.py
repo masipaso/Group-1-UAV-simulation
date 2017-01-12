@@ -10,15 +10,13 @@ class Repellent(Agent):
         config = configparser.ConfigParser()
         config.read('./config.ini')
         self.grid = grid
-        self.initialStrength = config.getfloat('Repellent','initialStrength')
-        self.decreaseBy = config.getfloat('Repellent','decreaseBy')
+        self.initial_strength = config.getfloat('Repellent', 'initial_strength')
+        self.decrease_by = config.getfloat('Repellent', 'decrease_by')
         self.model = model
         self.pos = pos
-        self.strength = self.initialStrength
+        self.strength = self.initial_strength
         self.model.repellent_schedule.add(self)
         self.last_updated_at = self.model.steps
-
-
         pass
 
     def step(self):
@@ -41,7 +39,7 @@ class Repellent(Agent):
         """
         Weaken a Repellents strength
         """
-        self.strength -= self.decreaseBy
+        self.strength -= self.decrease_by
 
     def strengthen(self):
         """
@@ -49,7 +47,7 @@ class Repellent(Agent):
         """
         # TODO: Should we increase this by a number instead of setting it to a fixed value?
         self.last_updated_at = self.model.steps
-        self.strength = self.initialStrength
+        self.strength = self.initial_strength
 
     def get_position(self):
         """

@@ -1,4 +1,3 @@
-
 class Item:
     """
     An Item is delivered by a drone.
@@ -16,7 +15,7 @@ class Item:
         :return:
         """
         if not self.delivered:
-            self.lifetime = self.lifetime + 1
+            self.lifetime += 1
 
     def deliver(self, grid):
         """
