@@ -2,29 +2,38 @@
 \begin{enumerate}
 	\item UAV's
 	\item Smart Cities
-	\item What more?
+	\item Why simulation engine?
 \end{enumerate}
 
-\section{Related Literature}
+\section{Related Work}
 \begin{enumerate}
+	\item Objectives
 	\item ant algorithms for UAV / Path planning
 	\item path planning with multiple depots / battery
 	\item ...
 \end{enumerate}
 
-\section{Optimization Problem}
+\section{Description of the model}
 \begin{enumerate}
 	\item multiple depots
+	\item Describe the modular and extensible character of the architecture
+	\item Describe how the model accomodates for the integration of self-organizing algorithms for UAVs
+	\item Describing changes and extensions in the mesa framework
 	\item drones have to recharge and thus deviate from their actual route
 	\item ...
 	
 \end{enumerate}
 
-\section{Algorithm}
-This section describes the optimization algorithm used for path-finding in the previously described problem domain.
+\section{Description of the Use-Case}
 
-\subsection{Background}
-The algorithm that is used to optimize the path-finding and item delivery is inspired by the Ant Colony Algorithm. This algorithm was originally proposed by Marco Dorigo in 1992 \cite{dorigo.1992}. The Ant Colony Algorithm describes how ants find the shortest path between the colony and a source of food (see Figure \ref{fig:algo_dreo.2016}). The search for the shortest path is conducted in multiple steps. In the first step an ant finds a food source (F) and during its way back to the colony (N) the ant lays a pheromone trail. In the next step, other ants might find the same food source and also lay down a trail of pheromones. Other ants might follow different pheromone trails to the food source and drop pheromones as well. Since the ants that walk the shortest path can traverse the route more often than ants that follow a longer path, the pheromone level on the shorter path is higher than the level on other paths. As a result, more and more ants favour the shorter path (3rd step).
+\begin{enumerate}
+	\item Use Case and taken assumptions
+	\item Describe the algorithm - add pseudo-code?! Remove wikipedia graphic!!
+\end{enumerate}
+
+\subsection{Algorithm}
+
+The algorithm that is used to optimize the path-finding and item delivery is inspired by the Ant Colony Algorithm. This algorithm was originally proposed by Marco Dorigo in 1992 \cite{dorigo.1992}. The Ant Colony Algorithm describes how ants find the shortest path between the colony and a source of food (see Figure \ref{fig:algo_dreo.2016}). The search for the shortest path is conducted in multiple steps. In the first step an ant finds a food source (F) and during its way back to the colony (N) the ant lays a pheromone trail. In the next step, other ants might find the same food source and also lay down a trail of pheromones. Other ants might follow different pheromone trails to the food source and drop pheromones as well. Since the ants that walk the shortest path can traverse the route more often than ants that follow a longer path, the pheromone level on the shorter path is higher than the level on other paths. As a result, more and more ants favour the shorter path (3rd step).\\
 
 \begin{figure}[htbp]\label{fig:algo_dreo.2016}
 	\centering
@@ -34,11 +43,11 @@ The algorithm that is used to optimize the path-finding and item delivery is ins
 \end{figure}
 
 
-\subsection{Adaption}
+%\subsection{Adaption}
 In our use case we invert the Ant Colony Algorithm. Instead of using pheromones that attract, we employed repellents which are used to divert. Every time a UAV finds a non-optimal cell, it creates a repellent to let other UAVs know that it is not wise to include this cell on the route to find the target location. In the real world the pheromones decay over time. Each repellent has a strength which decreases over time.
-The decay of repellents' strength is employed to avoid UAVs getting stuck in local optima because they cannot deliver an item to a location that is surrounded by repellents or the UAV itself is encompassed by repellents.
+The decay of repellents' strength is employed to avoid UAVs getting stuck in local optima because they cannot deliver an item to a location that is surrounded by repellents or the UAV itself is encompassed by repellents.\\
 
-\subsection{Implementation}
+%\subsection{Implementation}
 In the first step the algoritm calculates all available steps. Available steps are defined as all neighboring cells that a UAV can visit from its current location (see Figure \ref{fig:algo_steps})
 .
 \begin{figure}[htbp]\label{fig:algo_steps}
@@ -72,7 +81,7 @@ The algorithm identifies that in order to reach the cell the UAV reached in pict
 \section{Evaluation}
 \begin{enumerate}
 	\item Use KPI's that we defined
-	\item Use graphics with cool Excel tables to present data
+	\item Use graphics with cool Excel tables to present data or we make tables here
 \end{enumerate}
 
 \section{Conclusion}
@@ -82,4 +91,3 @@ The algorithm identifies that in order to reach the cell the UAV reached in pict
 	\item future development?
 \end{enumerate}
 
-\cite{Winery}

@@ -1,0 +1,291 @@
+%**************************************************************************
+%* SpringSim 2017 Author Kit
+%*
+%* Word Processing System: TeXnicCenter and MiKTeX
+%*
+%**************************************************************************
+
+\documentclass{scspaperproc}
+
+\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage{mathptmx}
+
+%
+%****************************************************************************
+% AUTHOR: You may want to use some of these packages. (Optional)
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsbsy}
+\usepackage{amsthm}
+%****************************************************************************
+
+
+
+%
+%****************************************************************************
+% AUTHOR: If you do not wish to use hyperlinks, then just comment
+% out the hyperref usepackage commands below.
+
+%% This version of the command is used if you use pdflatex. In this case you
+%% cannot use ps or eps files for graphics, but pdf, jpeg, png etc are fine.
+
+\usepackage[pdftex,colorlinks=true,urlcolor=blue,citecolor=black,anchorcolor=black,linkcolor=black]{hyperref}
+
+%% The next versions of the hyperref command are used if you adopt the
+%% outdated latex-dvips-ps2pdf route in generating your pdf file. In
+%% this case you can use ps or eps files for graphics, but not pdf, jpeg, png etc.
+%% However, the final pdf file should embed all fonts required which means that you have to use file
+%% formats which can embed fonts. Please note that the final PDF file will not be generated on your computer!
+%% If you are using WinEdt or PCTeX, then use the following. If you are using
+%% Y&Y TeX then replace "dvips" with "dvipsone"
+
+%% \usepackage[dvips,colorlinks=true,urlcolor=blue,citecolor=black,%
+%% anchorcolor=black,linkcolor=black]{hyperref}
+
+%% The use of the long citation format (e.g. "Brown and Edwards (1993)" rather than "[5]") and at the same
+%% time using the hyperref package can lead to hard to trace bugs in case the citation is broken accross the
+%% line (usually this will mark the entire paragraph as a hyperlink (clickable) which is easily noticeable and fixed
+%% if using colorlinks, but not if the color is black -- as it is now). Worse yet, if a citation spans page boundary,
+%% LaTeX compilation can fail, with an obscure error message. Since this depends a lot on the flow of the text
+%% and wording, these bugs come and go and can be extremely hard for a beginner to trace. The error
+%% message can look like this:
+%%
+%%    ! pdfTeX error (ext4): \pdfendlink ended up in different nesting level than \pdfstartlink.
+%%    \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+%%    \fi \fi 
+%%    l.174 
+%%    ! ==> Fatal error occurred, no output PDF file produced!
+%%
+%% and can be universally fixed by putting an \mbox{} around the citation in question (in this case, at line 174)
+%% and maybe adapting the wording a little bit to improve the paragraph typesetting, which is perhaps not
+%% immediately obvious.
+%****************************************************************************
+
+%
+%****************************************************************************
+%*
+%* AUTHOR: YOUR CALL!  Document-specific macros can come here.
+%*
+%****************************************************************************
+
+% add custom hyphenation rules here
+\usepackage{hyphenat}
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+% If you use theorems
+\newtheoremstyle{scsthe}% hnamei
+{8pt}% hSpace abovei
+{8pt}% hSpace belowi
+{\it}% hBody fonti
+{}% hIndent amounti1
+{\bf}% hTheorem head fontbf
+{.}% hPunctuation after theorem headi
+{.5em}% hSpace after theorem headi2
+{}% hTheorem head spec (can be left empty, meaning `normal')i
+
+\theoremstyle{scsthe}
+\newtheorem{theorem}{Theorem}
+\renewcommand{\thetheorem}{\arabic{theorem}}
+\newtheorem{corollary}[theorem]{Corollary}
+\renewcommand{\thecorollary}{\arabic{corollary}}
+\newtheorem{definition}{Definition}
+\renewcommand{\thedefinition}{\arabic{definition}}
+
+% avoid overrunning the right margin; you are welcome to remove this, provided that you take care not to overrun the right margin anywhere in your paper
+\sloppy
+
+%#########################################################
+%*
+%*  The Document.
+%*
+\begin{document}
+
+%***************************************************************************
+% AUTHOR: AUTHOR NAMES GO HERE
+% FORMAT AUTHORS NAMES Like: Author1, Author2 and Author3 (last names)
+%
+%		You need to change the author listing below!
+%               Please list ALL authors using last name only, separate by a comma except
+%               for the last author, separate with "and"
+%
+\SCSpagesetup{Albayrak, Eyk-Hrabia, Huenges, Pranskaityte, Gimeno and Schroeck}
+
+% AUTHOR: Uncomment ONE of these correct conference names.
+\def\SCSconferenceacro{SpringSim}
+%\def\SCSconferenceacro{SummerSim}
+%\def\SCSconferenceacro{AutumnSim}
+%\def\SCSconferenceacro{PowerPlantSim}
+
+% AUTHOR: Set the correct year of the conference.
+\def\SCSpublicationyear{2017}
+
+% AUTHOR: Set the correct month and dates; the dates are separated by a single minus sign
+% with no spaces and no leading zeros, the month is a full name (e.g. April) with the first letter
+% capitalized. For example, "April 8-13".
+\def\SCSconferencedates{April 23-26}
+
+% AUTHOR: Set the correct venue in the form "City, State, Country", for example "Los Angeles, CA, USA".
+\def\SCSconferencevenue{Virginia Beach, VA, USA}
+
+% AUTHOR: Uncomment ONE of the track/symposium names where you are going to submit. Please, do NOT change.
+% In case your symposium is not on this list, please DO contact your symposium chair.
+\def\SCSsymposiumacro{ANSS} % Annual Simulation Symposium
+%\def\SCSsymposiumacro{CNS} % Communications and Networking Simulation Symposium
+%\def\SCSsymposiumacro{HPC} % High Performance Computing Symposium
+%\def\SCSsymposiumacro{TMS/DEVS} % Symposium on Theory of Modeling and Simulation
+%\def\SCSsymposiumacro{ADS} % Agent-Directed Simulation
+%\def\SCSsymposiumacro{MSCIAAS} % Modeling and Simulation of Complexity in Intelligent, Adaptive and Autonomous Systems
+%\def\SCSsymposiumacro{MSM} % Modeling and Simulation in Medicine
+%\def\SCSsymposiumacro{Mod4Sim} % Model-driven Approaches for Simulation Engineering Symposium
+%\def\SCSsymposiumacro{Tutorial} % Tutorial Track
+%\def\SCSsymposiumacro{WIP} % WIP Track
+%\def\SCSsymposiumacro{Poster/Colloquium} % Poster Session and Student Colloquium
+%\def\SCSsymposiumacro{MobileApp} % Student M\&S Mobile App Competition
+%\def\SCSsymposiumacro{SPECTS} % Symposium on Performance Evaluation of Computer and Telecommunication Systems
+%\def\SCSsymposiumacro{SCSC} % Summer Computer Simulation Conference
+%\def\SCSsymposiumacro{ICBGM} % International Conference on Bond-Graph Modeling
+%\def\SCSsymposiumacro{Fossil} % Fossil Power Track
+%\def\SCSsymposiumacro{Nuclear} % Nuclear Agent Power Track
+
+% AUTHOR: Enter the title, all letters in upper case
+\title{A swarm algorithm for optimizing path-planning with multiple depots and battery recharging using an inverted ant colony algorithm}
+
+% AUTHOR: Enter the authors of the article, see end of the example document for further examples
+\author{Prof. Dr.-Ing. habil. Dr. h.c. Sahin Albayrak\\[12pt]
+Distributed Artificial Intelligence Laboratory \\
+Technical University Berlin \\
+Str. des 17. Juni 135 \\
+Berlin \\
+sahin.albayrak@dai-labor.de
+\and
+Christopher-Eyk Hrabia, M.Sc. \\ [12pt]
+Distributed Artificial Intelligence Laboratory \\
+Technical University Berlin \\
+Str. des 17. Juni 135 \\
+christopher-eyk.hrabia@dai-labor.de \\
+\and
+Dominik Schroeck \\ [12pt]
+Distributed Artificial Intelligence Laboratory \\
+Technical University Berlin \\
+Str. des 17. Juni 135 \\
+Berlin \\
+dominik.schroeck@campus.tu-berlin.de \\
+% Multiple authors are entered as follows.
+% You may also need to adjust the titlevbox size in the preamble - search for titlevboxsize
+\and
+Jan-Gerald Huenges \\[12pt]
+Distributed Artificial Intelligence Laboratory \\
+Technical University Berlin \\
+Str. des 17. Juni 135 \\
+Berlin \\
+dominik.schroeck@campus.tu-berlin.de \\
+\and
+Santiago Masip Gimeno \\ [12pt]
+Distributed Artificial Intelligence Laboratory \\
+Technical University Berlin \\
+Str. des 17. Juni 135 \\
+Berlin \\
+dominik.schroeck@campus.tu-berlin.de \\
+\and
+Aleksandra Pranskaityte \\ [12pt]
+Distributed Artificial Intelligence Laboratory \\
+Technical University Berlin \\
+Str. des 17. Juni 135 \\
+Berlin \\
+dominik.schroeck@campus.tu-berlin.de \\
+}
+
+\maketitle
+
+\input{actualText}
+
+\bibliographystyle{scsproc}
+% AUTHOR: Include your bib file here
+\bibliography{paper}
+
+\section*{Author Biographies}
+
+\textbf{\uppercase{THERESA M. K. ROEDER}} is an Associate Professor of Decision Sciences at San Francisco State University. She holds a PhD in Industrial Engineering and Operations Research from UC Berkeley. Her research interests lie in O.R. education and simulation modeling, especially in healthcare and higher education. Her email address is \email{wsc15roeder@gmail.com}.
+
+\textbf{\uppercase{PETER I. FRAZIER}} is an Associate Professor in the School of Operations Research and Information Engineering at Cornell University. He holds a Ph.D. in Operations Research and Financial Engineering from Princeton University. His research interests include optimal learning, sequential decision-making under uncertainty, and machine learning, focusing on applications in simulation optimization, e-commerce, and the physical sciences.  His email address is \email{wsc16frazier@gmail.com}.
+
+\textbf{\uppercase{ROBERTO SZECHTMAN}} received his Ph.D. from Stanford University, and currently is Associate Professor in the Operations Research Department at the Naval Postgraduate School. His research interests include applied probability and military operations research. His email address is \email{wsc16szechtman@gmail.com}.
+
+\textbf{\uppercase{ENLU ZHOU}} is an Assistant Professor in the H. Milton Stewart School of Industrial \& Systems Engineering at Georgia Institute of Technology. She holds a Ph.D. in Electrical Engineering from the University of Maryland, College Park. Her research interests include stochastic control and simulation optimization, with applications in financial engineering and revenue management. Her email address is \email{wsc16zhou@gmail.com}.
+
+\newpage
+
+\begin{figure*}[htb]
+{
+\centering
+First Name Last Name 1 \\
+First Name Last Name 2 \\
+\vspace{12pt}
+Affiliation \\
+Address, City, Country \\
+E-mail address
+\caption{Example title page heading with 2 authors from the same institution.\label{fig2same}}
+}
+\end{figure*}
+
+\begin{figure*}[htb]
+{
+\centering
+\begin{tabular}{ccc}
+\phantom{Entries to adjust spacing - ignore} & \phantom{intermediate space} & \phantom{Entries to adjust spacing - ignore} \\
+First Name Last Name 1 & & First Name Last Name 2 \\
+\\
+Affiliation 1 & & Affiliation 2 \\
+Address, City, Country 1 & & Address, City, Country 1 \\
+E-mail address 2 & & E-mail address 2 
+\end{tabular}
+\caption{Example title page heading with 2 authors from different institutions.\label{fig2different}}
+}
+\end{figure*}
+
+\begin{figure*}[htb]
+{
+\centering
+\begin{tabular}{ccc}
+\phantom{This adjusts spacing - ignore} & \phantom{This adjusts spacing - ignore} & \phantom{This adjusts spacing - ignore} \\
+First Name Last Name 1 & & First Name Last Name 2 \\
+\\
+Affiliation 1 & & Affiliation 2 \\
+Address, City, Country 1 & & Address, City, Country 1 \\
+E-mail address 2 & & E-mail address 2 \\
+\\
+\\
+& First Name Last Name 3 \\
+\\
+& Affiliation 3\\
+& Address, City, Country \\
+& E-mail address 2 
+\end{tabular}
+\caption{Alternate example title page heading with 3 authors from different institutions. \label{fig3different}}
+}
+\end{figure*}
+
+\begin{figure*}[htb]
+{
+\centering
+\begin{tabular}{ccc}
+\phantom{Adjust spacing using these entries} & \phantom{intermediate space} & \phantom{Adjust spacing using these entries} \\
+First Name Last Name 1 & & First Name Last Name 2 \\
+\\
+Affiliation 1 & & Affiliation 2 \\
+Address, City, Country 1 & & Address, City, Country 1 \\
+E-mail address 2 & & E-mail address 2 \\
+\\ \\
+First Name Last Name 3 & & First Name Last Name 4 \\
+\\
+Affiliation 3 & & Affiliation 4 \\
+Address, City, Country 1 & & Address, City, Country 1 \\
+E-mail address 2 & & E-mail address 2 
+\end{tabular}
+\caption{Example title page heading with 4 authors from different institutions.\label{fig4different}}
+}
+\end{figure*}
+
+\end{document}
