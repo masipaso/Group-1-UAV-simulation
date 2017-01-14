@@ -40,7 +40,6 @@ class StaticGrid:
             for i in range(1, self.width, multiplier):
                 r, g, b = self.landscape[i, j]
                 if self.is_obstacle_color(r, g, b):
-                    print(r, g, b)
                     fill_cells_x = []
                     fill_cells_y = []
                     for k in range(0, multiplier):
