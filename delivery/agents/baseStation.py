@@ -43,7 +43,6 @@ class BaseStation(Agent):
                              self.center[0] + self.range_of_base_station)
         y = random.randrange(self.center[1] - self.range_of_base_station,
                              self.center[1] + self.range_of_base_station)
-        # TODO: Make it possible that Items can be created at cells that already have an Item, a Uav or a Repellent
         # ... but only if the cell is not occupied with an Obstacle or BaseStation
         while x >= self.model.width \
                 or y >= self.model.height \

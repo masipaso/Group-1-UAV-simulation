@@ -4,7 +4,7 @@ from delivery.agents.baseStation import BaseStation
 
 from operator import itemgetter
 from mesa import Agent
-from delivery.grid.Multi_grid import MultiGridExtra
+from delivery.grid.Multi_grid_extra import MultiGridExtra
 
 from delivery.algorithms.repellentAlgorithm import Algorithm
 
@@ -24,9 +24,12 @@ class Uav(Agent):
     :param uid: Unique UAV identifier
     :param max_battery: The maximum charge the battery can have
     :param battery_low: The threshold at which the battery charge is considered low
+    :param battery_decrease_per_step: The decrease in battery charge per step
+    :param battery_increase_per_step: The increase in battery charge while charging per step
     :param base_station: The 'home' BaseStation
     """
-    def __init__(self, model, pos, uid, max_battery, battery_low, base_station):
+    def __init__(self, model, pos, uid, max_battery, battery_low, battery_decrease_per_step, battery_increase_per_step,
+                 base_station):
         # TODO: Why do we have the model here? This should not be available
         self.model = model
         self.pos = pos
@@ -44,6 +47,8 @@ class Uav(Agent):
         self.current_charge = max_battery
         self.max_battery = max_battery
         self.battery_low = battery_low
+        self.battery_decrease_per_step = battery_decrease_per_step
+        self.battery_increase_per_step = battery_increase_per_step
         # Base Stations
         self.base_station = base_station
         # Delivery
@@ -108,8 +113,7 @@ class Uav(Agent):
 
         # Decrease battery life
         if self.state == 2 or self.state == 3 or self.state == 4:
-            # TODO: Make this configurable
-            self.current_charge -= 1
+            self.current_charge -= self.battery_decrease_per_step
             # ... and check the status
             self.check_battery()
 
@@ -119,8 +123,7 @@ class Uav(Agent):
         """
         Charge the battery of a UAV
         """
-        # TODO: Make this configurable
-        self.current_charge += 10
+        self.current_charge += self.battery_increase_per_step
         print(' Agent: {}  charges battery. Battery: {}'.format(self.uid, self.current_charge))
         # If the battery is fully charged
         if self.current_charge >= self.max_battery:
@@ -137,7 +140,7 @@ class Uav(Agent):
 
     def check_battery(self):
         """
-        Check if the current charge of the battery is suficciant to carry on, otherwise
+        Check if the current charge of the battery is sufficient to carry on, otherwise
         the UAV heads towards the closest Base Station for charging
         """
         if self.current_charge < self.battery_low:
@@ -282,13 +285,6 @@ class Uav(Agent):
                                         print("Agent {} updates repellent from Agent {}. Old strength: {}, New: {}".format(self.uid, obj.uid, my_repellent.strength, other_repellent.strength))
                                         my_repellent.strength = other_repellent.strength
                                         my_repellent.last_updated_at = self.model.steps
-
-    def get_grid(self):
-        """
-        Get the grid of the UAV
-        :return: The grid of the UAV
-        """
-        return self.perceived_grid
 
     def get_nearest_base_station(self):
         """

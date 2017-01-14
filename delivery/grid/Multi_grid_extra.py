@@ -19,7 +19,7 @@ class MultiGridExtra(MultiGrid):
     def get_repellent_on(self, pos):
         """
         Check if there is a repellent on the position
-        :param pos: position that is checked
+        :param pos: Tuple of coordinates
         :return: A repellent, that is on the position or None
         """
         cell_content = self.get_cell_list_contents(pos)

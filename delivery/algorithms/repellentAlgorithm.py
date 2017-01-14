@@ -1,7 +1,5 @@
 from delivery.agents.repellent import Repellent
-from delivery.agents.obstacle import Obstacle
 from delivery.utils.step import Step
-import math
 
 
 class Algorithm:

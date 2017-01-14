@@ -44,16 +44,15 @@ class WorldModel(Model):
         self.pixel_ratio = config.getint('Grid', 'pixel_ratio')
         self.range_of_base_station = config.getfloat('Basestation', 'range_of_base_station')
         self.number_of_uavs_per_base_station = config.getint('Uav', 'number_of_uavs_per_base_station')
-        self.max_battery = config.getint('Uav','max_battery')
-        self.battery_low = config.getint('Uav','battery_low')
+        self.max_battery = config.getint('Uav', 'max_battery')
+        self.battery_low = config.getint('Uav', 'battery_low')
+        self.battery_decrease_per_step = config.getint('Uav', 'battery_decrease_per_step')
+        self.battery_increase_per_step = config.getint('Uav', 'battery_increase_per_step')
         self.number_of_repellents = 0
         # Counter for number of steps
         self.steps = 0
 
-        # TODO: We should be able to remove "TwoMultiGrid" or at least rename "perceived_world_grid" should only contain
-        # TODO: Repellents and Items(currently it holds the Repellents, UAVs, BaseStations and Items). The UAVs and
-        # TODO: BaseStations are represented on the "real_world_grid".
-        # Add a grid that is used to visualize the 'actual' world
+        # Add a grid that is used to visualize the 'actual' world; This grid contains UAVs and BaseStations
         self.grid = MultiGrid(self.height, self.width, torus=False)
 
         # Create the StaticGrid that contains the landscape (Obstacles, BaseStations, ...)
@@ -195,7 +194,8 @@ class WorldModel(Model):
         """
         # Create the uav
         uav = Uav(self, pos=base_station.get_pos(), uid=uid, max_battery=self.max_battery, battery_low=self.battery_low,
-                  base_station=base_station)
+                  base_station=base_station, battery_decrease_per_step=self.battery_decrease_per_step,
+                  battery_increase_per_step=self.battery_increase_per_step)
         # Place the uav on the grids
         self.grid.place_agent(uav, base_station.get_pos())
         # Add the Uav to the schedule

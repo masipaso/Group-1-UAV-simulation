@@ -3,7 +3,6 @@ from mesa.visualization.ModularVisualization import VisualizationElement
 from collections import defaultdict
 
 from delivery.agents.baseStation import BaseStation
-from delivery.agents.obstacle import Obstacle
 from delivery.agents.uav import Uav
 
 
@@ -39,11 +38,7 @@ class RealWorldGrid(VisualizationElement):
 
         portrayal = {"Filled": "true"}
 
-        if type(agent) is Obstacle:
-            portrayal["Color"] = "rgba(0, 0, 0, 0.4)"
-            portrayal["Type"] = "Obstacle"
-            portrayal["Layer"] = 0
-        elif type(agent) is BaseStation:
+        if type(agent) is BaseStation:
             portrayal["Color"] = "#FFC319"
             portrayal["Type"] = "BaseStation"
             portrayal["Layer"] = 1
