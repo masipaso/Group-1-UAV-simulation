@@ -68,27 +68,18 @@ var RealWorldVisualization = function(height, width, gridWidth, gridHeight, fore
     maxX = cellWidth * gridWidth;
     maxY = cellHeight * gridHeight;
 
-    // Positions for Google Maps
-    var position = {
-      coords: {
-        latitude: 52.402115,
-        longitude: 13.067914
-        //        latitude: 29.736864,
-        //        longitude: -95.437573
-      }
-    };
-
     // Create image
     var backgroundImage = new Image();
-    var google_tile = "http://maps.google.com/maps/api/staticmap?sensor=false&center=" + position.coords.latitude + "," + position.coords.longitude + "&zoom=18&size=" + gridWidth + "x" + gridHeight + "&scale=1&maptype=roadmap";
-    var google_tile = "http://127.0.0.1:8521/images/city500x500_landscape.jpg"
+    var backgroundImageFile = "http://127.0.0.1:8521/images/city500x500_landscape.jpg"
     // Load the map into the image
-    backgroundImage.src = google_tile;
+    backgroundImage.src = backgroundImageFile;
 
     // Draw the background image
     backgroundImage.onload = function() {
       // Draw background image
       backgroundContext.drawImage(backgroundImage, 0, 0, width, height);
+
+      console.log(backgroundImage.width, backgroundImage.height)
 
       // Draw grid lines
       // that.drawGridLines()

@@ -1,7 +1,5 @@
 from delivery.agents.repellent import Repellent
-from delivery.agents.obstacle import Obstacle
 from delivery.utils.step import Step
-import math
 
 
 class Algorithm:
@@ -13,7 +11,7 @@ class Algorithm:
 
     def run(self):
         """
-        TODO: Description
+        Run the algorithm
         """
         # If the Uav does not have a destination, do nothing
         if self.uav.destination is None:
@@ -49,12 +47,8 @@ class Algorithm:
         # Move UAV
         self.uav.move_to(new_position)
         new_distance = self.uav.get_euclidean_distance(self.uav.pos, self.uav.destination)
-        print(' Agent: {}  Moves from {} to {}. Distance to Destination: {}. Battery: {}'.format(self.uav.id,
-                                                                                                 last_position,
-                                                                                                 new_position,
-                                                                                                 new_distance,
-                                                                                                 self.uav.current_charge
-                                                                                                 ))
+        print(' Agent: {}  Moves from {} to {}. Distance to Destination: {}. Battery: {}'
+              .format(self.uav.uid, last_position, new_position, new_distance, self.uav.current_charge))
 
         # Adding the new position to the walk
         self.uav.walk.append((new_position, new_distance))
@@ -73,7 +67,7 @@ class Algorithm:
             if expected_distance < actual_distance:
                 print("Path was longer than expected!")
                 # If there is already a repellent on that position ...
-                repellent = self.uav.grid.get_repellent_on(last_position)
+                repellent = self.uav.perceived_grid.get_repellent_on(last_position)
                 if repellent is not None:
                     # ... increase its effect
                     print("There is already a repellent on that pos - increasing its effect!")
@@ -81,8 +75,8 @@ class Algorithm:
                 else:
                     # ... or create a new one
                     print("There is no repellent on that pos - creating one!")
-                    repellent = Repellent(self.uav.model, last_position,self.uav.grid)
-                    self.uav.grid.place_agent(repellent, last_position)
+                    repellent = Repellent(self.uav.model, last_position, self.uav.perceived_grid)
+                    self.uav.perceived_grid.place_agent(repellent, last_position)
                     self.uav.walk.remove(self.uav.walk[index])
                 break
 
@@ -104,11 +98,11 @@ class Algorithm:
                 # If there is a BaseStation, add the step to the possible_steps
                 if self.uav.model.landscape.is_base_station_at(available_step.pos):
                     possible_steps.append(available_step)
-                # ... in any other case, query the perceived grid for Repellent information
+                # ... in any other case, query the perceived grid of the UAV for Repellent information
                 else:
                     # If there is something at that position
-                    if not self.uav.grid.is_cell_empty(available_step.pos):
-                        cell_contents = self.uav.grid.get_cell_list_contents([available_step.pos])
+                    if not self.uav.perceived_grid.is_cell_empty(available_step.pos):
+                        cell_contents = self.uav.perceived_grid.get_cell_list_contents([available_step.pos])
                         possible = []
                         # ... check the content
                         for obstacle in cell_contents:
@@ -134,11 +128,11 @@ class Algorithm:
 
     def get_available_steps(self):
         """
-        Get all available steps in the real world
+        Get all available steps the UAV _could_ take
         :return: a list of Steps
         """
-        # Get the cells of the real world as these contain all available cells
-        neighborhood_real_world = self.uav.model.grid.get_neighborhood(
+        # Get the neighboring cells of the grid
+        neighborhood = self.uav.perceived_grid.get_neighborhood(
             self.uav.pos,
             moore=True,
             include_center=False,
@@ -147,7 +141,7 @@ class Algorithm:
         available_steps = []
 
         # Iterate over the neighboring cells and create Steps
-        for coordinates in neighborhood_real_world:
+        for coordinates in neighborhood:
             distance = self.uav.get_euclidean_distance(self.uav.destination, coordinates)
             available_step = Step(distance=distance, pos=coordinates)
             available_steps.append(available_step)

@@ -6,14 +6,13 @@ from mesa import Model
 from mesa.datacollection import DataCollector
 
 from delivery.grid.Static_grid import StaticGrid
+from mesa.space import MultiGrid
 
 from delivery.agents.baseStation import BaseStation
 from delivery.agents.item import Item
 from delivery.agents.uav import Uav
-from delivery.grid.multi_grids import TwoMultiGrid
 from delivery.schedule.schedule import RandomActivationByType
 
-# TODO: Describe what all these variables do!
 
 class WorldModel(Model):
     """
@@ -45,19 +44,16 @@ class WorldModel(Model):
         self.pixel_ratio = config.getint('Grid', 'pixel_ratio')
         self.range_of_base_station = config.getfloat('Basestation', 'range_of_base_station')
         self.number_of_uavs_per_base_station = config.getint('Uav', 'number_of_uavs_per_base_station')
-        self.max_battery = config.getint('Uav','max_battery')
-        self.battery_low = config.getint('Uav','battery_low')
+        self.max_battery = config.getint('Uav', 'max_battery')
+        self.battery_low = config.getint('Uav', 'battery_low')
+        self.battery_decrease_per_step = config.getint('Uav', 'battery_decrease_per_step')
+        self.battery_increase_per_step = config.getint('Uav', 'battery_increase_per_step')
         self.number_of_repellents = 0
         # Counter for number of steps
         self.steps = 0
 
-        # TODO: We should be able to remove "TwoMultiGrid" or at least rename "perceived_world_grid" should only contain
-        # TODO: Repellents and Items(currently it holds the Repellents, UAVs, BaseStations and Items). The UAVs and
-        # TODO: BaseStations are represented on the "real_world_grid".
-        # Add a grid that is used to visualize the 'actual' world
-        self.grid = TwoMultiGrid(self.height, self.width, torus=False)
-        # Add a grid that is used to visualize the perceived world
-        self.perceived_world_grid = TwoMultiGrid(self.height, self.width, torus=False)
+        # Add a grid that is used to visualize the 'actual' world; This grid contains UAVs and BaseStations
+        self.grid = MultiGrid(self.height, self.width, torus=False)
 
         # Create the StaticGrid that contains the landscape (Obstacles, BaseStations, ...)
         self.landscape = StaticGrid(self.width, self.height, self.pixel_ratio, background)
@@ -91,7 +87,7 @@ class WorldModel(Model):
         """
         self.schedule.step()
         # Increase number of steps
-        self.steps = self.steps+1
+        self.steps += 1
         self.repellent_schedule.step()
         self.item_schedule.step()
         self.datacollector.collect(self)
@@ -197,10 +193,11 @@ class WorldModel(Model):
         :param base_station: the assigned BaseStation
         """
         # Create the uav
-        uav = Uav(self, pos=base_station.get_pos(), id=uid, max_battery=self.max_battery, battery_low=self.battery_low, base_station=base_station)
+        uav = Uav(self, pos=base_station.get_pos(), uid=uid, max_battery=self.max_battery, battery_low=self.battery_low,
+                  base_station=base_station, battery_decrease_per_step=self.battery_decrease_per_step,
+                  battery_increase_per_step=self.battery_increase_per_step)
         # Place the uav on the grids
         self.grid.place_agent(uav, base_station.get_pos())
-        self.perceived_world_grid.place_agent(uav, base_station.get_pos())
         # Add the Uav to the schedule
         self.schedule.add(uav)
 
@@ -213,7 +210,7 @@ class WorldModel(Model):
         number_of_items = 0
         for base_station in model.schedule.agents_by_type[BaseStation]:
             number_of_items += base_station.get_number_of_items()
-        return  number_of_items
+        return number_of_items
 
     @staticmethod
     def compute_number_of_picked_up_items(model):
@@ -242,8 +239,9 @@ class WorldModel(Model):
             for elem in uav.get_walk_lengths():
                 average_walks.append(elem)
         if len(average_walks)>0:
-            return sum(average_walks)/len(average_walks)
-        else: return 0
+            return sum(average_walks) / len(average_walks)
+        else:
+            return 0
 
     @staticmethod
     def compute_standard_deviation_walk_lengths(model):
@@ -265,7 +263,7 @@ class WorldModel(Model):
             for elem in uav.get_initial_delivery_distance_divided_by_average_walk_length():
                 length_by_distance.append(elem)
         if len(length_by_distance) > 0:
-            return sum(length_by_distance)/len(length_by_distance)
+            return sum(length_by_distance) / len(length_by_distance)
         else:
             return 0
 
@@ -278,4 +276,3 @@ class WorldModel(Model):
             return result / len(model.item_schedule.agents)
         else:
             return 0
-

@@ -222,9 +222,6 @@ class UAV_test(unittest.TestCase):
         computed_distance = self.uav.get_euclidean_distance(pos1,pos2)
         self.assertEqual(computed_distance,distance)
 
-    def test_get_grid(self):
-        self.assertEqual(self.uav.get_grid(),self.uav.grid)
-
     def test_find_uavs_close(self):
         print("NOT YET DEFINED")
         self.assertTrue(True)

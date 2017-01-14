@@ -4,9 +4,8 @@ import math
 
 class StaticGrid:
     """
-    TODO:   Write stuff
+    A StaticGrid is a Grid which contains simple, numeric information that doesnt change once it was initialized
     """
-
     def __init__(self, width, height, pixel_ratio, landscape):
         """
         Create a new StaticGrid
@@ -150,5 +149,5 @@ class StaticGrid:
 
     @staticmethod
     def is_obstacle_color(r, g, b):
-        black = range(0, 10)
+        black = range(0, 240)
         return r in black and g in black and b in black

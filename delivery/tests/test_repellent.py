@@ -1,24 +1,24 @@
 import unittest
 from delivery.agents.repellent import Repellent
 from delivery.model.worldmodel import WorldModel
-from delivery.grid.multi_grids import TwoMultiGrid
+from mesa.space import MultiGrid
 import configparser
 
 class repellent_Test(unittest.TestCase):
 
     def setUp(self):
         self.model = WorldModel()
-        self.grid = TwoMultiGrid(width=100, height=100, torus=False)
+        self.grid = MultiGrid(width=100, height=100, torus=False)
         self.repellent = Repellent(model=self.model,pos=(30,30),grid=self.grid)
 
         config = configparser.ConfigParser()
         config.read('./config.ini')
-        self.initialStrength = config.getfloat('Repellent', 'initialStrength')
-        self.decreaseBy = config.getfloat('Repellent', 'decreaseBy')
+        self.initialStrength = config.getfloat('Repellent', 'initial_strength')
+        self.decreaseBy = config.getfloat('Repellent', 'decrease_by')
 
     def test_init(self):
-        self.assertEqual(self.repellent.decreaseBy,self.decreaseBy)
-        self.assertEqual(self.repellent.initialStrength,self.initialStrength)
+        self.assertEqual(self.repellent.decrease_by, self.decreaseBy)
+        self.assertEqual(self.repellent.initial_strength, self.initialStrength)
         self.assertEqual(self.repellent.model,self.model)
         self.assertEqual(self.repellent.pos,(30,30))
         self.assertIn(self.repellent,self.model.repellent_schedule.agents)
@@ -28,7 +28,7 @@ class repellent_Test(unittest.TestCase):
         self.grid.place_agent(self.repellent,self.repellent.pos)
         self.model.repellent_schedule.add(self.repellent)
 
-        # 1st Test: strength > 0 = initialStrength. Expected result: strength = initialStrength - decreaseBy and repellent not removed from scheduler and grid
+        # 1st Test: strength > 0 = initial_strength. Expected result: strength = initial_strength - decrease_by and repellent not removed from scheduler and grid
         self.repellent.step()
         self.assertEqual(self.repellent.strength,self.initialStrength-self.decreaseBy)
 
@@ -43,7 +43,7 @@ class repellent_Test(unittest.TestCase):
 
         self.assertIn(self.repellent, self.model.repellent_schedule.agents)
 
-        # 2nd Test: strength = 0. Expected result: agent removed from schedule and grid, and strength = 0 -decreaseBy
+        # 2nd Test: strength = 0. Expected result: agent removed from schedule and grid, and strength = 0 -decrease_by
         self.repellent.strength = 0
         self.repellent.step()
         self.assertNotIn(self.repellent,self.repellent.grid)
@@ -51,14 +51,14 @@ class repellent_Test(unittest.TestCase):
 
 
     def test_strengthen(self):
-        # Expected result: strength = initialStrength
+        # Expected result: strength = initial_strength
         self.repellent.strength = 0
         self.repellent.strengthen()
 
         self.assertEqual(self.repellent.strength,self.initialStrength)
 
     def test_weaken(self):
-        # Expected result: strength = initialStrength - decreaseBy
+        # Expected result: strength = initial_strength - decrease_by
         self.repellent.weaken()
         self.assertEqual(self.repellent.strength,self.initialStrength-self.decreaseBy)
 
