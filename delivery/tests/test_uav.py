@@ -223,7 +223,7 @@ class UAV_test(unittest.TestCase):
         self.assertEqual(computed_distance,distance)
 
     def test_get_grid(self):
-        self.assertEqual(self.uav.get_grid(),self.uav.grid)
+        self.assertEqual(self.uav.get_grid(), self.uav.perceived_grid)
 
     def test_find_uavs_close(self):
         print("NOT YET DEFINED")

@@ -23,9 +23,8 @@ class Item:
     def deliver(self, grid):
         """
         If an Item is delivered, remove it from the perceived_world_grid
-        :param grid:
+        :param grid: The grid the Item was placed on (UAV perceived_grid)
         """
-        #TODO: Remove grid?
         self.delivered = True
         grid._remove_agent(self.destination, self)  # disregard the _
 

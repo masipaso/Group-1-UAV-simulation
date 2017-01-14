@@ -21,8 +21,6 @@ def launch_world_model():
     # Create Grids
     # real_world_grid - representing the 'actual' world
     real_world_grid = RealWorldGrid(width, height, width * pixel_ratio, height * pixel_ratio)
-    # perceived_world_grid - representing what uavs know about the 'actual' world
-    perceived_world_grid = PerceivedWorldGrid(width, height, width * pixel_ratio, height * pixel_ratio)
 
     # Create Chart
     chart = ChartModule([

@@ -1,11 +1,10 @@
 import math
-import random
-from delivery.grid.multi_grids import TwoMultiGrid
 from delivery.agents.repellent import Repellent
 from delivery.agents.baseStation import BaseStation
 
-from operator import itemgetter, attrgetter
+from operator import itemgetter
 from mesa import Agent
+from delivery.grid.Multi_grid import MultiGridExtra
 
 from delivery.algorithms.repellentAlgorithm import Algorithm
 
@@ -38,7 +37,8 @@ class Uav(Agent):
         self.state = 1
 
         # Create a UAV-specific grid for repellents and item destinations
-        self.grid = TwoMultiGrid(height=self.model.grid.height, width=self.model.grid.width, torus=self.model.grid.torus)
+        self.perceived_grid = MultiGridExtra(height=self.model.grid.height, width=self.model.grid.width,
+                                             torus=self.model.grid.torus)
 
         # Battery
         self.current_charge = max_battery
@@ -172,14 +172,15 @@ class Uav(Agent):
             self.item = item
             # Set the new destination
             self.destination = self.item.get_destination()
-            self.grid._place_agent(pos=item.destination,agent=item)
+            # Place the Item on the perceived grid of the UAV
+            self.perceived_grid.place_agent(pos=item.destination, agent=item)
             # Update state
             self.state = 2
             # Clear out the previous walk
             self.walk = []
             self.initial_delivery_distance = self.get_euclidean_distance(self.pos, self.destination)
             print(' Agent: {} Received Item {}. Delivering to {}. Distance to Destination: {}. Battery: {}'
-                  .format(self.uid, item.id, self.destination, self.get_euclidean_distance(self.pos, self.destination),
+                  .format(self.uid, item.iid, self.destination, self.get_euclidean_distance(self.pos, self.destination),
                           self.current_charge))
 
     def deliver_item(self):
@@ -187,14 +188,13 @@ class Uav(Agent):
         The Uav delivers an Item
         """
         # Fly back to Base Station after delivering the Item
-        # self.destination = self.base_station.get_pos()
         self.destination = self.choose_base_station_to_pick_up_item_from()
         print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}. Battery: {}'
-              .format(self.uid, self.item.id, self.pos, self.destination, self.current_charge))
+              .format(self.uid, self.item.iid, self.pos, self.destination, self.current_charge))
         print(' Agent: {}  Needed {} steps and took this walk: {}'
               .format(self.uid, len(self.walk) - 1, self.walk))
         # Deliver the Item
-        self.item.deliver(self.grid)
+        self.item.deliver(self.perceived_grid)
         # Remove item from model's item_schedule
         self.model.item_schedule.remove(self.item)
         self.item = None
@@ -233,10 +233,6 @@ class Uav(Agent):
         """
         # Move the agent on both grids
         self.model.grid.move_agent(self, pos)
-        # TODO: Remove perceived_world
-        #self.model.perceived_world_grid.move_agent(self, pos)
-        # Update the position on the agent, because the move_agent function does not do that for us!
-        self.pos = pos
 
     # TODO: @Dominik what are walk lengths?
     def get_walk_lengths(self):
@@ -262,21 +258,21 @@ class Uav(Agent):
             for obj in self.model.grid.get_cell_list_contents(pos):
                 if isinstance(obj ,Uav) and obj is not self:
                     print("Agent {} and {} exchanging grid".format(self.uid, obj.uid))
-                    other_grid = obj.grid
+                    other_grid = obj.perceived_grid
 
                     # Actual program logic for grid exchange: finding repellents on other grid and check if I update mine
                     # Very slow and random selection of neighboring UAV
                     for x in range(0, other_grid.width - 1):
                         for y in range(0, other_grid.height - 1):
                             other_repellent = other_grid.get_repellent_on((x, y))
-                            my_repellent = self.grid.get_repellent_on((x, y))
+                            my_repellent = self.perceived_grid.get_repellent_on((x, y))
                             if other_repellent is not None:
                                 if my_repellent is None:
 
                                     # Placing a new repellent if I do not know this one already
-                                    new_repellent = Repellent(self.model, (x, y),self.grid)
+                                    new_repellent = Repellent(self.model, (x, y), self.perceived_grid)
                                     new_repellent.strength = other_repellent.strength
-                                    self.grid.place_agent(agent=new_repellent, pos=(x, y))
+                                    self.perceived_grid.place_agent(agent=new_repellent, pos=(x, y))
 
                                 else:
                                     # Repellent already placed at my own grid
@@ -292,7 +288,7 @@ class Uav(Agent):
         Get the grid of the UAV
         :return: The grid of the UAV
         """
-        return self.grid
+        return self.perceived_grid
 
     def get_nearest_base_station(self):
         """

@@ -1,6 +1,5 @@
 from delivery.tests.test_baseStation import baseStation_Test
 from delivery.tests.test_uav import UAV_test
-from delivery.tests.test_multi_grids import TwoMultiGrid_test
 from delivery.tests.test_worldmodel import worldModel_Test
 from delivery.tests.test_repellent import repellent_Test
 from delivery.tests.test_static_grid import staticGrid_Test
@@ -49,14 +48,6 @@ class tests_runner():
         suite.addTest(UAV_test('test_get_grid'))
         suite.addTest(UAV_test('test_find_uavs_close'))
         suite.addTest(UAV_test('test_get_nearest_base_station'))
-        return suite
-
-    def create_TwoMultiGrid_test_suite(self):
-        # Creating Test Suite
-        suite = unittest.TestSuite()
-        suite.addTest(TwoMultiGrid_test('test_init'))
-        suite.addTest(TwoMultiGrid_test('test_move_agent'))
-        suite.addTest(TwoMultiGrid_test('test_get_repellent_on'))
         return suite
 
     def create_WorldModel_test_suite(self):

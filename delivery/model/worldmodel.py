@@ -6,11 +6,11 @@ from mesa import Model
 from mesa.datacollection import DataCollector
 
 from delivery.grid.Static_grid import StaticGrid
+from mesa.space import MultiGrid
 
 from delivery.agents.baseStation import BaseStation
 from delivery.agents.item import Item
 from delivery.agents.uav import Uav
-from delivery.grid.multi_grids import TwoMultiGrid
 from delivery.schedule.schedule import RandomActivationByType
 
 
@@ -54,9 +54,7 @@ class WorldModel(Model):
         # TODO: Repellents and Items(currently it holds the Repellents, UAVs, BaseStations and Items). The UAVs and
         # TODO: BaseStations are represented on the "real_world_grid".
         # Add a grid that is used to visualize the 'actual' world
-        self.grid = TwoMultiGrid(self.height, self.width, torus=False)
-        # Add a grid that is used to visualize the perceived world
-        self.perceived_world_grid = TwoMultiGrid(self.height, self.width, torus=False)
+        self.grid = MultiGrid(self.height, self.width, torus=False)
 
         # Create the StaticGrid that contains the landscape (Obstacles, BaseStations, ...)
         self.landscape = StaticGrid(self.width, self.height, self.pixel_ratio, background)
@@ -200,7 +198,6 @@ class WorldModel(Model):
                   base_station=base_station)
         # Place the uav on the grids
         self.grid.place_agent(uav, base_station.get_pos())
-        self.perceived_world_grid.place_agent(uav, base_station.get_pos())
         # Add the Uav to the schedule
         self.schedule.add(uav)
 

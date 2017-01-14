@@ -43,14 +43,11 @@ class BaseStation(Agent):
                              self.center[0] + self.range_of_base_station)
         y = random.randrange(self.center[1] - self.range_of_base_station,
                              self.center[1] + self.range_of_base_station)
-        # ... but only if the cell is not occupied with an Obstacle or BaseStation
         # TODO: Make it possible that Items can be created at cells that already have an Item, a Uav or a Repellent
-        # TODO: Check on Static_grid!
-        # TODO: Remove perceived_world
+        # ... but only if the cell is not occupied with an Obstacle or BaseStation
         while x >= self.model.width \
                 or y >= self.model.height \
-                or not self.model.grid.is_cell_empty((x, y)) \
-                or not self.model.perceived_world_grid.is_cell_empty((x, y)):
+                or not self.model.landscape.is_cell_empty((x, y)):
             x = random.randrange(self.center[0] - self.range_of_base_station,
                                  self.center[0] + self.range_of_base_station)
             y = random.randrange(self.center[1] - self.range_of_base_station,
@@ -59,15 +56,12 @@ class BaseStation(Agent):
         # The Item receives a random priority between 1 and ...
         item_priority = random.randint(1, self.max_item_priority)
         # Create the Item
-        item = Item(destination=item_destination, priority=item_priority, id=str(self.id) + "_" + str(len(self.items)))
-        # Place the Item on the perceived world grid
-        # TODO: Decide if the Item should be visible on the real world grid
-        self.model.perceived_world_grid.place_agent(item, item_destination)
+        item = Item(destination=item_destination, priority=item_priority, iid=str(self.id) + "_" + str(len(self.items)))
         # Add the Item to the BaseStation
         self.items.append(item)
         # Add the Item to the scheduler of the model
         self.model.item_schedule.add(item)
-        print("Created item {}, destination: {}, priority: {}".format(item.id, item.destination, item.priority))
+        print("Created item {}, destination: {}, priority: {}".format(item.iid, item.destination, item.priority))
         # Sort the items by priority
         self.sort_items_by_priority()
 

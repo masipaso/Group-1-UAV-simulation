@@ -1,14 +1,14 @@
 import unittest
 from delivery.agents.repellent import Repellent
 from delivery.model.worldmodel import WorldModel
-from delivery.grid.multi_grids import TwoMultiGrid
+from mesa.space import MultiGrid
 import configparser
 
 class repellent_Test(unittest.TestCase):
 
     def setUp(self):
         self.model = WorldModel()
-        self.grid = TwoMultiGrid(width=100, height=100, torus=False)
+        self.grid = MultiGrid(width=100, height=100, torus=False)
         self.repellent = Repellent(model=self.model,pos=(30,30),grid=self.grid)
 
         config = configparser.ConfigParser()

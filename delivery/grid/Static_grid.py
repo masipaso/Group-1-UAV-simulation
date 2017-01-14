@@ -4,9 +4,8 @@ import math
 
 class StaticGrid:
     """
-    TODO:   Write stuff
+    A StaticGrid is a Grid which contains simple, numeric information that doesnt change once it was initialized
     """
-
     def __init__(self, width, height, pixel_ratio, landscape):
         """
         Create a new StaticGrid

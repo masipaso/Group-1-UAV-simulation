@@ -31,8 +31,6 @@ class Repellent(Agent):
         # If the strength of the Repellent is below 0
         if self.strength <= 0:
             # ... Remove it from the grid
-            # TODO: Remove perceived_world
-            #self.model.perceived_world_grid._remove_agent(self.pos, self)
             self.grid._remove_agent(self.pos,self)
             # ... and from the schedule
             self.model.repellent_schedule.remove(self)
