@@ -19,7 +19,7 @@ class Algorithm:
             return None
 
         # Get all available steps
-6        available_steps = self.get_available_steps()
+        available_steps = self.get_available_steps()
         # If there are no available steps, do nothing
         if len(available_steps) is 0:
             print("No available steps")
