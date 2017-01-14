@@ -13,7 +13,6 @@ from delivery.agents.uav import Uav
 from delivery.grid.multi_grids import TwoMultiGrid
 from delivery.schedule.schedule import RandomActivationByType
 
-# TODO: Describe what all these variables do!
 
 class WorldModel(Model):
     """
@@ -91,7 +90,7 @@ class WorldModel(Model):
         """
         self.schedule.step()
         # Increase number of steps
-        self.steps = self.steps+1
+        self.steps += 1
         self.repellent_schedule.step()
         self.item_schedule.step()
         self.datacollector.collect(self)
@@ -197,7 +196,8 @@ class WorldModel(Model):
         :param base_station: the assigned BaseStation
         """
         # Create the uav
-        uav = Uav(self, pos=base_station.get_pos(), id=uid, max_battery=self.max_battery, battery_low=self.battery_low, base_station=base_station)
+        uav = Uav(self, pos=base_station.get_pos(), uid=uid, max_battery=self.max_battery, battery_low=self.battery_low,
+                  base_station=base_station)
         # Place the uav on the grids
         self.grid.place_agent(uav, base_station.get_pos())
         self.perceived_world_grid.place_agent(uav, base_station.get_pos())
@@ -213,7 +213,7 @@ class WorldModel(Model):
         number_of_items = 0
         for base_station in model.schedule.agents_by_type[BaseStation]:
             number_of_items += base_station.get_number_of_items()
-        return  number_of_items
+        return number_of_items
 
     @staticmethod
     def compute_number_of_picked_up_items(model):
@@ -242,8 +242,9 @@ class WorldModel(Model):
             for elem in uav.get_walk_lengths():
                 average_walks.append(elem)
         if len(average_walks)>0:
-            return sum(average_walks)/len(average_walks)
-        else: return 0
+            return sum(average_walks) / len(average_walks)
+        else:
+            return 0
 
     @staticmethod
     def compute_standard_deviation_walk_lengths(model):
@@ -265,7 +266,7 @@ class WorldModel(Model):
             for elem in uav.get_initial_delivery_distance_divided_by_average_walk_length():
                 length_by_distance.append(elem)
         if len(length_by_distance) > 0:
-            return sum(length_by_distance)/len(length_by_distance)
+            return sum(length_by_distance) / len(length_by_distance)
         else:
             return 0
 
@@ -278,4 +279,3 @@ class WorldModel(Model):
             return result / len(model.item_schedule.agents)
         else:
             return 0
-

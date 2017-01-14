@@ -20,20 +20,25 @@ class Uav(Agent):
         4: battery low
         5: charging
         6: stranded without battery life left
+    :param model: world model
+    :param pos: Tuple of coordinates at which the UAV is located
+    :param uid: Unique UAV identifier
+    :param max_battery: The maximum charge the battery can have
+    :param battery_low: The threshold at which the battery charge is considered low
+    :param base_station: The 'home' BaseStation
     """
-    def __init__(self, model, pos, id, max_battery, battery_low, base_station):
+    def __init__(self, model, pos, uid, max_battery, battery_low, base_station):
         # TODO: Why do we have the model here? This should not be available
-
         self.model = model
         self.pos = pos
-        self.id = id
+        self.uid = uid
         self.destination = None
         self.walk = []
         self.item = None
         self.state = 1
 
-        # Create my own grid for repellents and item destinations
-        self.grid = TwoMultiGrid(height=self.model.grid.height,width=self.model.grid.width,torus=self.model.grid.torus)
+        # Create a UAV-specific grid for repellents and item destinations
+        self.grid = TwoMultiGrid(height=self.model.grid.height, width=self.model.grid.width, torus=self.model.grid.torus)
 
         # Battery
         self.current_charge = max_battery
@@ -116,11 +121,11 @@ class Uav(Agent):
         """
         # TODO: Make this configurable
         self.current_charge += 10
-        print(' Agent: {}  charges battery. Battery: {}'.format(self.id, self.current_charge))
+        print(' Agent: {}  charges battery. Battery: {}'.format(self.uid, self.current_charge))
         # If the battery is fully charged
         if self.current_charge >= self.max_battery:
             self.current_charge = self.max_battery
-            print(' Agent: {} is fully charged'.format(self.id))
+            print(' Agent: {} is fully charged'.format(self.uid))
             # If the UAV does not carry an Item
             if self.item is None:
                 # ... IDLE at the Base Station in the next step
@@ -138,10 +143,10 @@ class Uav(Agent):
         if self.current_charge < self.battery_low:
             self.state = 4
             self.destination = self.get_nearest_base_station()
-            print(' Agent: {}  has low Battery. going to Base Station: {}'.format(self.id, self.destination))
+            print(' Agent: {}  has low Battery. going to Base Station: {}'.format(self.uid, self.destination))
         if self.current_charge <= 0:
             self.state = 6
-            print(' Agent: {}  has no Battery life left.'.format(self.id))
+            print(' Agent: {}  has no Battery life left.'.format(self.uid))
 
     @staticmethod
     def get_euclidean_distance(pos1, pos2):
@@ -173,13 +178,9 @@ class Uav(Agent):
             # Clear out the previous walk
             self.walk = []
             self.initial_delivery_distance = self.get_euclidean_distance(self.pos, self.destination)
-            print(' Agent: {} Received Item {}. Delivering to {}. Distance to Destination: {}. Battery: {}'.format(self.id,
-                                                                                                                   item.id,
-                                                                                                                   self.destination,
-                                                                                                                   self.get_euclidean_distance(
-                                                                                                                       self.pos,
-                                                                                                                       self.destination),
-                                                                                                                   self.current_charge))
+            print(' Agent: {} Received Item {}. Delivering to {}. Distance to Destination: {}. Battery: {}'
+                  .format(self.uid, item.id, self.destination, self.get_euclidean_distance(self.pos, self.destination),
+                          self.current_charge))
 
     def deliver_item(self):
         """
@@ -188,10 +189,10 @@ class Uav(Agent):
         # Fly back to Base Station after delivering the Item
         # self.destination = self.base_station.get_pos()
         self.destination = self.choose_base_station_to_pick_up_item_from()
-        print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}. Battery: {}'.format(self.id, self.item.id, self.pos,
-                                                                                                    self.destination, self.current_charge))
-        print(' Agent: {}  Needed {} steps and took this walk: {}'.format(self.id, len(self.walk) - 1,
-                                                                          self.walk))
+        print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}. Battery: {}'
+              .format(self.uid, self.item.id, self.pos, self.destination, self.current_charge))
+        print(' Agent: {}  Needed {} steps and took this walk: {}'
+              .format(self.uid, len(self.walk) - 1, self.walk))
         # Deliver the Item
         self.item.deliver(self.grid)
         # Remove item from model's item_schedule
@@ -200,7 +201,8 @@ class Uav(Agent):
         # Clear out the previous walk
         self.walk = []
         self.walk_lengths.append(len(self.real_walk))
-        self.initial_delivery_distance_divided_by_average_walk_length.append(len(self.real_walk) / self.initial_delivery_distance)
+        self.initial_delivery_distance_divided_by_average_walk_length.append(len(self.real_walk)
+                                                                             / self.initial_delivery_distance)
         self.initial_delivery_distance = []
         self.real_walk = []
         # Update state
@@ -216,7 +218,8 @@ class Uav(Agent):
         :param charge: Indicator if the UAV should be charging in the next step
         :return:
         """
-        print(' Agent: {}  Arrived at BaseStation {}. Battery: {} '.format(self.id, self.destination, self.current_charge))
+        print(' Agent: {}  Arrived at BaseStation {}. Battery: {} '
+              .format(self.uid, self.destination, self.current_charge))
         # Update state
         if charge:
             self.state = 5
@@ -230,18 +233,27 @@ class Uav(Agent):
         """
         # Move the agent on both grids
         self.model.grid.move_agent(self, pos)
+        # TODO: Remove perceived_world
         #self.model.perceived_world_grid.move_agent(self, pos)
         # Update the position on the agent, because the move_agent function does not do that for us!
         self.pos = pos
 
+    # TODO: @Dominik what are walk lengths?
     def get_walk_lengths(self):
+        """
+        Get the lengths of the walks
+        :return: Length of the walks
+        """
         return self.walk_lengths
 
+    # TODO: @Dominik please write a method definition (and describe what this does)
     def get_initial_delivery_distance_divided_by_average_walk_length(self):
         return self.initial_delivery_distance_divided_by_average_walk_length
 
     def find_uavs_close(self):
-        # TODO: Definition
+        """
+        Locate UAVs that are close and exchange grids
+        """
         neighborhood = self.model.grid.get_neighborhood(pos=self.pos,moore=True,include_center=False,radius=2)
         # The worst loop ever!
         if self.model.steps <= 50:
@@ -249,7 +261,7 @@ class Uav(Agent):
         for pos in neighborhood:
             for obj in self.model.grid.get_cell_list_contents(pos):
                 if isinstance(obj ,Uav) and obj is not self:
-                    print("Agent {} and {} exchanging grid".format(self.id, obj.id))
+                    print("Agent {} and {} exchanging grid".format(self.uid, obj.uid))
                     other_grid = obj.grid
 
                     # Actual program logic for grid exchange: finding repellents on other grid and check if I update mine
@@ -271,16 +283,22 @@ class Uav(Agent):
                                     # TODO: Make second part of if clause more intelligent aka avoid exchanging grid if already exchanged upto n steps ago.
                                     # TODO: So actually never get here in that case
                                     if my_repellent.get_last_updated_at() < other_repellent.get_last_updated_at() and my_repellent.strength is not other_repellent.strength:
-                                        print("Agent {} updates repellent from Agent {}. Old strength: {}, New: {}".format(self.id, obj.id, my_repellent.strength, other_repellent.strength))
+                                        print("Agent {} updates repellent from Agent {}. Old strength: {}, New: {}".format(self.uid, obj.uid, my_repellent.strength, other_repellent.strength))
                                         my_repellent.strength = other_repellent.strength
                                         my_repellent.last_updated_at = self.model.steps
 
     def get_grid(self):
-        # TODO: Definition
+        """
+        Get the grid of the UAV
+        :return: The grid of the UAV
+        """
         return self.grid
 
     def get_nearest_base_station(self):
-        # TODO: Definition
+        """
+        Get the BaseStation that is closest to the UAV
+        :return: The nearest BaseStation
+        """
         # Based on euclidean distance, select closest baseStation
         base_stations = self.model.schedule.agents_by_type[BaseStation]
         base_stations_by_distance = []
@@ -290,9 +308,12 @@ class Uav(Agent):
         return base_stations_by_distance.pop(0)[0]
 
     def choose_base_station_to_pick_up_item_from(self):
-        # TODO: Definition
+        """
+        Choose a BaseStation to pick up an Item
+        :return: The nearest BaseStations
+        """
         # Based on number of items and distance of BaseStation, select next BaseStation to pick up items from
-        # This should be decentralized in the next step!
+        # TODO: This should be decentralized in the next step!
         base_stations = self.model.schedule.agents_by_type[BaseStation]
         base_stations_by_distance = []
         for station in base_stations:
