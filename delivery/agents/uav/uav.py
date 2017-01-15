@@ -6,6 +6,7 @@ from delivery.agents.uav.components.FlightController import FlightController
 from delivery.agents.uav.components.Battery import Battery
 from delivery.agents.uav.components.CargoBay import CargoBay
 from delivery.agents.uav.components.CommunicationModule import CommunicationModule
+from delivery.agents.uav.components.Radar import Radar
 # Import Utilis
 from delivery.utils.get_euclidean_distance import get_euclidean_distance
 
@@ -52,7 +53,10 @@ class Uav(Agent):
         self.cargo_bay = CargoBay(item=None)
         # Add CommunicationModule
         self.communication_module = CommunicationModule(self.perceived_world_grid, model)
-
+        # Add Radar
+        # TODO: Make the coverage_range configurable
+        # TODO: When we make this configurable, we have to adjust the FlighController!
+        self.radar = Radar(model.landscape, coverage_range=1)
 
         # Base Stations
         self.base_station = base_station

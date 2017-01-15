@@ -104,10 +104,10 @@ class FlightController:
 
             # Check the landscape
             # ... if there is no Obstacle
-            if not self.uav.model.landscape.is_obstacle_at(available_step.pos):
+            if not self.uav.radar.is_obstacle_at(available_step.pos):
                 # ... then there might be a BaseStation (2) or nothing (0)
                 # If there is a BaseStation, add the step to the possible_steps
-                if self.uav.model.landscape.is_base_station_at(available_step.pos):
+                if self.uav.radar.is_base_station_at(available_step.pos):
                     possible_steps.append(available_step)
                 # ... in any other case, query the perceived grid of the UAV for Repellent information
                 else:
@@ -142,12 +142,8 @@ class FlightController:
         Get all available steps the UAV _could_ take
         :return: a list of Steps
         """
-        # Get the neighboring cells of the grid
-        neighborhood = self.uav.perceived_world_grid.get_neighborhood(
-            self.uav.pos,
-            moore=True,
-            include_center=False,
-            radius=1)
+        # Scan the landscape
+        neighborhood = self.uav.radar.scan_neighborhood(self.uav.pos)
 
         available_steps = []
 
