@@ -5,6 +5,7 @@ from delivery.grid.Multi_grid_extra import MultiGridExtra
 from delivery.agents.uav.components.FlightController import FlightController
 from delivery.agents.uav.components.Battery import Battery
 from delivery.agents.uav.components.CargoBay import CargoBay
+from delivery.agents.uav.components.CommunicationModule import CommunicationModule
 # Import Utilis
 from delivery.utils.get_euclidean_distance import get_euclidean_distance
 
@@ -39,6 +40,9 @@ class Uav(Agent):
         self.state = 1
 
         # Construct UAV
+        # Create a UAV-specific grid for Repellents and Item destinations
+        self.perceived_world_grid = MultiGridExtra(height=self.model.grid.height, width=self.model.grid.width,
+                                             torus=self.model.grid.torus)
         # Add FlightController
         self.flight_controller = FlightController(self)
         self.last_repellent = 2
@@ -46,10 +50,10 @@ class Uav(Agent):
         self.battery = Battery(max_charge, battery_low, battery_decrease_per_step, battery_increase_per_step)
         # Add CargoBay
         self.cargo_bay = CargoBay(item=None)
+        # Add CommunicationModule
+        # TODO: Make the range configurable
+        self.communication_module = CommunicationModule(self.perceived_world_grid, model, coverage_range=5)
 
-        # Create a UAV-specific grid for repellents and item destinations
-        self.perceived_grid = MultiGridExtra(height=self.model.grid.height, width=self.model.grid.width,
-                                             torus=self.model.grid.torus)
 
         # Base Stations
         self.base_station = base_station
@@ -166,7 +170,7 @@ class Uav(Agent):
             self.destination = self.cargo_bay.get_destination()
             # TODO: Optional
             # ... place the Item on the perceived grid of the UAV
-            self.perceived_grid.place_agent(pos=item.destination, agent=item)
+            self.perceived_world_grid.place_agent(pos=item.destination, agent=item)
             # .. adjust the state
             self.state = 2
             # Clear out the previous walk
@@ -183,7 +187,7 @@ class Uav(Agent):
         # Store iid for logging
         iid = self.cargo_bay.get_item().iid
         # ... remove the Item from the perceived grid of the UAV
-        self.perceived_grid._remove_agent(self.cargo_bay.get_destination(), self.cargo_bay.get_item())
+        self.perceived_world_grid._remove_agent(self.cargo_bay.get_destination(), self.cargo_bay.get_item())
         # ... remove the Item from the CargoBay
         self.cargo_bay.remove_item()
         # ... adjust the state
@@ -254,27 +258,5 @@ class Uav(Agent):
             for obj in self.model.grid.get_cell_list_contents(pos):
                 if isinstance(obj ,Uav) and obj is not self:
                     print("Agent {} and {} exchanging grid".format(self.uid, obj.uid))
-                    other_grid = obj.perceived_grid
-
-                    # Actual program logic for grid exchange: finding repellents on other grid and check if I update mine
-                    # Very slow and random selection of neighboring UAV
-                    for x in range(0, other_grid.width - 1):
-                        for y in range(0, other_grid.height - 1):
-                            other_repellent = other_grid.get_repellent_on((x, y))
-                            my_repellent = self.perceived_grid.get_repellent_on((x, y))
-                            if other_repellent is not None:
-                                if my_repellent is None:
-
-                                    # Placing a new repellent if I do not know this one already
-                                    new_repellent = Repellent(self.model, (x, y), self.perceived_grid)
-                                    new_repellent.strength = other_repellent.strength
-                                    self.perceived_grid.place_agent(agent=new_repellent, pos=(x, y))
-
-                                else:
-                                    # Repellent already placed at my own grid
-                                    # TODO: Make second part of if clause more intelligent aka avoid exchanging grid if already exchanged upto n steps ago.
-                                    # TODO: So actually never get here in that case
-                                    if my_repellent.get_last_updated_at() < other_repellent.get_last_updated_at() and my_repellent.strength is not other_repellent.strength:
-                                        print("Agent {} updates repellent from Agent {}. Old strength: {}, New: {}".format(self.uid, obj.uid, my_repellent.strength, other_repellent.strength))
-                                        my_repellent.strength = other_repellent.strength
-                                        my_repellent.last_updated_at = self.model.steps
+                    # Exchange perceived_world_grids with the other UAV
+                    self.communication_module.exchange_repellents_with(obj)

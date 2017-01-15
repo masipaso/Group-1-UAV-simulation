@@ -57,7 +57,7 @@ class FlightController:
 
         # Move UAV
         self.uav.move_to(new_position)
-        new_distance = self.uav.get_euclidean_distance(self.uav.pos, self.uav.destination)
+        new_distance = get_euclidean_distance(self.uav.pos, self.uav.destination)
         print(' Agent: {}  Moves from {} to {}. Distance to Destination: {}. Battery: {}'
               .format(self.uav.uid, last_position, new_position, new_distance, self.uav.battery.get_charge()))
 
@@ -78,7 +78,7 @@ class FlightController:
             if expected_distance < actual_distance:
                 print("Path was longer than expected!")
                 # If there is already a repellent on that position ...
-                repellent = self.uav.perceived_grid.get_repellent_on(last_position)
+                repellent = self.uav.perceived_world_grid.get_repellent_on(last_position)
                 if repellent is not None:
                     # ... increase its effect
                     print("There is already a repellent on that pos - increasing its effect!")
@@ -86,8 +86,8 @@ class FlightController:
                 else:
                     # ... or create a new one
                     print("There is no repellent on that pos - creating one!")
-                    repellent = Repellent(self.uav.model, last_position, self.uav.perceived_grid)
-                    self.uav.perceived_grid.place_agent(repellent, last_position)
+                    repellent = Repellent(self.uav.model, last_position, self.uav.perceived_world_grid)
+                    self.uav.perceived_world_grid.place_agent(repellent, last_position)
                     self.uav.walk.remove(self.uav.walk[index])
                 break
 
@@ -112,8 +112,8 @@ class FlightController:
                 # ... in any other case, query the perceived grid of the UAV for Repellent information
                 else:
                     # If there is something at that position
-                    if not self.uav.perceived_grid.is_cell_empty(available_step.pos):
-                        cell_contents = self.uav.perceived_grid.get_cell_list_contents([available_step.pos])
+                    if not self.uav.perceived_world_grid.is_cell_empty(available_step.pos):
+                        cell_contents = self.uav.perceived_world_grid.get_cell_list_contents([available_step.pos])
                         possible = []
                         # ... check the content
                         for obstacle in cell_contents:
@@ -143,7 +143,7 @@ class FlightController:
         :return: a list of Steps
         """
         # Get the neighboring cells of the grid
-        neighborhood = self.uav.perceived_grid.get_neighborhood(
+        neighborhood = self.uav.perceived_world_grid.get_neighborhood(
             self.uav.pos,
             moore=True,
             include_center=False,
@@ -153,7 +153,7 @@ class FlightController:
 
         # Iterate over the neighboring cells and create Steps
         for coordinates in neighborhood:
-            distance = self.uav.get_euclidean_distance(self.uav.destination, coordinates)
+            distance = get_euclidean_distance(self.uav.destination, coordinates)
             available_step = Step(distance=distance, pos=coordinates)
             available_steps.append(available_step)
 
