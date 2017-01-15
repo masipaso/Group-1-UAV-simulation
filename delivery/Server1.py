@@ -3,9 +3,9 @@ import configparser
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import ChartModule
 
-from delivery.model.Worldmodel import WorldModel
-from delivery.visualization.Perceived_world_grid import PerceivedWorldGrid
-from delivery.visualization.Real_world_grid import RealWorldGrid
+from delivery.model.Worldmodel1 import WorldModel
+from delivery.visualization.Perceived_world_grid1 import PerceivedWorldGrid
+from delivery.visualization.Real_world_grid1 import RealWorldGrid
 
 
 def launch_world_model():

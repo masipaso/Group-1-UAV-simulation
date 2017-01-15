@@ -2,8 +2,8 @@ from mesa.visualization.ModularVisualization import VisualizationElement
 
 from collections import defaultdict
 
-from delivery.agents.BaseStation import BaseStation
-from delivery.agents.uav.Uav import Uav
+from delivery.agents.BaseStation1 import BaseStation
+from delivery.agents.uav.Uav1 import Uav
 
 
 class RealWorldGrid(VisualizationElement):
