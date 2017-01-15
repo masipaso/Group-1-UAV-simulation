@@ -51,8 +51,7 @@ class Uav(Agent):
         # Add CargoBay
         self.cargo_bay = CargoBay(item=None)
         # Add CommunicationModule
-        # TODO: Make the range configurable
-        self.communication_module = CommunicationModule(self.perceived_world_grid, model, coverage_range=5)
+        self.communication_module = CommunicationModule(self.perceived_world_grid, model)
 
 
         # Base Stations

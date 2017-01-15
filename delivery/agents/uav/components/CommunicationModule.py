@@ -7,14 +7,12 @@ class CommunicationModule:
     """
     # TODO: More details
 
-    def __init__(self, perceived_world_grid, model, coverage_range):
+    def __init__(self, perceived_world_grid, model):
         """
         Initialize the CommunicationModule
         :param perceived_world_grid: The UAV-specific grid for Repellents and Items
         :param model: The Model of the Simulation
-        :param coverage_range: The range which the CommunicationModule covers
         """
-        self.coverage_range = coverage_range
         self.perceived_world_grid = perceived_world_grid
         self.model = model
 
