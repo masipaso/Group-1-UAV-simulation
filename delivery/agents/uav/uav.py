@@ -1,4 +1,3 @@
-from delivery.agents.repellent import Repellent
 from mesa import Agent
 # Import components
 from delivery.grid.Multi_grid_extra import MultiGridExtra
@@ -61,7 +60,7 @@ class Uav(Agent):
         # Add Radar
         # TODO: Make the coverage_range configurable
         # TODO: When we make this configurable, we have to adjust the FlighController!
-        self.radar = Radar(model.landscape, coverage_range=1)
+        self.radar = Radar(model.grid, model.landscape, coverage_range=1)
 
         # Base Stations
         self.base_station = base_station
@@ -258,13 +257,15 @@ class Uav(Agent):
         """
         Locate UAVs that are close and exchange grids
         """
-        neighborhood = self.model.grid.get_neighborhood(pos=self.pos, moore=True, include_center=False, radius=2)
         # The worst loop ever!
         if self.model.steps <= 50:
             return
-        for pos in neighborhood:
-            for obj in self.model.grid.get_cell_list_contents(pos):
-                if isinstance(obj ,Uav) and obj is not self:
-                    print("Agent {} and {} exchanging grid".format(self.uid, obj.uid))
-                    # Exchange perceived_world_grids with the other UAV
-                    self.communication_module.exchange_repellents_with(obj)
+
+        # Scan for UAVs
+        other_uavs = self.radar.scan_for_uavs(self.pos)
+        # If there are other UAVs ...
+        if len(other_uavs) is not 0:
+            # ... exchange perceived_world_grids with them
+            for other_uav in other_uavs:
+                print("Agent {} and {} exchanging grid".format(self.uid, other_uav.uid))
+                self.communication_module.exchange_repellents_with(other_uav)

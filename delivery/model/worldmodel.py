@@ -53,7 +53,7 @@ class WorldModel(Model):
         # Counter for number of steps
         self.steps = 0
 
-        # Add a grid that is used to visualize the 'actual' world; This grid contains UAVs and BaseStations
+        # Add a grid that is used to visualize the 'actual' world; This grid contains ONLY UAVs and BaseStations
         self.grid = MultiGrid(self.height, self.width, torus=False)
 
         # Create the StaticGrid that contains the landscape (Obstacles, BaseStations, ...)
