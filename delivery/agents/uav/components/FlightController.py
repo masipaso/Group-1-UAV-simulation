@@ -15,27 +15,27 @@ class FlightController:
         """
         self.uav = uav
 
-    def run(self):
+    def make_step(self):
         """
-        Run the algorithm
+        Advance the UAV by one step
         """
         # If the Uav does not have a destination, do nothing
         if self.uav.destination is None:
-            print("No destination")
+            print(' Agent: {} has no destination.'.format(self.uav.uid))
             return None
 
         # Get all available steps
         available_steps = self.get_available_steps()
         # If there are no available steps, do nothing
         if len(available_steps) is 0:
-            print("No available steps")
+            print(' Agent: {} has no available steps.'.format(self.uav.uid))
             return None
 
         # Get all possible steps based on the available steps
         possible_steps = self.get_possible_steps(available_steps)
         # If there are no possible steps, do nothing
         if len(possible_steps) is 0:
-            print("No possible steps")
+            print(' Agent: {} has no possible steps.'.format(self.uav.uid))
             return None
 
         # Store the current position of the UAV to access it later

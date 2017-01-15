@@ -83,7 +83,7 @@ class Uav(Agent):
                 self.deliver_item()
             # ... otherwise keep delivering the Item
             self.find_uavs_close()
-            self.flight_controller.run()
+            self.flight_controller.make_step()
         # If the UAV is on the way to a BaseStation
         elif self.state == 3:
             # ... and has reached the BaseStations
@@ -93,7 +93,7 @@ class Uav(Agent):
             # .. otherwise keep finding the BaseStation
             else:
                 self.find_uavs_close()
-                self.flight_controller.run()
+                self.flight_controller.make_step()
         # If the UAV is low on battery life
         elif self.state == 4:
             # ... and has reached the BaseStations
@@ -103,7 +103,7 @@ class Uav(Agent):
             # .. otherwise keep finding the BaseStation
             else:
                 self.find_uavs_close()
-                self.flight_controller.run()
+                self.flight_controller.make_step()
         # If the UAV is charging the battery at a BaseStation
         elif self.state == 5 or self.state == 1:
             # ... charge the battery
