@@ -8,10 +8,10 @@ from mesa.datacollection import DataCollector
 from delivery.grid.Static_grid import StaticGrid
 from mesa.space import MultiGrid
 
-from delivery.agents.baseStation import BaseStation
-from delivery.agents.item import Item
-from delivery.agents.uav.uav import Uav
-from delivery.schedule.schedule import RandomActivationByType
+from delivery.agents.BaseStation import BaseStation
+from delivery.agents.Item import Item
+from delivery.agents.uav.Uav import Uav
+from delivery.schedule.Schedule import RandomActivationByType
 
 
 class WorldModel(Model):

@@ -1,6 +1,6 @@
 import unittest
-from delivery.agents.repellent import Repellent
-from delivery.model.worldmodel import WorldModel
+from delivery.agents.Repellent import Repellent
+from delivery.model.Worldmodel import WorldModel
 from mesa.space import MultiGrid
 import configparser
 

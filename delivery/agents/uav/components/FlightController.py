@@ -1,7 +1,7 @@
-from delivery.agents.repellent import Repellent
-from delivery.agents.baseStation import BaseStation
+from delivery.agents.Repellent import Repellent
+from delivery.agents.BaseStation import BaseStation
 # Import utils
-from delivery.utils.step import Step
+from delivery.utils.Step import Step
 from delivery.utils.get_step_distance import get_step_distance
 from delivery.utils.get_euclidean_distance import get_euclidean_distance
 from operator import itemgetter

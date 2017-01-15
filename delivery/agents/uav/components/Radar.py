@@ -1,4 +1,4 @@
-from delivery.agents.baseStation import BaseStation
+from delivery.agents.BaseStation import BaseStation
 
 
 class Radar:

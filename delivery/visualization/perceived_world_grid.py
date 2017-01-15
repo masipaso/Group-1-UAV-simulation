@@ -2,10 +2,10 @@ from collections import defaultdict
 
 from mesa.visualization.modules import CanvasGrid
 
-from delivery.agents.repellent import Repellent
-from delivery.agents.baseStation import BaseStation
-from delivery.agents.item import Item
-from delivery.agents.uav.uav import Uav
+from delivery.agents.Repellent import Repellent
+from delivery.agents.BaseStation import BaseStation
+from delivery.agents.Item import Item
+from delivery.agents.uav.Uav import Uav
 
 
 class PerceivedWorldGrid(CanvasGrid):

@@ -1,10 +1,10 @@
-from delivery.model.worldmodel import WorldModel
-from delivery.agents.baseStation import BaseStation
-from delivery.agents.uav.uav import Uav
+from delivery.model.Worldmodel import WorldModel
+from delivery.agents.BaseStation import BaseStation
+from delivery.agents.uav.Uav import Uav
 import configparser
 import unittest
 from mesa.datacollection import DataCollector
-from delivery.schedule.schedule import RandomActivationByType
+from delivery.schedule.Schedule import RandomActivationByType
 import numpy as np
 
 

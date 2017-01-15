@@ -1,4 +1,4 @@
-from delivery.agents.repellent import Repellent
+from delivery.agents.Repellent import Repellent
 
 
 class CommunicationModule:

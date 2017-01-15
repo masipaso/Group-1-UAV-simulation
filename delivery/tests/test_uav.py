@@ -1,8 +1,8 @@
 import unittest
-from delivery.agents.uav.uav import Uav
-from delivery.agents.item import Item
-from delivery.agents.baseStation import BaseStation
-from delivery.model.worldmodel import WorldModel
+from delivery.agents.uav.Uav import Uav
+from delivery.agents.Item import Item
+from delivery.agents.BaseStation import BaseStation
+from delivery.model.Worldmodel import WorldModel
 
 class UAV_test(unittest.TestCase):
 

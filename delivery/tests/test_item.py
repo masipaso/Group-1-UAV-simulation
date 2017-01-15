@@ -1,5 +1,5 @@
 import unittest
-from delivery.agents.item  import Item
+from delivery.agents.Item  import Item
 from mesa.space import MultiGrid
 
 class Item_Test(unittest.TestCase):

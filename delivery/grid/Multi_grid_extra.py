@@ -1,5 +1,5 @@
 from mesa.space import MultiGrid
-from delivery.agents.repellent import Repellent
+from delivery.agents.Repellent import Repellent
 
 
 class MultiGridExtra(MultiGrid):
