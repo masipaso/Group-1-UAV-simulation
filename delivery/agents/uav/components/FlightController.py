@@ -1,5 +1,7 @@
 from delivery.agents.repellent import Repellent
+# Import utils
 from delivery.utils.step import Step
+from delivery.utils.get_step_distance import get_step_distance
 
 
 class FlightController:
@@ -66,7 +68,7 @@ class FlightController:
                 break
             # Compare the expected distance to the actual distance
             # Expected distance: amount of cells crossed to get to the current location
-            expected_distance = self.get_step_distance(new_position, step_taken[0])
+            expected_distance = get_step_distance(new_position, step_taken[0])
             # Actual distance: number of walk entries from the current position to the step_taken
             actual_distance = index
             # If the expected_distance is smaller than the actual_distance a suboptimal route was found
@@ -153,18 +155,3 @@ class FlightController:
             available_steps.append(available_step)
 
         return available_steps
-
-    @staticmethod
-    def get_step_distance(pos1, pos2):
-        """
-        Calculate the step distance between two positions
-        :param pos1: Tuple of coordinates
-        :param pos2: Tuple of coordinates
-        :return: The step-distance between both positions
-        """
-        if pos1 == pos2:
-            return 0
-        else:
-            x = abs(pos1[0] - pos2[0])
-            y = abs(pos1[1] - pos2[1])
-            return max(x, y)

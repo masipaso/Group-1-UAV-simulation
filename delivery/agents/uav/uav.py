@@ -1,4 +1,3 @@
-import math
 from delivery.agents.repellent import Repellent
 from delivery.agents.baseStation import BaseStation
 
@@ -9,6 +8,8 @@ from delivery.grid.Multi_grid_extra import MultiGridExtra
 from delivery.agents.uav.components.FlightController import FlightController
 from delivery.agents.uav.components.Battery import Battery
 from delivery.agents.uav.components.CargoBay import CargoBay
+# Import Utilis
+from delivery.utils.get_euclidean_distance import get_euclidean_distance
 
 
 class Uav(Agent):
@@ -155,21 +156,6 @@ class Uav(Agent):
             self.state = 6
             print(' Agent: {}  has no Battery life left.'.format(self.uid))
 
-    @staticmethod
-    def get_euclidean_distance(pos1, pos2):
-        """
-        Calculate Euclidean distance
-        :param pos1: tuple of coordinates
-        :param pos2: tuple of coordinates
-        :return: the euclidean distance between both positions
-        """
-        if pos1 == pos2:
-            return 0
-        else:
-            p0d0 = math.pow(pos1[0] - pos2[0], 2)
-            p1d1 = math.pow(pos1[1] - pos2[1], 2)
-            return math.sqrt(p0d0 + p1d1)
-
     def pick_up_item(self, item):
         """
         The Uav picks up an Item at a BaseStation if the Uav is on the way to the BaseStation
@@ -188,9 +174,9 @@ class Uav(Agent):
             self.state = 2
             # Clear out the previous walk
             self.walk = []
-            self.initial_delivery_distance = self.get_euclidean_distance(self.pos, self.destination)
+            self.initial_delivery_distance = get_euclidean_distance(self.pos, self.destination)
             print(' Agent: {} Received Item {}. Delivering to {}. Distance to Destination: {}. Battery: {}'
-                  .format(self.uid, item.iid, self.destination, self.get_euclidean_distance(self.pos, self.destination),
+                  .format(self.uid, item.iid, self.destination, get_euclidean_distance(self.pos, self.destination),
                           self.battery.get_charge()))
 
     def deliver_item(self):
@@ -305,7 +291,7 @@ class Uav(Agent):
         base_stations = self.model.schedule.agents_by_type[BaseStation]
         base_stations_by_distance = []
         for station in base_stations:
-            base_stations_by_distance.append((station.pos, self.get_euclidean_distance(self.pos, station.pos)))
+            base_stations_by_distance.append((station.pos, get_euclidean_distance(self.pos, station.pos)))
             base_stations_by_distance.sort(key=lambda tup: tup[1])
         return base_stations_by_distance.pop(0)[0]
 
@@ -319,7 +305,7 @@ class Uav(Agent):
         base_stations = self.model.schedule.agents_by_type[BaseStation]
         base_stations_by_distance = []
         for station in base_stations:
-            base_stations_by_distance.append((station.pos, self.get_euclidean_distance(self.pos, station.pos),
+            base_stations_by_distance.append((station.pos, get_euclidean_distance(self.pos, station.pos),
                                               len(station.items)))
             sorted(base_stations_by_distance,  key=itemgetter(2,1))
         print("List of BaseStations: {}".format(base_stations_by_distance))
