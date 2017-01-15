@@ -3,7 +3,7 @@ import configparser
 
 from mesa import Agent
 
-from delivery.agents.item import Item
+from delivery.agents.Item import Item
 
 
 class BaseStation(Agent):

@@ -1,6 +1,6 @@
 import configparser
 
-from delivery.server import launch_world_model
+from delivery.Server import launch_world_model
 from delivery.tests.tests_runner import tests_runner
 from delivery.model.worldmodel import WorldModel
 

@@ -1,5 +1,5 @@
 from mesa.space import MultiGrid
-from delivery.agents.repellent import Repellent
+from delivery.agents.Repellent import Repellent
 
 
 class MultiGridExtra(MultiGrid):
@@ -16,14 +16,16 @@ class MultiGridExtra(MultiGrid):
         """
         super().__init__(width, height, torus)
 
-    def get_repellent_on(self, pos):
+    def get_repellent_on(self, pos, altitude=1):
         """
         Check if there is a repellent on the position
         :param pos: Tuple of coordinates
+        :param altitude: The altitude to check for
         :return: A repellent, that is on the position or None
         """
         cell_content = self.get_cell_list_contents(pos)
         for content in cell_content:
             if type(content) is Repellent:
-                return content
+                if content.altitude is altitude:
+                    return content
         return None
