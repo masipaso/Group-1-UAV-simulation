@@ -56,7 +56,7 @@ class FlightController:
                 break
 
         # Move UAV
-        self.uav.move_to(new_position)
+        self.move_to(new_position)
         new_distance = get_euclidean_distance(self.uav.pos, self.uav.destination)
         print(' Agent: {}  Moves from {} to {}. Distance to Destination: {}. Battery: {}'
               .format(self.uav.uid, last_position, new_position, new_distance, self.uav.battery.get_charge()))
@@ -188,3 +188,10 @@ class FlightController:
             sorted(base_stations_by_distance,  key=itemgetter(2,1))
         print("List of BaseStations: {}".format(base_stations_by_distance))
         return base_stations_by_distance.pop(0)[0]
+
+    def move_to(self, pos):
+        """
+        Move an UAV to a position
+        :param pos: tuple of coordinates where the UAV should move to
+        """
+        self.uav.model.grid.move_agent(self.uav, pos)

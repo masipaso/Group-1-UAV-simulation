@@ -233,14 +233,6 @@ class Uav(Agent):
         if idle:
             self.state = 1
 
-    def move_to(self, pos):
-        """
-        Move an Uav to a position
-        :param pos: tuple of coordinates where the uav should move to
-        """
-        # Move the agent on both grids
-        self.model.grid.move_agent(self, pos)
-
     # TODO: @Dominik what are walk lengths?
     def get_walk_lengths(self):
         """
