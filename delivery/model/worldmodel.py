@@ -44,7 +44,7 @@ class WorldModel(Model):
         self.pixel_ratio = config.getint('Grid', 'pixel_ratio')
         self.range_of_base_station = config.getfloat('Basestation', 'range_of_base_station')
         self.number_of_uavs_per_base_station = config.getint('Uav', 'number_of_uavs_per_base_station')
-        self.max_battery = config.getint('Uav', 'max_battery')
+        self.max_charge = config.getint('Uav', 'max_charge')
         self.battery_low = config.getint('Uav', 'battery_low')
         self.battery_decrease_per_step = config.getint('Uav', 'battery_decrease_per_step')
         self.battery_increase_per_step = config.getint('Uav', 'battery_increase_per_step')
@@ -193,7 +193,7 @@ class WorldModel(Model):
         :param base_station: the assigned BaseStation
         """
         # Create the uav
-        uav = Uav(self, pos=base_station.get_pos(), uid=uid, max_battery=self.max_battery, battery_low=self.battery_low,
+        uav = Uav(self, pos=base_station.get_pos(), uid=uid, max_charge=self.max_charge, battery_low=self.battery_low,
                   base_station=base_station, battery_decrease_per_step=self.battery_decrease_per_step,
                   battery_increase_per_step=self.battery_increase_per_step)
         # Place the uav on the grids

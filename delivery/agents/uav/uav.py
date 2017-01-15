@@ -4,9 +4,11 @@ from delivery.agents.baseStation import BaseStation
 
 from operator import itemgetter
 from mesa import Agent
+# Import components
 from delivery.grid.Multi_grid_extra import MultiGridExtra
-
-from delivery.algorithms.repellentAlgorithm import Algorithm
+from delivery.agents.uav.components.FlightController import FlightController
+from delivery.agents.uav.components.Battery import Battery
+from delivery.agents.uav.components.CargoBay import CargoBay
 
 
 class Uav(Agent):
@@ -22,13 +24,13 @@ class Uav(Agent):
     :param model: world model
     :param pos: Tuple of coordinates at which the UAV is located
     :param uid: Unique UAV identifier
-    :param max_battery: The maximum charge the battery can have
+    :param max_charge: The maximum charge the battery can have
     :param battery_low: The threshold at which the battery charge is considered low
     :param battery_decrease_per_step: The decrease in battery charge per step
     :param battery_increase_per_step: The increase in battery charge while charging per step
     :param base_station: The 'home' BaseStation
     """
-    def __init__(self, model, pos, uid, max_battery, battery_low, battery_decrease_per_step, battery_increase_per_step,
+    def __init__(self, model, pos, uid, max_charge, battery_low, battery_decrease_per_step, battery_increase_per_step,
                  base_station):
         # TODO: Why do we have the model here? This should not be available
         self.model = model
@@ -36,26 +38,26 @@ class Uav(Agent):
         self.uid = uid
         self.destination = None
         self.walk = []
-        self.item = None
         self.state = 1
+
+        # Construct UAV
+        # Add FlightController
+        self.flight_controller = FlightController(self)
+        self.last_repellent = 2
+        # Add Battery
+        self.battery = Battery(max_charge, battery_low, battery_decrease_per_step, battery_increase_per_step)
+        # Add CargoBay
+        self.cargo_bay = CargoBay(item=None)
 
         # Create a UAV-specific grid for repellents and item destinations
         self.perceived_grid = MultiGridExtra(height=self.model.grid.height, width=self.model.grid.width,
                                              torus=self.model.grid.torus)
 
-        # Battery
-        self.current_charge = max_battery
-        self.max_battery = max_battery
-        self.battery_low = battery_low
-        self.battery_decrease_per_step = battery_decrease_per_step
-        self.battery_increase_per_step = battery_increase_per_step
         # Base Stations
         self.base_station = base_station
         # Delivery
         self.initial_delivery_distance = 0
         self.initial_delivery_distance_divided_by_average_walk_length = []
-        self.algorithm = Algorithm(self)
-        self.last_repellent = 2
         # ??
         self.real_walk = []
         self.walk_lengths = []
@@ -66,7 +68,7 @@ class Uav(Agent):
         """
         Advance the Uav one step
         """
-        # If the UAV is IDLE at a Base Station
+        # If the UAV is IDLE at a BaseStation
 
         if self.state == 1:
             if self.base_station.pos == self.pos:
@@ -81,31 +83,32 @@ class Uav(Agent):
                 self.deliver_item()
             # ... otherwise keep delivering the Item
             self.find_uavs_close()
-            self.algorithm.run()
-        # If the UAV is on the way to a Base Station
+            self.flight_controller.run()
+        # If the UAV is on the way to a BaseStation
         elif self.state == 3:
-            # ... and has reached the Base Stations
+            # ... and has reached the BaseStations
             if self.pos == self.destination:
                 # ... update the state
                 self.arrive_at_base_station(idle=True, charge=True)
-            # .. otherwise keep finding the Base Station
+            # .. otherwise keep finding the BaseStation
             else:
                 self.find_uavs_close()
-                self.algorithm.run()
+                self.flight_controller.run()
         # If the UAV is low on battery life
         elif self.state == 4:
-            # ... and has reached the Base Stations
+            # ... and has reached the BaseStations
             if self.pos == self.destination:
                 # ... update the state
                 self.arrive_at_base_station(charge=True)
-            # .. otherwise keep finding the Base Station
+            # .. otherwise keep finding the BaseStation
             else:
                 self.find_uavs_close()
-                self.algorithm.run()
-        # If the UAV is charging the battery at a Base Station
+                self.flight_controller.run()
+        # If the UAV is charging the battery at a BaseStation
         elif self.state == 5 or self.state == 1:
             # ... charge the battery
-            self.charge_battery()
+            self.battery.charge()
+            print(' Agent: {}  charges battery. Battery: {}'.format(self.uid, self.battery.get_charge()))
         # If the UAV has no battery life left
         elif self.state == 6:
             # ... do nothing ... RIP
@@ -113,41 +116,42 @@ class Uav(Agent):
 
         # Decrease battery life
         if self.state == 2 or self.state == 3 or self.state == 4:
-            self.current_charge -= self.battery_decrease_per_step
-            # ... and check the status
-            self.check_battery()
+            self.battery.discharge()
+
+        # ... and check the status of the battery
+        self.check_battery()
 
         return
-
-    def charge_battery(self):
-        """
-        Charge the battery of a UAV
-        """
-        self.current_charge += self.battery_increase_per_step
-        print(' Agent: {}  charges battery. Battery: {}'.format(self.uid, self.current_charge))
-        # If the battery is fully charged
-        if self.current_charge >= self.max_battery:
-            self.current_charge = self.max_battery
-            print(' Agent: {} is fully charged'.format(self.uid))
-            # If the UAV does not carry an Item
-            if self.item is None:
-                # ... IDLE at the Base Station in the next step
-                self.state = 1
-            # Otherwise resume the delivery
-            else:
-                self.state = 2
-                self.destination = self.item.destination
 
     def check_battery(self):
         """
         Check if the current charge of the battery is sufficient to carry on, otherwise
         the UAV heads towards the closest Base Station for charging
         """
-        if self.current_charge < self.battery_low:
+        # If the UAV is charging ...
+        if self.state is 5:
+            # ... and the battery is fully charged
+            if self.battery.is_charged():
+                print(' Agent: {} is fully charged'.format(self.uid))
+                # ... set the state to the previous state
+                # If the UAV doesn't carry an Item
+                if self.cargo_bay.is_empty():
+                    # ... keep idleing
+                    self.state = 1
+                # Otherwise resume the delivery
+                else:
+                    self.state = 2
+                    self.destination = self.cargo_bay.get_destination()
+        # If the Battery is low ...
+        elif self.battery.is_low():
+            # .. adjust the state
             self.state = 4
+            # ... and head to the next BaseStation to charge
             self.destination = self.get_nearest_base_station()
             print(' Agent: {}  has low Battery. going to Base Station: {}'.format(self.uid, self.destination))
-        if self.current_charge <= 0:
+        # If the Battery is empty ...
+        elif self.battery.is_empty():
+            # ... adjust the state
             self.state = 6
             print(' Agent: {}  has no Battery life left.'.format(self.uid))
 
@@ -171,36 +175,42 @@ class Uav(Agent):
         The Uav picks up an Item at a BaseStation if the Uav is on the way to the BaseStation
         :param item: the Item that is picked up
         """
-        if self.state == 1 and item is not None:
-            self.item = item
-            # Set the new destination
-            self.destination = self.item.get_destination()
-            # Place the Item on the perceived grid of the UAV
+        # If there is an Item ...
+        if item is not None:
+            # ... store it in the CargoBay
+            self.cargo_bay.store_item(item)
+            # .. set the destination
+            self.destination = self.cargo_bay.get_destination()
+            # TODO: Optional
+            # ... place the Item on the perceived grid of the UAV
             self.perceived_grid.place_agent(pos=item.destination, agent=item)
-            # Update state
+            # .. adjust the state
             self.state = 2
             # Clear out the previous walk
             self.walk = []
             self.initial_delivery_distance = self.get_euclidean_distance(self.pos, self.destination)
             print(' Agent: {} Received Item {}. Delivering to {}. Distance to Destination: {}. Battery: {}'
                   .format(self.uid, item.iid, self.destination, self.get_euclidean_distance(self.pos, self.destination),
-                          self.current_charge))
+                          self.battery.get_charge()))
 
     def deliver_item(self):
         """
         The Uav delivers an Item
         """
-        # Fly back to Base Station after delivering the Item
+        # Store iid for logging
+        iid = self.cargo_bay.get_item().iid
+        # ... remove the Item from the perceived grid of the UAV
+        self.perceived_grid._remove_agent(self.cargo_bay.get_destination(), self.cargo_bay.get_item())
+        # ... remove the Item from the CargoBay
+        self.cargo_bay.remove_item()
+        # ... adjust the state
+        self.state = 3
+        # ... notify model that a delivery was made
+        # TODO: Make this more beautiful!
+        self.model.number_of_delivered_items += 1
+        # ... pick a BaseStation
         self.destination = self.choose_base_station_to_pick_up_item_from()
-        print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}. Battery: {}'
-              .format(self.uid, self.item.iid, self.pos, self.destination, self.current_charge))
-        print(' Agent: {}  Needed {} steps and took this walk: {}'
-              .format(self.uid, len(self.walk) - 1, self.walk))
-        # Deliver the Item
-        self.item.deliver(self.perceived_grid)
-        # Remove item from model's item_schedule
-        self.model.item_schedule.remove(self.item)
-        self.item = None
+
         # Clear out the previous walk
         self.walk = []
         self.walk_lengths.append(len(self.real_walk))
@@ -208,11 +218,11 @@ class Uav(Agent):
                                                                              / self.initial_delivery_distance)
         self.initial_delivery_distance = []
         self.real_walk = []
-        # Update state
-        self.state = 3
-        # Notify model that a delivery was made
-        # TODO: Make this more beautiful!
-        self.model.number_of_delivered_items += 1
+
+        print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}. Battery: {}'
+              .format(self.uid, iid, self.pos, self.destination, self.battery.get_charge()))
+        print(' Agent: {}  Needed {} steps and took this walk: {}'
+              .format(self.uid, len(self.walk) - 1, self.walk))
 
     def arrive_at_base_station(self, idle=False, charge=False):
         """
@@ -222,7 +232,7 @@ class Uav(Agent):
         :return:
         """
         print(' Agent: {}  Arrived at BaseStation {}. Battery: {} '
-              .format(self.uid, self.destination, self.current_charge))
+              .format(self.uid, self.destination, self.battery.get_charge()))
         # Update state
         if charge:
             self.state = 5

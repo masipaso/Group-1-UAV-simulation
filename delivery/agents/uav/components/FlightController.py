@@ -2,11 +2,17 @@ from delivery.agents.repellent import Repellent
 from delivery.utils.step import Step
 
 
-class Algorithm:
+class FlightController:
     """
-    Class representing the current algorithm which is used to advance a Uav at each step
+    The FlightController decides where to fly next
     """
+    # TODO: More details
+
     def __init__(self, uav):
+        """
+        Initialize the FlightController
+        :param uav: The UAV to which the FlightController belongs
+        """
         self.uav = uav
 
     def run(self):
@@ -48,7 +54,7 @@ class Algorithm:
         self.uav.move_to(new_position)
         new_distance = self.uav.get_euclidean_distance(self.uav.pos, self.uav.destination)
         print(' Agent: {}  Moves from {} to {}. Distance to Destination: {}. Battery: {}'
-              .format(self.uav.uid, last_position, new_position, new_distance, self.uav.current_charge))
+              .format(self.uav.uid, last_position, new_position, new_distance, self.uav.battery.get_charge()))
 
         # Adding the new position to the walk
         self.uav.walk.append((new_position, new_distance))
@@ -162,4 +168,3 @@ class Algorithm:
             x = abs(pos1[0] - pos2[0])
             y = abs(pos1[1] - pos2[1])
             return max(x, y)
-

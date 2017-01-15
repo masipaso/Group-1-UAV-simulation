@@ -20,13 +20,12 @@ class Item:
         if not self.delivered:
             self.lifetime += 1
 
-    def deliver(self, grid):
+    def set_delivered(self):
         """
-        If an Item is delivered, remove it from the perceived_world_grid
-        :param grid: The grid the Item was placed on (UAV perceived_grid)
+        Mark an Item as delivered
         """
         self.delivered = True
-        grid._remove_agent(self.destination, self)  # disregard the _
+        # TODO: Remove from schedule
 
     def get_destination(self):
         """

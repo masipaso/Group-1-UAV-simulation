@@ -4,7 +4,6 @@ from delivery.tests.test_worldmodel import worldModel_Test
 from delivery.tests.test_repellent import repellent_Test
 from delivery.tests.test_static_grid import staticGrid_Test
 from delivery.tests.test_item import Item_Test
-from delivery.tests.test_repellentAlgorithm import repellentAlgorithm_Test
 import sys
 
 import unittest
@@ -97,13 +96,6 @@ class tests_runner():
         suite.addTest(Item_Test('test_get_destination'))
         return suite
 
-    def create_RepellenAlgorithm_test_suite(self):
-        # Creating Test Suite
-        suite = unittest.TestSuite()
-        suite.addTest(repellentAlgorithm_Test('test_init'))
-        #suite.addTest(Obstacle_Test('test_get_position'))
-        return suite
-
     # Run Tests
     def run_tests(self):
         # Creating Results
@@ -124,9 +116,6 @@ class tests_runner():
 
         print("Testing TwoMultiGrid")
         hider.hide_output()
-
-        self.create_TwoMultiGrid_test_suite().run(result=result)
-        hider.unhide_output()
 
         print("Testing WorldModel")
         hider.hide_output()
