@@ -16,8 +16,8 @@ class StaticGrid:
                         Black are obstacles and white is nothing.
         """
         # Constants
-        self.BASE_STATION = 2
-        self.OBSTACLE = 1
+        self.BASE_STATION = -1
+        self.OBSTACLE_DEFAULT = 1
         self.EMPTY = 0
 
         self.height = height
@@ -97,12 +97,15 @@ class StaticGrid:
         x, y = pos
         return x < 0 or x >= self.width or y < 0 or y >= self.height
 
-    def place_obstacle(self, pos):
+    def place_obstacle(self, pos, altitude=1):
         """
         Place an obstacle at the given position
         :param pos: Tuple of coordinates
+        :param altitude: Altitude of the Obstacle
         """
-        self._place_agent(pos, self.OBSTACLE)
+        if altitude < 1:
+            return
+        self._place_agent(pos, self.OBSTACLE_DEFAULT * altitude)
 
     def place_base_station(self, pos):
         """
@@ -129,14 +132,15 @@ class StaticGrid:
         x, y = pos
         return True if math.isclose(self.grid[x, y], self.EMPTY, rel_tol=1e-5) else False
 
-    def is_obstacle_at(self, pos):
+    def is_obstacle_at(self, pos, altitude=1):
         """
         Checks if a cell contains an Obstacle
         :param pos: Tuple of coordinates
+        :param altitude: Altitude to check for
         :return: True if the cell contains an Obstacle. Otherwise, False
         """
         x, y = pos
-        return True if math.isclose(self.grid[x, y], self.OBSTACLE, rel_tol=1e-5) else False
+        return True if math.isclose(self.grid[x, y], self.OBSTACLE_DEFAULT * altitude, rel_tol=1e-5) else False
 
     def is_base_station_at(self, pos):
         """

@@ -5,11 +5,15 @@ import configparser
 class Repellent(Agent):
     """
     A Repellent is an indicator that the cell in which the repellent is placed is not a good choice to move to
-    :param model: world model
-    :param pos: Tuple of coordinates at which the Repellent is located
-    :param grid: The grid on which the Repellent is placed
     """
-    def __init__(self, model, pos, grid):
+    def __init__(self, model, pos, grid, altitude):
+        """
+        Initialize the Repellent
+        :param model: world model
+        :param pos: Tuple of coordinates at which the Repellent is located
+        :param grid: The grid on which the Repellent is placed
+        :param altitude: The altitude in which the Repellent is placed
+        """
         config = configparser.ConfigParser()
         config.read('./config.ini')
         self.grid = grid
@@ -20,6 +24,7 @@ class Repellent(Agent):
         self.strength = self.initial_strength
         self.model.repellent_schedule.add(self)
         self.last_updated_at = self.model.steps
+        self.altitude = altitude
         pass
 
     def step(self):

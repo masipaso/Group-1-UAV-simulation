@@ -13,13 +13,14 @@ class Radar:
         self.landscape = landscape
         self.coverage_range = coverage_range
 
-    def is_obstacle_at(self, pos):
+    def is_obstacle_at(self, pos, altitude=1):
         """
         Scan the landscape and check if there is an Obstacle at the given position
         :param pos: Tuple of coordinates to check
+        :param altitude: Altitude to check for
         :return: True if there is an Obstacle, otherwise False
         """
-        return self.landscape.is_obstacle_at(pos)
+        return self.landscape.is_obstacle_at(pos, altitude)
 
     def is_base_station_at(self, pos):
         """

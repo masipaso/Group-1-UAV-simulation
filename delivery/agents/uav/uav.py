@@ -21,17 +21,21 @@ class Uav(Agent):
         4: battery low
         5: charging
         6: stranded without battery life left
-    :param model: world model
-    :param pos: Tuple of coordinates at which the UAV is located
-    :param uid: Unique UAV identifier
-    :param max_charge: The maximum charge the battery can have
-    :param battery_low: The threshold at which the battery charge is considered low
-    :param battery_decrease_per_step: The decrease in battery charge per step
-    :param battery_increase_per_step: The increase in battery charge while charging per step
-    :param base_station: The 'home' BaseStation
     """
     def __init__(self, model, pos, uid, max_charge, battery_low, battery_decrease_per_step, battery_increase_per_step,
-                 base_station):
+                 base_station, altitude):
+        """
+        Initialize the UAV
+        :param model: world model
+        :param pos: Tuple of coordinates at which the UAV is located
+        :param uid: Unique UAV identifier
+        :param max_charge: The maximum charge the battery can have
+        :param battery_low: The threshold at which the battery charge is considered low
+        :param battery_decrease_per_step: The decrease in battery charge per step
+        :param battery_increase_per_step: The increase in battery charge while charging per step
+        :param base_station: The 'home' BaseStation
+        :param altitude: The height the UAV is flying in
+        """
         # TODO: Why do we have the model here? This should not be available
         self.model = model
         self.pos = pos
@@ -39,6 +43,7 @@ class Uav(Agent):
         self.destination = None
         self.walk = []
         self.state = 1
+        self.altitude = altitude
 
         # Construct UAV
         # Create a UAV-specific grid for Repellents and Item destinations
@@ -253,7 +258,7 @@ class Uav(Agent):
         """
         Locate UAVs that are close and exchange grids
         """
-        neighborhood = self.model.grid.get_neighborhood(pos=self.pos,moore=True,include_center=False,radius=2)
+        neighborhood = self.model.grid.get_neighborhood(pos=self.pos, moore=True, include_center=False, radius=2)
         # The worst loop ever!
         if self.model.steps <= 50:
             return

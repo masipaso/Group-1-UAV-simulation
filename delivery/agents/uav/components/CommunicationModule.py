@@ -22,24 +22,26 @@ class CommunicationModule:
         # Iterate over the grid of the other UAV ...
         for x in range(0, other_grid.width - 1):
             for y in range(0, other_grid.height - 1):
-                # ... check if there is a Repellent on the position
-                other_repellent = other_grid.get_repellent_on((x, y))
-                my_repellent = self.perceived_world_grid.get_repellent_on((x, y))
-                # If there is a Repellent on the position ...
-                if other_repellent is not None:
-                    # ... and there is a Repellent on my own grid
-                    if my_repellent is not None:
-                        # Check which Repellent was last updated ...
-                        if my_repellent.get_last_updated_at() < other_repellent.get_last_updated_at():
-                            # ... and update my own Repellent if the other one was updated more recently
-                            my_repellent.set_strength(other_repellent.strength)
-                            my_repellent.set_last_updated_at(self.model.steps)
-                    # If I don't have a Repellent on that position:
-                    else:
-                        # ... place a new Repellent
-                        new_repellent = Repellent(self.model, (x, y), self.perceived_world_grid)
-                        new_repellent.set_strength(other_repellent.strength)
-                        self.perceived_world_grid.place_agent(agent=new_repellent, pos=(x, y))
+                # ... check if there is a Repellent on the position for each height
+                # TODO: Make MAX_HEIGHT (5) configurable
+                for height in range(1, 5):
+                    other_repellent = other_grid.get_repellent_on((x, y), height)
+                    my_repellent = self.perceived_world_grid.get_repellent_on((x, y), height)
+                    # If there is a Repellent on the position ...
+                    if other_repellent is not None:
+                        # ... and there is a Repellent on my own grid
+                        if my_repellent is not None:
+                            # Check which Repellent was last updated ...
+                            if my_repellent.get_last_updated_at() < other_repellent.get_last_updated_at():
+                                # ... and update my own Repellent if the other one was updated more recently
+                                my_repellent.set_strength(other_repellent.strength)
+                                my_repellent.set_last_updated_at(self.model.steps)
+                        # If I don't have a Repellent on that position:
+                        else:
+                            # ... place a new Repellent
+                            new_repellent = Repellent(self.model, (x, y), self.perceived_world_grid, height)
+                            new_repellent.set_strength(other_repellent.strength)
+                            self.perceived_world_grid.place_agent(agent=new_repellent, pos=(x, y))
 
     @staticmethod
     def _receive_grid_from(other_uav):
