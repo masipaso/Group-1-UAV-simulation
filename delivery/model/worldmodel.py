@@ -10,7 +10,7 @@ from mesa.space import MultiGrid
 
 from delivery.agents.baseStation import BaseStation
 from delivery.agents.item import Item
-from delivery.agents.uav import Uav
+from delivery.agents.uav.uav import Uav
 from delivery.schedule.schedule import RandomActivationByType
 
 

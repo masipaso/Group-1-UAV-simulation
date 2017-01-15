@@ -1,6 +1,6 @@
 from delivery.model.worldmodel import WorldModel
 from delivery.agents.baseStation import BaseStation
-from delivery.agents.uav import Uav
+from delivery.agents.uav.uav import Uav
 import configparser
 import unittest
 from mesa.datacollection import DataCollector

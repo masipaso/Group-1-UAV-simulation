@@ -5,7 +5,7 @@ from mesa.visualization.modules import CanvasGrid
 from delivery.agents.repellent import Repellent
 from delivery.agents.baseStation import BaseStation
 from delivery.agents.item import Item
-from delivery.agents.uav import Uav
+from delivery.agents.uav.uav import Uav
 
 
 class PerceivedWorldGrid(CanvasGrid):

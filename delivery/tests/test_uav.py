@@ -1,5 +1,5 @@
 import unittest
-from delivery.agents.uav import Uav
+from delivery.agents.uav.uav import Uav
 from delivery.agents.item import Item
 from delivery.agents.baseStation import BaseStation
 from delivery.model.worldmodel import WorldModel
