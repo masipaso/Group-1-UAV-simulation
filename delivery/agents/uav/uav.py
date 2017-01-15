@@ -1,7 +1,4 @@
 from delivery.agents.repellent import Repellent
-from delivery.agents.baseStation import BaseStation
-
-from operator import itemgetter
 from mesa import Agent
 # Import components
 from delivery.grid.Multi_grid_extra import MultiGridExtra
@@ -148,7 +145,7 @@ class Uav(Agent):
             # .. adjust the state
             self.state = 4
             # ... and head to the next BaseStation to charge
-            self.destination = self.get_nearest_base_station()
+            self.destination = self.flight_controller.get_nearest_base_station()
             print(' Agent: {}  has low Battery. going to Base Station: {}'.format(self.uid, self.destination))
         # If the Battery is empty ...
         elif self.battery.is_empty():
@@ -195,7 +192,7 @@ class Uav(Agent):
         # TODO: Make this more beautiful!
         self.model.number_of_delivered_items += 1
         # ... pick a BaseStation
-        self.destination = self.choose_base_station_to_pick_up_item_from()
+        self.destination = self.flight_controller.choose_base_station_to_pick_up_item_from()
 
         # Clear out the previous walk
         self.walk = []
@@ -281,32 +278,3 @@ class Uav(Agent):
                                         print("Agent {} updates repellent from Agent {}. Old strength: {}, New: {}".format(self.uid, obj.uid, my_repellent.strength, other_repellent.strength))
                                         my_repellent.strength = other_repellent.strength
                                         my_repellent.last_updated_at = self.model.steps
-
-    def get_nearest_base_station(self):
-        """
-        Get the BaseStation that is closest to the UAV
-        :return: The nearest BaseStation
-        """
-        # Based on euclidean distance, select closest baseStation
-        base_stations = self.model.schedule.agents_by_type[BaseStation]
-        base_stations_by_distance = []
-        for station in base_stations:
-            base_stations_by_distance.append((station.pos, get_euclidean_distance(self.pos, station.pos)))
-            base_stations_by_distance.sort(key=lambda tup: tup[1])
-        return base_stations_by_distance.pop(0)[0]
-
-    def choose_base_station_to_pick_up_item_from(self):
-        """
-        Choose a BaseStation to pick up an Item
-        :return: The nearest BaseStations
-        """
-        # Based on number of items and distance of BaseStation, select next BaseStation to pick up items from
-        # TODO: This should be decentralized in the next step!
-        base_stations = self.model.schedule.agents_by_type[BaseStation]
-        base_stations_by_distance = []
-        for station in base_stations:
-            base_stations_by_distance.append((station.pos, get_euclidean_distance(self.pos, station.pos),
-                                              len(station.items)))
-            sorted(base_stations_by_distance,  key=itemgetter(2,1))
-        print("List of BaseStations: {}".format(base_stations_by_distance))
-        return base_stations_by_distance.pop(0)[0]

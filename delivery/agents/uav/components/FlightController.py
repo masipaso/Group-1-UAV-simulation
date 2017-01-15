@@ -1,7 +1,10 @@
 from delivery.agents.repellent import Repellent
+from delivery.agents.baseStation import BaseStation
 # Import utils
 from delivery.utils.step import Step
 from delivery.utils.get_step_distance import get_step_distance
+from delivery.utils.get_euclidean_distance import get_euclidean_distance
+from operator import itemgetter
 
 
 class FlightController:
@@ -27,14 +30,14 @@ class FlightController:
             return None
 
         # Get all available steps
-        available_steps = self.get_available_steps()
+        available_steps = self._get_available_steps()
         # If there are no available steps, do nothing
         if len(available_steps) is 0:
             print(' Agent: {} has no available steps.'.format(self.uav.uid))
             return None
 
         # Get all possible steps based on the available steps
-        possible_steps = self.get_possible_steps(available_steps)
+        possible_steps = self._get_possible_steps(available_steps)
         # If there are no possible steps, do nothing
         if len(possible_steps) is 0:
             print(' Agent: {} has no possible steps.'.format(self.uav.uid))
@@ -88,7 +91,7 @@ class FlightController:
                     self.uav.walk.remove(self.uav.walk[index])
                 break
 
-    def get_possible_steps(self, available_steps):
+    def _get_possible_steps(self, available_steps):
         """
         Compute the possible steps based on the available steps
         :param available_steps: A list of available steps
@@ -134,7 +137,7 @@ class FlightController:
         possible_steps.sort(key=lambda step: step.distance)
         return possible_steps
 
-    def get_available_steps(self):
+    def _get_available_steps(self):
         """
         Get all available steps the UAV _could_ take
         :return: a list of Steps
@@ -155,3 +158,32 @@ class FlightController:
             available_steps.append(available_step)
 
         return available_steps
+
+    def get_nearest_base_station(self):
+        """
+        Get the BaseStation that is closest to the UAV
+        :return: The nearest BaseStation
+        """
+        # Based on euclidean distance, select closest baseStation
+        base_stations = self.uav.model.schedule.agents_by_type[BaseStation]
+        base_stations_by_distance = []
+        for station in base_stations:
+            base_stations_by_distance.append((station.pos, get_euclidean_distance(self.uav.pos, station.pos)))
+            base_stations_by_distance.sort(key=lambda tup: tup[1])
+        return base_stations_by_distance.pop(0)[0]
+
+    def choose_base_station_to_pick_up_item_from(self):
+        """
+        Choose a BaseStation to pick up an Item
+        :return: The nearest BaseStations
+        """
+        # Based on number of items and distance of BaseStation, select next BaseStation to pick up items from
+        # TODO: This should be decentralized in the next step!
+        base_stations = self.uav.model.schedule.agents_by_type[BaseStation]
+        base_stations_by_distance = []
+        for station in base_stations:
+            base_stations_by_distance.append((station.pos, get_euclidean_distance(self.uav.pos, station.pos),
+                                              len(station.items)))
+            sorted(base_stations_by_distance,  key=itemgetter(2,1))
+        print("List of BaseStations: {}".format(base_stations_by_distance))
+        return base_stations_by_distance.pop(0)[0]
