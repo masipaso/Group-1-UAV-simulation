@@ -1,6 +1,7 @@
+import configparser
 from mesa import Agent
 # Import components
-from delivery.grid.Multi_grid_extra import MultiGridExtra
+from delivery.grid.PerceivedWorldGrid import PerceivedWorldGrid
 from delivery.agents.uav.components.FlightController import FlightController
 from delivery.agents.uav.components.Battery import Battery
 from delivery.agents.uav.components.CargoBay import CargoBay
@@ -44,10 +45,19 @@ class Uav(Agent):
         self.state = 1
         self.altitude = altitude
 
+        # Read config.cfg
+        # TODO: move to worldmodel
+        config = configparser.ConfigParser()
+        config.read('./config.ini')
+        max_altitude = config.getint('Grid', 'max_altitude')
+
         # Construct UAV
         # Create a UAV-specific grid for Repellents and Item destinations
-        self.perceived_world_grid = MultiGridExtra(height=self.model.grid.height, width=self.model.grid.width,
-                                             torus=self.model.grid.torus)
+        # TODO: remove perceived_world_grid (perceived_world takes over!)
+        # self.perceived_world_grid = MultiGridExtra(height=self.model.grid.height, width=self.model.grid.width,
+        #                                            torus=self.model.grid.torus)
+        self.perceived_world = PerceivedWorldGrid(max_altitude)
+
         # Add FlightController
         self.flight_controller = FlightController(self)
         self.last_repellent = 2
@@ -56,10 +66,10 @@ class Uav(Agent):
         # Add CargoBay
         self.cargo_bay = CargoBay(item=None)
         # Add CommunicationModule
-        self.communication_module = CommunicationModule(self.perceived_world_grid, model)
+        self.communication_module = CommunicationModule(self.perceived_world, model, max_altitude)
         # Add Radar
         # TODO: Make the coverage_range configurable
-        # TODO: When we make this configurable, we have to adjust the FlighController!
+        # TODO: When we make this configurable, we have to adjust the FlightController!
         self.radar = Radar(model.grid, model.landscape, coverage_range=1)
 
         # Base Stations
@@ -70,7 +80,6 @@ class Uav(Agent):
         # ??
         self.real_walk = []
         self.walk_lengths = []
-        self.obstacle_list = []
         pass
 
     def step(self):
@@ -175,9 +184,6 @@ class Uav(Agent):
             self.cargo_bay.store_item(item)
             # .. set the destination
             self.destination = self.cargo_bay.get_destination()
-            # TODO: Optional
-            # ... place the Item on the perceived grid of the UAV
-            self.perceived_world_grid.place_agent(pos=item.destination, agent=item)
             # .. adjust the state
             self.state = 2
             # Clear out the previous walk
@@ -193,8 +199,6 @@ class Uav(Agent):
         """
         # Store iid for logging
         iid = self.cargo_bay.get_item().iid
-        # ... remove the Item from the perceived grid of the UAV
-        self.perceived_world_grid._remove_agent(self.cargo_bay.get_destination(), self.cargo_bay.get_item())
         # ... remove the Item from the CargoBay
         self.cargo_bay.remove_item()
         # ... adjust the state

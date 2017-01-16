@@ -8,60 +8,62 @@ class CommunicationModule:
     """
     # TODO: More details
 
-    def __init__(self, perceived_world_grid, model):
+    def __init__(self, perceived_world, model, max_altitude):
         """
         Initialize the CommunicationModule
-        :param perceived_world_grid: The UAV-specific grid for Repellents and Items
+        :param perceived_world: The UAV-specific grid for Repellents and Items
         :param model: The Model of the Simulation
+        :param max_altitude: The maximum altitude
         """
-        self.perceived_world_grid = perceived_world_grid
+        self.perceived_world = perceived_world
         self.model = model
-
-        # Read config.cfg
-        config = configparser.ConfigParser()
-        config.read('./config.ini')
-        self.max_altitude = config.getint('Grid', 'max_altitude')
+        self.max_altitude = max_altitude
 
     def exchange_repellents_with(self, other_uav):
-        # TODO: Avoid exchanging grids with a UAV that we just exchanged grids with!
-        other_grid = self._receive_grid_from(other_uav)
-        # Iterate over the grid of the other UAV ...
-        for x in range(0, other_grid.width - 1):
-            for y in range(0, other_grid.height - 1):
-                # ... check if there is a Repellent on the position for each height
-                for height in range(1, self.max_altitude):
-                    other_repellent = other_grid.get_repellent_on((x, y), height)
-                    my_repellent = self.perceived_world_grid.get_repellent_on((x, y), height)
-                    # If there is a Repellent on the position ...
-                    if other_repellent is not None:
-                        # ... and there is a Repellent on my own grid
+        other_perceived_world = self._receive_perceived_world_from(other_uav)
+        # Iterate over all altitudes ...
+        for altitude in range(1, self.max_altitude):
+            # ... and check if there are Repellents stored on that altitude
+            if other_perceived_world.has_repellents_on(altitude):
+                # ... if there are at least on Repellent on the altitude
+                # Check if I have Repellents on that altitude
+                if self.perceived_world.has_repellents_on(altitude):
+                    # ... if I do, we need to compare all Repellents
+                    repellents = other_perceived_world.get_repellents_on(altitude)
+                    for pos in repellents:
+                        # Get the Repellent from the other perceived_world
+                        other_repellent = other_perceived_world.get_repellent_on(pos, altitude)
+                        # Check if there is a Repellent in my own perceived_world
+                        my_repellent = self.perceived_world.get_repellent_on(pos, altitude)
                         if my_repellent is not None:
-                            # Check which Repellent was last updated ...
+                            # I do have a Repellent on that position
+                            # Compare which Repellent was last updated ...
                             if my_repellent.get_last_updated_at() < other_repellent.get_last_updated_at():
                                 # ... and update my own Repellent if the other one was updated more recently
                                 my_repellent.set_strength(other_repellent.strength)
                                 my_repellent.set_last_updated_at(self.model.steps)
-                        # If I don't have a Repellent on that position:
                         else:
-                            # ... place a new Repellent
-                            new_repellent = Repellent(self.model, (x, y), self.perceived_world_grid, height)
+                            # I don`t have a Repellent on that position
+                            #  ... place a new one
+                            new_repellent = Repellent(self.model, pos, self.perceived_world, altitude)
                             new_repellent.set_strength(other_repellent.strength)
-                            self.perceived_world_grid.place_agent(agent=new_repellent, pos=(x, y))
+                            self.perceived_world.place_repellent_at(new_repellent, pos, altitude)
+                else:
+                    # ... if I don´t, than I can just copy the other Repellents
+                    self.perceived_world[altitude] = other_perceived_world.get_repellents_on(altitude).copy()
 
     @staticmethod
-    def _receive_grid_from(other_uav):
+    def _receive_perceived_world_from(other_uav):
         """
         Mock function which receives a grid from another UAV
-        :param other_uav: The UAV which sends the perceived_world_grid
-        :return: The perceived_world_grid from the other UAV
+        :param other_uav: The UAV which sends the perceived_world
+        :return: The perceived_world from the other UAV
         """
-        return other_uav.communication_module.send_grid()
+        return other_uav.communication_module.send_perceived_world()
 
-    def send_grid(self):
+    def send_perceived_world(self):
         """
         Mock function which sends the perceived_world_grid of the UAV
-        :return: The perceived_world_grid of the UAV
+        :return: The perceived_world of the UAV
         """
-        return self.perceived_world_grid
-
-
+        return self.perceived_world
