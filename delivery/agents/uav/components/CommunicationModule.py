@@ -20,7 +20,7 @@ class CommunicationModule:
         # Read config.cfg
         config = configparser.ConfigParser()
         config.read('./config.ini')
-        self.max_height = config.getint('Grid', 'max_height')
+        self.max_altitude = config.getint('Grid', 'max_altitude')
 
     def exchange_repellents_with(self, other_uav):
         # TODO: Avoid exchanging grids with a UAV that we just exchanged grids with!
@@ -29,7 +29,7 @@ class CommunicationModule:
         for x in range(0, other_grid.width - 1):
             for y in range(0, other_grid.height - 1):
                 # ... check if there is a Repellent on the position for each height
-                for height in range(1, self.max_height):
+                for height in range(1, self.max_altitude):
                     other_repellent = other_grid.get_repellent_on((x, y), height)
                     my_repellent = self.perceived_world_grid.get_repellent_on((x, y), height)
                     # If there is a Repellent on the position ...

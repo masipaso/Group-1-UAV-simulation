@@ -1,3 +1,4 @@
+import configparser
 import numpy as np
 import math
 
@@ -24,6 +25,11 @@ class StaticGrid:
         self.width = width
         self.pixel_ratio = pixel_ratio
         self.landscape = landscape
+
+        # Read config.cfg
+        config = configparser.ConfigParser()
+        config.read('./config.ini')
+        self.max_altitude = config.getint('Grid', 'max_altitude')
 
         # Initialize an empty grid
         self.grid = np.zeros(shape=[self.width, self.height])
@@ -103,7 +109,7 @@ class StaticGrid:
         :param pos: Tuple of coordinates
         :param altitude: Altitude of the Obstacle
         """
-        if altitude < 1:
+        if altitude < 1 or altitude > self.max_altitude:
             return
         self._place_agent(pos, self.OBSTACLE_DEFAULT * altitude)
 
