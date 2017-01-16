@@ -23,7 +23,7 @@ class Uav(Agent):
         6: stranded without battery life left
     """
     def __init__(self, model, pos, uid, max_charge, battery_low, battery_decrease_per_step, battery_increase_per_step,
-                 base_station, altitude):
+                 base_station, altitude, max_altitude):
         """
         Initialize the UAV
         :param model: world model
@@ -35,6 +35,7 @@ class Uav(Agent):
         :param battery_increase_per_step: The increase in battery charge while charging per step
         :param base_station: The 'home' BaseStation
         :param altitude: The height the UAV is flying in
+        :param max_altitude: The max altitude that is allowed
         """
         # TODO: Why do we have the model here? This should not be available
         self.model = model
@@ -45,19 +46,9 @@ class Uav(Agent):
         self.state = 1
         self.altitude = altitude
 
-        # Read config.cfg
-        # TODO: move to worldmodel
-        config = configparser.ConfigParser()
-        config.read('./config.ini')
-        max_altitude = config.getint('Grid', 'max_altitude')
-
         # Construct UAV
         # Create a UAV-specific grid for Repellents and Item destinations
-        # TODO: remove perceived_world_grid (perceived_world takes over!)
-        # self.perceived_world_grid = MultiGridExtra(height=self.model.grid.height, width=self.model.grid.width,
-        #                                            torus=self.model.grid.torus)
         self.perceived_world = PerceivedWorldGrid(max_altitude)
-
         # Add FlightController
         self.flight_controller = FlightController(self)
         self.last_repellent = 2
