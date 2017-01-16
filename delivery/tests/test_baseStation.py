@@ -15,6 +15,16 @@ class baseStation_Test(unittest.TestCase):
         self.assertEqual(self.baseStation.center,(2,2))
         self.assertEqual(self.baseStation.range_of_base_station,250)
 
+    def test_step(self):
+        # 1st Test: No items at BaseStation, Result: len(basestation.items) = 1
+        self.baseStation.step()
+        self.assertEqual(len(self.baseStation.items),1)
+
+        # 2nd Test: max_items_per_base_station = 1, 1 items at BaseStation. Result after: 1 item at BaseStation
+        self.baseStation.max_items_per_base_station = 1
+        self.baseStation.step()
+        self.assertEqual(len(self.baseStation.items),1)
+
     def test_create_item(self):
 
         #Think of more cases for the method
@@ -27,7 +37,7 @@ class baseStation_Test(unittest.TestCase):
         item = self.baseStation.items.pop(0) # Getting the item from the list of items (can only be the one just created because we checked if the list was empty first)
 
         # Check if item is on perceived_world_grid at its destination position
-        self.assertIn(member=item,container=self.model.perceived_world_grid.get_cell_list_contents(item.destination))
+
         self.assertIn(member=item,container=self.model.item_schedule.agents)
 
     def test_get_item(self):
@@ -71,10 +81,10 @@ class baseStation_Test(unittest.TestCase):
         self.assertEqual(self.baseStation.get_number_of_items(picked_up=True), pickedup_item_count)
 
     def test_sort_items_by_priority(self):
-        self.baseStation.items.append(Item(destination=(10,10),priority=3,id=2))
-        self.baseStation.items.append(Item(destination=(10, 10), priority=4, id=3))
-        self.baseStation.items.append(Item(destination=(10, 10), priority=6, id=4))
-        self.baseStation.items.append(Item(destination=(10, 10), priority=1, id=1))
+        self.baseStation.items.append(Item(destination=(10,10),priority=3,iid=2))
+        self.baseStation.items.append(Item(destination=(10, 10), priority=4, iid=3))
+        self.baseStation.items.append(Item(destination=(10, 10), priority=6, iid=4))
+        self.baseStation.items.append(Item(destination=(10, 10), priority=1, iid=1))
 
         self.baseStation.sort_items_by_priority()
 
@@ -82,7 +92,7 @@ class baseStation_Test(unittest.TestCase):
         while not len(self.baseStation.items) == 0:
             item = self.baseStation.items.pop(0)
             i=i+1
-            self.assertEqual(item.id,i)
+            self.assertEqual(item.iid,i)
 
     def test_get_pos(self):
         self.assertEqual(self.baseStation.get_pos(),self.baseStation.pos)
