@@ -78,7 +78,7 @@ class FlightController:
             if expected_distance < actual_distance:
                 print("Path was longer than expected!")
                 # If there is already a repellent on that position ...
-                repellent = self.uav.perceived_world_grid.get_repellent_on(last_position, self.uav.altitude)
+                repellent = self.uav.perceived_world.get_repellent_on(last_position, self.uav.altitude)
                 if repellent is not None:
                     # ... increase its effect
                     print("There is already a repellent on that pos - increasing its effect!")
@@ -86,8 +86,8 @@ class FlightController:
                 else:
                     # ... or create a new one
                     print("There is no repellent on that pos - creating one!")
-                    repellent = Repellent(self.uav.model, last_position, self.uav.perceived_world_grid, self.uav.altitude)
-                    self.uav.perceived_world_grid.place_agent(repellent, last_position)
+                    repellent = Repellent(self.uav.model, last_position, self.uav.perceived_world, self.uav.altitude)
+                    self.uav.perceived_world.place_repellent_at(repellent, repellent.pos, repellent.altitude)
                     self.uav.walk.remove(self.uav.walk[index])
                 break
 
@@ -111,31 +111,18 @@ class FlightController:
                     possible_steps.append(available_step)
                 # ... in any other case, query the perceived grid of the UAV for Repellent information
                 else:
-                    # If there is something at that position
-                    if not self.uav.perceived_world_grid.is_cell_empty(available_step.pos):
-                        cell_contents = self.uav.perceived_world_grid.get_cell_list_contents([available_step.pos])
-                        possible = []
-                        # ... check the content
-                        for obstacle in cell_contents:
-                            # If there is a Repellent
-                            if type(obstacle) is Repellent:
-                                # ... if the Repellent is on a different altitude than the UAV, the UAV can go there
-                                if obstacle.altitude is not self.uav.altitude:
-                                    possible.append(True)
-                                else:
-                                    # ... otherwise the Uav might go there based on the strength
-                                    # and the possible decrease in distance
-                                    weighted_distance = available_step.distance + (available_step.distance *
-                                                                                   obstacle.strength / 100)
-                                    available_step.distance = weighted_distance
-                                    # Add the step with the weighted_distance to the possible_steps
-                                    possible.append(True)
-                            else:
-                                possible.append(True)
-                        # If there is one reason to add the available_step to the possible_steps, do it
-                        if True in possible:
-                            possible_steps.append(available_step)
-                    else:
+                    # If there are Repellents on the UAV´s altitude ...
+                    if self.uav.perceived_world.has_repellents_on(self.uav.altitude):
+                        # ... check if there is a Repellent on the position
+                        repellent = self.uav.perceived_world.get_repellent_on(available_step.pos, self.uav.altitude)
+                        # There is a Repellent
+                        if repellent is not None:
+                            # The Uav might go there based on the strength
+                            # and the possible decrease in distance
+                            weighted_distance = available_step.distance + (available_step.distance *
+                                                                           repellent.strength / 100)
+                            available_step.distance = weighted_distance
+                        # Add the Step to all possible steps
                         possible_steps.append(available_step)
 
         # Sort all possible steps to adjust the order for weighted distances

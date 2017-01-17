@@ -6,17 +6,17 @@ class Repellent(Agent):
     """
     A Repellent is an indicator that the cell in which the repellent is placed is not a good choice to move to
     """
-    def __init__(self, model, pos, grid, altitude):
+    def __init__(self, model, pos, perceived_world, altitude):
         """
         Initialize the Repellent
         :param model: world model
         :param pos: Tuple of coordinates at which the Repellent is located
-        :param grid: The grid on which the Repellent is placed
+        :param perceived_world: The perceived_world on which the Repellent is placed
         :param altitude: The altitude in which the Repellent is placed
         """
         config = configparser.ConfigParser()
         config.read('./config.ini')
-        self.grid = grid
+        self.perceived_world = perceived_world
         self.initial_strength = config.getfloat('Repellent', 'initial_strength')
         self.decrease_by = config.getfloat('Repellent', 'decrease_by')
         self.model = model
@@ -35,8 +35,8 @@ class Repellent(Agent):
         self.weaken()
         # If the strength of the Repellent is below 0
         if self.strength <= 0:
-            # ... Remove it from the grid
-            self.grid._remove_agent(self.pos,self)
+            # ... Remove it from the perceived_world
+            self.perceived_world.remove_repellent(self.pos, self.altitude)
             # ... and from the schedule
             self.model.repellent_schedule.remove(self)
         pass
@@ -54,13 +54,6 @@ class Repellent(Agent):
         self.last_updated_at = self.model.steps
         # TODO: Should we increase this by a number instead of setting it to a fixed value?
         self.strength = self.initial_strength
-
-    def get_position(self):
-        """
-        Get the position of a Repellent
-        :return: Position of the agent as a tuple of coordinates
-        """
-        return self.pos
 
     def get_last_updated_at(self):
         """

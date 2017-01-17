@@ -38,18 +38,22 @@ class WorldModel(Model):
         self.repellent_schedule = RandomActivationByType(self)
         # Configure schedule for items
         self.item_schedule = RandomActivationByType(self)
-        # Set parameters
+        # Set parameters for ...
+        # ... Grid
         self.width = config.getint('Grid', 'width')
         self.height = config.getint('Grid', 'height')
         self.pixel_ratio = config.getint('Grid', 'pixel_ratio')
+        self.max_altitude = config.getint('Grid', 'max_altitude')
+        # ... BaseStations
         self.range_of_base_station = config.getfloat('Basestation', 'range_of_base_station')
         self.number_of_uavs_per_base_station = config.getint('Uav', 'number_of_uavs_per_base_station')
+        # ... UAV
         self.max_charge = config.getint('Uav', 'max_charge')
         self.battery_low = config.getint('Uav', 'battery_low')
         self.battery_decrease_per_step = config.getint('Uav', 'battery_decrease_per_step')
         self.battery_increase_per_step = config.getint('Uav', 'battery_increase_per_step')
         self.uav_default_altitude = config.getint('Uav', 'uav_default_altitude')
-        self.number_of_repellents = 0
+
         # Counter for number of steps
         self.steps = 0
 
@@ -109,12 +113,11 @@ class WorldModel(Model):
         print("BaseStations done")
 
         # Create UAVs
-        id = 0
+        uid = 0
         for base_station in self.schedule.agents_by_type[BaseStation]:
-            id += 1
+            uid += 1
             for i in range(self.number_of_uavs_per_base_station):
-                self.create_uav(id + i, base_station)
-
+                self.create_uav(uid + i, base_station)
         print("UAVs done")
 
     def create_base_stations(self):
@@ -196,7 +199,8 @@ class WorldModel(Model):
         # Create the uav
         uav = Uav(self, pos=base_station.get_pos(), uid=uid, max_charge=self.max_charge, battery_low=self.battery_low,
                   base_station=base_station, battery_decrease_per_step=self.battery_decrease_per_step,
-                  battery_increase_per_step=self.battery_increase_per_step, altitude=self.uav_default_altitude)
+                  battery_increase_per_step=self.battery_increase_per_step, altitude=self.uav_default_altitude,
+                  max_altitude=self.max_altitude)
         # Place the uav on the grids
         self.grid.place_agent(uav, base_station.get_pos())
         # Add the Uav to the schedule
