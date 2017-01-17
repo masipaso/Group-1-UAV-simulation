@@ -9,7 +9,7 @@ class repellent_Test(unittest.TestCase):
     def setUp(self):
         self.model = WorldModel()
         self.grid = MultiGrid(width=100, height=100, torus=False)
-        self.repellent = Repellent(model=self.model,pos=(30,30),grid=self.grid)
+        self.repellent = Repellent(model=self.model,pos=(30,30),grid=self.grid,altitude=1)
 
         config = configparser.ConfigParser()
         config.read('./config.ini')

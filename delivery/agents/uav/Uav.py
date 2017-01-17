@@ -244,7 +244,7 @@ class Uav(Agent):
         """
         Locate UAVs that are close and exchange grids
         """
-        # The worst loop ever!
+
         if self.model.steps <= 50:
             return
 

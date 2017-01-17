@@ -4,6 +4,9 @@ from delivery.tests.test_worldmodel import worldModel_Test
 from delivery.tests.test_repellent import repellent_Test
 from delivery.tests.test_static_grid import staticGrid_Test
 from delivery.tests.test_item import Item_Test
+from delivery.tests.test_battery import battery_Test
+from delivery.tests.test_cargobay import cargoBay_Test
+
 import sys
 
 import unittest
@@ -20,10 +23,21 @@ class output_hider():
         sys.stdout = self.save_stdout
 
 class tests_runner():
+    def create_cargoBay_suite(self):
+        suite = unittest.TestSuite()
+        suite.addTest(cargoBay_Test('test_init'))
+        suite.addTest(cargoBay_Test('test_is_empty'))
+        suite.addTest(cargoBay_Test('test_store_item'))
+        suite.addTest(cargoBay_Test('test_remove_item'))
+        suite.addTest(cargoBay_Test('test_get_destination'))
+        suite.addTest(cargoBay_Test('test_get_item'))
+        return suite
+
     def create_BaseStation_suite(self):
          # Creating Test Suite
         suite = unittest.TestSuite()
         suite.addTest(baseStation_Test('test_init'))
+        suite.addTest(baseStation_Test('test_step'))
         suite.addTest(baseStation_Test('test_create_item'))
         suite.addTest(baseStation_Test('test_get_item'))
         suite.addTest(baseStation_Test('test_get_number_of_items'))
@@ -38,13 +52,8 @@ class tests_runner():
         suite.addTest(UAV_test('test_pickup_item'))
         suite.addTest(UAV_test('test_deliver_item'))
         suite.addTest(UAV_test('test_check_battery'))
-        suite.addTest(UAV_test('test_charge_battery'))
         suite.addTest(UAV_test('test_arrive_at_base_station'))
-        suite.addTest(UAV_test('test_move_to'))
-        suite.addTest(UAV_test('test_get_euclidean_distance'))
-        suite.addTest(UAV_test('test_get_grid'))
         suite.addTest(UAV_test('test_find_uavs_close'))
-        suite.addTest(UAV_test('test_get_nearest_base_station'))
         return suite
 
     def create_WorldModel_test_suite(self):
@@ -92,8 +101,20 @@ class tests_runner():
         suite.addTest(Item_Test('test_init'))
         suite.addTest(Item_Test('test_get_lifetime'))
         suite.addTest(Item_Test('test_step'))
-        suite.addTest(Item_Test('test_deliver'))
+        suite.addTest(Item_Test('test_set_delivered'))
         suite.addTest(Item_Test('test_get_destination'))
+        return suite
+
+    def create_Battery_suite(self):
+         # Creating Test Suite
+        suite = unittest.TestSuite()
+        suite.addTest(battery_Test('test_init'))
+        suite.addTest(battery_Test('test_charge'))
+        suite.addTest(battery_Test('test_discharge'))
+        suite.addTest(battery_Test('test_is_low'))
+        suite.addTest(battery_Test('test_is_empty'))
+        suite.addTest(battery_Test('test_is_charged'))
+        suite.addTest(battery_Test('test_get_charge'))
         return suite
 
     # Run Tests
@@ -102,56 +123,57 @@ class tests_runner():
         hider = output_hider()
         result = unittest.TestResult()
         print("Running Tests")
-        print("Testing BaseStation")
-        hider.hide_output()
 
-        self.create_BaseStation_suite().run(result=result)
+        print("Testing Battery")
+        hider.hide_output()
+        self.create_Battery_suite().run(result=result)
         hider.unhide_output()
 
+        print("Testing CargoBay")
+        hider.hide_output()
+        self.create_cargoBay_suite().run(result=result)
+        hider.unhide_output()
+
+        print("Testing BaseStation")
+        hider.hide_output()
+        self.create_BaseStation_suite().run(result=result)
+        hider.unhide_output()
+        #
         print("Testing UAV")
         hider.hide_output()
-
         self.create_UAV_suite().run(result=result)
         hider.unhide_output()
 
-        print("Testing TwoMultiGrid")
-        hider.hide_output()
-
         print("Testing WorldModel")
         hider.hide_output()
-
         self.create_WorldModel_test_suite().run(result=result)
         hider.unhide_output()
-
+        #
         print("Testing Repellent")
         hider.hide_output()
-
         self.create_Repellent_suite().run(result=result)
         hider.unhide_output()
-
+        #
         print("Testing StaticGrid")
         hider.hide_output()
-
         self.create_StaticGrid_suite().run(result=result)
         hider.unhide_output()
-
+        #
         print("Testing Item")
         hider.hide_output()
-
         self.create_Item_test_suite().run(result=result)
         hider.unhide_output()
 
-        print("Testing Obstacle")
-        hider.hide_output()
+        #print("Testing Obstacle")
+        #hider.hide_output()
+        #self.create_Obstacle_test_suite().run(result=result)
+        #hider.unhide_output()
+        #
+        #print("Testing RepellentAlgorithm")
+        #hider.hide_output()
+        #self.create_RepellenAlgorithm_test_suite().run(result=result)
+        #hider.unhide_output()
 
-        self.create_Obstacle_test_suite().run(result=result)
-        hider.unhide_output()
-
-        print("Testing RepellentAlgorithm")
-        hider.hide_output()
-
-        self.create_RepellenAlgorithm_test_suite().run(result=result)
-        hider.unhide_output()
 
         print('\033[1mTest results (Summary): {}\033[0m'.format(result))
 

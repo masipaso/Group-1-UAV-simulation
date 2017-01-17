@@ -25,8 +25,8 @@ class staticGrid_Test(unittest.TestCase):
         self.assertEqual(self.grid.height,self.height)
         self.assertEqual(self.grid.pixel_ratio,self.pixel_ratio)
         self.assertEqual(self.grid.landscape,self.background)
-        self.assertEqual(self.grid.BASE_STATION,2)
-        self.assertEqual(self.grid.OBSTACLE,1)
+        self.assertEqual(self.grid.BASE_STATION,-1)
+        self.assertEqual(self.grid.OBSTACLE_DEFAULT,1)
         self.assertEqual(self.grid.EMPTY,0)
         self.assertIsNotNone(self.grid.grid)
 
@@ -84,7 +84,7 @@ class staticGrid_Test(unittest.TestCase):
     def test_place_base_station(self):
         # No error handling so far!
         self.grid.place_base_station((1,1))
-        self.assertEqual(self.grid.grid[1, 1], 2)
+        self.assertEqual(self.grid.grid[1, 1], -1)
 
     def test_place_agent(self):
         # Test: After running the method with a pos=(x,y), the grid stored should have a float with type
@@ -118,7 +118,7 @@ class staticGrid_Test(unittest.TestCase):
         self.assertFalse(self.grid.is_base_station_at((10,10)))
 
         # 2nd Test: Obstacle at field. Expected Result: True
-        self.grid._place_agent((10,10),2)
+        self.grid._place_agent((10,10),-1)
         self.assertTrue(self.grid.is_base_station_at((10,10)))
 
         # 3rd Test: Other type at field. Expected Result: False

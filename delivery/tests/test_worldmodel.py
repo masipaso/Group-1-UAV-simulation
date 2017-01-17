@@ -20,7 +20,7 @@ class worldModel_Test(unittest.TestCase):
         self.assertEqual(self.model.pixel_ratio,config.getint('Grid', 'pixel_ratio'))
         self.assertEqual(self.model.range_of_base_station,config.getfloat('Basestation', 'range_of_base_station'))
         self.assertEqual(self.model.number_of_uavs_per_base_station,config.getint('Uav', 'number_of_uavs_per_base_station'))
-        self.assertEqual(self.model.max_battery,config.getint('Uav','max_battery'))
+        self.assertEqual(self.model.max_charge,config.getint('Uav','max_charge'))
         self.assertEqual(self.model.battery_low,config.getint('Uav','battery_low'))
         self.assertEqual(self.model.number_of_repellents,0)
         self.assertEqual(self.model.grid.width,config.getint('Grid', 'width'))
@@ -70,19 +70,19 @@ class worldModel_Test(unittest.TestCase):
                 break
 
         # Test: UAV is in grid
-        self.assertTrue(uav.id,123)
+        self.assertTrue(uav.uid,123)
 
         # Test: UAV is in perceived_world_grid
         found = False
         uav = None
-        for elem in self.model.perceived_world_grid.get_cell_list_contents((30, 30)):
+        for elem in self.model.grid.get_cell_list_contents((30, 30)):
             if isinstance(elem, Uav):
                 uav = elem
 
                 break
 
-        # Is it in perceived_world_grid?
-        self.assertTrue(uav.id,123)
+        # Is it in grid?
+        self.assertTrue(uav.uid,123)
 
         # Test: The UAV has to be added to the schedule
         self.assertIn(uav,self.model.schedule.agents)
