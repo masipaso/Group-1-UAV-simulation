@@ -54,54 +54,38 @@ class UAV_test(unittest.TestCase):
 
     def test_check_battery(self):
 
-        # 1st test: 0 < current_charge < battery_low
-        self.uav.destination = (50, 50)
+        # 1st test: 0 < current_charge < battery_low, state != 5, result: state = 1,
         self.uav.state = 1
-        self.uav.current_charge = self.uav.battery_low - 1
+        self.uav.check_battery()
+        self.assertEqual(self.uav.state,1)
+
+        # 2nd Test: battery = max_charge, state = 5, cargo_bay empty, result: state = 1
+        self.uav.state = 5
+        self.uav.check_battery()
+        self.assertEqual(self.uav.state,1)
+
+        # 3rd Test: battery = max_charge, state = 5, cargo_bay not empty, result: state = 2, self.destination = cargo_bay.destination
+        item = Item(destination=(0,0))
+        self.uav.pick_up_item(item)
+        self.uav.state = 5
+
+        self.uav.check_battery()
+        self.assertEqual(self.uav.state,2)
+        self.assertEqual(self.uav.destination,self.uav.cargo_bay.get_destination())
+        self.assertEqual(self.uav.destination,item.destination)
+
+        # 4th Test: battery < battery_low, state != 5, result: state = 4, destination != item.destination
+        self.uav.state = 2
+        self.uav.battery._current_charge = 5
         self.uav.check_battery()
 
-        # Test if state is changed to 4
         self.assertEqual(self.uav.state,4)
+        self.assertNotEqual(self.uav.destination,item.destination)
 
-        # Test if UAV's destination is self.baseStation.pos - deprecated because now I select it based on some algorithm!
-        # self.assertEqual(self.uav.destination,self.baseStation.pos)
-
-        # 2nd test: 0 = current_charge
-        self.uav.destination = (50, 50)
-        self.uav.state = 1
-        self.uav.current_charge = 0
+        # 4th Test: battery = 0, state != 5, result: state = 6
+        self.uav.battery._current_charge = 0
         self.uav.check_battery()
-
-        # Test if UAV's state is changed to 6
-        self.assertEqual(self.uav.state, 6)
-
-        # Test if UAV's destination is changed - deprecated because now I select it based on some algorithm!
-        # self.assertEqual(self.uav.destination,self.baseStation.pos)
-
-
-        # 3rd test: 0 > current_charge
-        self.uav.destination = (50, 50)
-        self.uav.state = 1
-        self.uav.current_charge = -1
-        self.uav.check_battery()
-
-        # Test if UAV's state is changed to 6
-        self.assertEqual(self.uav.state, 6)
-
-        # Test if UAV's destination is changed - deprecated because now I select it based on some algorithm!
-        # self.assertEqual(self.uav.destination,self.baseStation.pos)
-
-        # 4th Test: 0 < current_charge > low_battery
-        self.uav.destination = (50, 50)
-        self.uav.state = 1
-        self.uav.current_charge = self.uav.max_battery
-        self.uav.check_battery()
-
-        # Test if UAV's state is unchanged
-        self.assertEqual(self.uav.state, 1)
-
-        # Test if UAV's destination is changed
-        self.assertEqual(self.uav.destination,(50,50))
+        self.assertEqual(self.uav.state,6)
 
     def test_arrive_at_base_station(self):
         self.uav.state = 7

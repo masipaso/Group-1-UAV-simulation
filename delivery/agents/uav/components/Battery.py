@@ -35,7 +35,7 @@ class Battery:
         Check if the current charge of the Battery is below the threshold
         :return: True, if the charge is below the threshold, otherwise False
         """
-        return True if self._current_charge < self._battery_low else False
+        return True if self._current_charge < self._battery_low and self._current_charge > 0 else False
 
     def is_empty(self):
         """

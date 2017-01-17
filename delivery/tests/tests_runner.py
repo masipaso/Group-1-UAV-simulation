@@ -101,7 +101,7 @@ class tests_runner():
         suite.addTest(Item_Test('test_init'))
         suite.addTest(Item_Test('test_get_lifetime'))
         suite.addTest(Item_Test('test_step'))
-        suite.addTest(Item_Test('test_deliver'))
+        suite.addTest(Item_Test('test_set_delivered'))
         suite.addTest(Item_Test('test_get_destination'))
         return suite
 
@@ -134,54 +134,45 @@ class tests_runner():
         self.create_cargoBay_suite().run(result=result)
         hider.unhide_output()
 
-        #print("Testing BaseStation")
-        #hider.hide_output()
-        #self.create_BaseStation_suite().run(result=result)
-        #hider.unhide_output()
+        print("Testing BaseStation")
+        hider.hide_output()
+        self.create_BaseStation_suite().run(result=result)
+        hider.unhide_output()
         #
         print("Testing UAV")
         hider.hide_output()
         self.create_UAV_suite().run(result=result)
         hider.unhide_output()
+
+        print("Testing WorldModel")
+        hider.hide_output()
+        self.create_WorldModel_test_suite().run(result=result)
+        hider.unhide_output()
         #
-        # print("Testing TwoMultiGrid")
-        # hider.hide_output()
+        print("Testing Repellent")
+        hider.hide_output()
+        self.create_Repellent_suite().run(result=result)
+        hider.unhide_output()
         #
-        # print("Testing WorldModel")
-        # hider.hide_output()
+        print("Testing StaticGrid")
+        hider.hide_output()
+        self.create_StaticGrid_suite().run(result=result)
+        hider.unhide_output()
         #
-        # self.create_WorldModel_test_suite().run(result=result)
-        # hider.unhide_output()
+        print("Testing Item")
+        hider.hide_output()
+        self.create_Item_test_suite().run(result=result)
+        hider.unhide_output()
+
+        #print("Testing Obstacle")
+        #hider.hide_output()
+        #self.create_Obstacle_test_suite().run(result=result)
+        #hider.unhide_output()
         #
-        # print("Testing Repellent")
-        # hider.hide_output()
-        #
-        # self.create_Repellent_suite().run(result=result)
-        # hider.unhide_output()
-        #
-        # print("Testing StaticGrid")
-        # hider.hide_output()
-        #
-        # self.create_StaticGrid_suite().run(result=result)
-        # hider.unhide_output()
-        #
-        # print("Testing Item")
-        # hider.hide_output()
-        #
-        # self.create_Item_test_suite().run(result=result)
-        # hider.unhide_output()
-        #
-        # print("Testing Obstacle")
-        # hider.hide_output()
-        #
-        # self.create_Obstacle_test_suite().run(result=result)
-        # hider.unhide_output()
-        #
-        # print("Testing RepellentAlgorithm")
-        # hider.hide_output()
-        #
-        # self.create_RepellenAlgorithm_test_suite().run(result=result)
-        # hider.unhide_output()
+        #print("Testing RepellentAlgorithm")
+        #hider.hide_output()
+        #self.create_RepellenAlgorithm_test_suite().run(result=result)
+        #hider.unhide_output()
 
 
         print('\033[1mTest results (Summary): {}\033[0m'.format(result))

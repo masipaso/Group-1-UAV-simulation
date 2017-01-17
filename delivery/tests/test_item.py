@@ -4,22 +4,23 @@ from mesa.space import MultiGrid
 
 class Item_Test(unittest.TestCase):
     def setUp(self):
-        self.item = Item(destination=(10,10),priority=1,id=0)
+        self.item = Item(destination=(10,10),priority=1,iid=0)
 
     def test_init(self):
         self.assertEqual(self.item.destination,(10,10))
         self.assertEqual(self.item.priority,1)
-        self.assertEqual(self.item.id,0)
+        self.assertEqual(self.item.iid,0)
         self.assertEqual(self.item.lifetime,0)
+        self.assertFalse(self.item.delivered)
 
-    def test_deliver(self):
+    def test_set_delivered(self):
         # Test if after deliver() the item is removed from the grid
         grid = MultiGrid(width=100,height=100,torus=False)
         grid._place_agent((10,10),self.item)
 
-        self.item.deliver(grid=grid)
+        self.item.set_delivered()
 
-        self.assertNotIn(self.item,grid.get_cell_list_contents((10,10)))
+        self.assertTrue(self.item.delivered)
 
     def test_get_destination(self):
         # Test if this method returns the correct destination
