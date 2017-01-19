@@ -6,7 +6,7 @@ from delivery.agents.uav.components.FlightController import FlightController
 from delivery.agents.uav.components.Battery import Battery
 from delivery.agents.uav.components.CargoBay import CargoBay
 from delivery.agents.uav.components.CommunicationModule import CommunicationModule
-from delivery.agents.uav.components.Radar import Radar
+from delivery.agents.uav.components.Sensor import Sensor
 # Import Utilis
 from delivery.utils.get_euclidean_distance import get_euclidean_distance
 
@@ -58,10 +58,10 @@ class Uav(Agent):
         self.cargo_bay = CargoBay(item=None)
         # Add CommunicationModule
         self.communication_module = CommunicationModule(self.perceived_world, model, max_altitude)
-        # Add Radar
+        # Add Sensor
         # TODO: Make the coverage_range configurable
         # TODO: When we make this configurable, we have to adjust the FlightController!
-        self.radar = Radar(model.grid, model.landscape, coverage_range=1)
+        self.sensor = Sensor(model.grid, model.landscape, coverage_range=1)
 
         # Base Stations
         self.base_station = base_station
@@ -249,7 +249,7 @@ class Uav(Agent):
             return
 
         # Scan for UAVs
-        other_uavs = self.radar.scan_for_uavs(self.pos)
+        other_uavs = self.sensor.scan_for_uavs(self.pos)
         # If there are other UAVs ...
         if len(other_uavs) is not 0:
             # ... exchange perceived_world_grids with them

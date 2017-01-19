@@ -1,18 +1,18 @@
 from delivery.agents.BaseStation import BaseStation
 
 
-class Radar:
+class Sensor:
     """
-    The Radar of an UAV
+    The Sensor of an UAV
     """
     # TODO: More details
 
     def __init__(self, grid, landscape, coverage_range):
         """
-        Initialize the Radar
+        Initialize the Sensor
         :param grid: The grid of the model
         :param landscape: The landscape of the model
-        :param coverage_range: The range the Radar can cover
+        :param coverage_range: The range the Sensor can cover
         """
         self.grid = grid
         self.landscape = landscape
