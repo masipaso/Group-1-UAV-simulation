@@ -101,7 +101,6 @@ class FlightController:
 
         for available_step in available_steps:
             # Only add an available_step to the possible_steps if there is no Repellent or Obstacle at the position
-
             # Check the landscape
             # ... if there is no Obstacle
             if not self.uav.sensor.is_obstacle_at(available_step.pos, self.uav.altitude):

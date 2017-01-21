@@ -53,6 +53,7 @@ class WorldModel(Model):
         self.battery_decrease_per_step = config.getint('Uav', 'battery_decrease_per_step')
         self.battery_increase_per_step = config.getint('Uav', 'battery_increase_per_step')
         self.uav_default_altitude = config.getint('Uav', 'uav_default_altitude')
+        self.sensor_range = config.getint('Uav', 'sensor_range')
 
         # Counter for number of steps
         self.steps = 0
@@ -200,7 +201,7 @@ class WorldModel(Model):
         uav = Uav(self, pos=base_station.get_pos(), uid=uid, max_charge=self.max_charge, battery_low=self.battery_low,
                   base_station=base_station, battery_decrease_per_step=self.battery_decrease_per_step,
                   battery_increase_per_step=self.battery_increase_per_step, altitude=self.uav_default_altitude,
-                  max_altitude=self.max_altitude)
+                  max_altitude=self.max_altitude, sensor_range=self.sensor_range)
         # Place the uav on the grids
         self.grid.place_agent(uav, base_station.get_pos())
         # Add the Uav to the schedule

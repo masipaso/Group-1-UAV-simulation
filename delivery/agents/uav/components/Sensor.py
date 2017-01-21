@@ -7,16 +7,16 @@ class Sensor:
     """
     # TODO: More details
 
-    def __init__(self, grid, landscape, coverage_range):
+    def __init__(self, grid, landscape, sensor_range):
         """
         Initialize the Sensor
         :param grid: The grid of the model
         :param landscape: The landscape of the model
-        :param coverage_range: The range the Sensor can cover
+        :param sensor_range: The range the Sensor can cover
         """
         self.grid = grid
         self.landscape = landscape
-        self.coverage_range = coverage_range
+        self.sensor_range = sensor_range
 
     def is_obstacle_at(self, pos, altitude=1):
         """
@@ -41,7 +41,7 @@ class Sensor:
         :param pos: Tuple of coordinates
         :return: All the neighboring cells in the radius of the coverage_range around the pos
         """
-        return self.landscape.get_neighborhood(pos, self.coverage_range)
+        return self.landscape.get_neighborhood(pos, self.sensor_range)
 
     def scan_for_uavs(self, pos):
         """
@@ -50,7 +50,7 @@ class Sensor:
         :return: A list of UAVs that are close to the pos
         """
         other_uavs = []
-        neighborhood = self.grid.get_neighborhood(pos=pos, moore=True, include_center=False, radius=self.coverage_range)
+        neighborhood = self.grid.get_neighborhood(pos=pos, moore=True, include_center=False, radius=self.sensor_range)
         for cell in neighborhood:
             for obj in self.grid.get_cell_list_contents(cell):
                 # Check if the obj is NOT a BaseStation
