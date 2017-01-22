@@ -46,6 +46,7 @@ class Uav(Agent):
         self.walk = []
         self.state = 1
         self.altitude = altitude
+        self.max_altitude = max_altitude
 
         # Construct UAV
         # Create a UAV-specific grid for Repellents and Item destinations
@@ -60,7 +61,7 @@ class Uav(Agent):
         # Add CommunicationModule
         self.communication_module = CommunicationModule(self.perceived_world, model, max_altitude)
         # Add Sensor
-        self.sensor = Sensor(model.grid, model.landscape, sensor_range)
+        self.sensor = Sensor(model.grid, model.landscape, self.perceived_world, sensor_range)
 
         # Base Stations
         self.base_station = base_station

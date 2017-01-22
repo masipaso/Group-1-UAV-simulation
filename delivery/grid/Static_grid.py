@@ -161,3 +161,12 @@ class StaticGrid:
     def is_obstacle_color(r, g, b):
         black = range(0, 240)
         return r in black and g in black and b in black
+
+    def get_width(self):
+        return self.width
+
+    def get_height(self):
+        return self.height
+
+    def get_pixel_ratio(self):
+        return self.get_pixel_ratio

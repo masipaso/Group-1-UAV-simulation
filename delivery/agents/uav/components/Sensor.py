@@ -7,15 +7,17 @@ class Sensor:
     """
     # TODO: More details
 
-    def __init__(self, grid, landscape, sensor_range):
+    def __init__(self, grid, landscape, perceived_world, sensor_range):
         """
         Initialize the Sensor
-        :param grid: The grid of the model
-        :param landscape: The landscape of the model
+        :param grid: The grid of the model (Actual world representation of UAVs)
+        :param landscape: The landscape of the model (Actual world representation)
+        :param perceived_world: The world as it is perceived by the UAV
         :param sensor_range: The range the Sensor can cover
         """
         self.grid = grid
         self.landscape = landscape
+        self.perceived_world = perceived_world
         self.sensor_range = sensor_range
 
     def is_obstacle_at(self, pos, altitude=1):
@@ -35,13 +37,19 @@ class Sensor:
         """
         return self.landscape.is_base_station_at(pos)
 
-    def scan_neighborhood(self, pos):
+    def scan(self, pos, altitude):
         """
-        Scan the neighborhood around a given position
+        Scan the neighborhood around a given position (of the real world), then store the new knowledge (perceived world).
         :param pos: Tuple of coordinates
-        :return: All the neighboring cells in the radius of the coverage_range around the pos
+        :param altitude: Current altitude of the UAV
         """
-        return self.landscape.get_neighborhood(pos, self.sensor_range)
+        neighborhood = self.landscape.get_neighborhood(pos, False, self.sensor_range)
+        for coordinates in neighborhood:
+            for temp_altitude in range(altitude - self.sensor_range, altitude + self.sensor_range):
+                if self.is_obstacle_at(coordinates, temp_altitude):
+                    self.perceived_world.place_obstacle_at(coordinates, temp_altitude)
+                else:
+                    self.perceived_world.place_empty_at(coordinates, temp_altitude)
 
     def scan_for_uavs(self, pos):
         """
