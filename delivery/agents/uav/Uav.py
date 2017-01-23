@@ -80,7 +80,7 @@ class Uav(Agent):
         # If the UAV is IDLE at a BaseStation
 
         if self.state == 1:
-            if self.base_station.pos == self.pos:
+            if self.base_station.get_pos() == self.pos:
                 # ... try to pick up an Item if one is available
                 self.pick_up_item(self.base_station.get_item())
                 return

@@ -1,7 +1,7 @@
 class Item:
     """
     An Item is delivered by a drone.
-    :param destination: A tuple of coordinates representing the target destination to which the Item needs to be
+    :param destination: A triple of coordinates representing the target destination to which the Item needs to be
                         delivered
     :param priority: A priority of the Item
     :param iid: A unique item identifier of the Item

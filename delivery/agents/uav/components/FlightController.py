@@ -1,11 +1,8 @@
-from delivery.agents.Repellent import Repellent
 from delivery.agents.BaseStation import BaseStation
 # Import utils
-from delivery.utils.Step import Step
-from delivery.utils.Cell import Cell
-from delivery.utils.get_step_distance import get_step_distance
 from delivery.utils.get_euclidean_distance import get_euclidean_distance
 from operator import itemgetter
+from heapq import *
 
 from datetime import datetime
 
@@ -33,128 +30,145 @@ class FlightController:
             return None
 
         # Initiate scan of the neighborhood
-        self.uav.sensor.scan(self.uav.pos, self.uav.altitude)
+        print("Scanning start {}".format(datetime.now().time()))
+        self.uav.sensor.scan(self.uav.pos)
+        print("Scanning end {}".format(datetime.now().time()))
 
-        # Get the best possible cell that is currently in sensor_range
-        best_cell = self._get_best_cell()
+        # Store the shortest path
+        shortest_path = []
+        # Store cells that were excluded from the search for a best_cell because they are not accessible from the
+        # current position of the UAV
+        excluded_cells = []
+        # Store the best possible cell that the UAV should move towards
+        best_cell = None
 
-        # Calculate the shortest path to the best possible cell
-        shortest_path = self._get_shortest_path_between(self.uav.pos, best_cell.pos, best_cell.altitude)
+        # As long as there is no shortest path to the best_cell ...
+        while not shortest_path:
+            # ... get the best possible cell that is currently in sensor_range
+            print("Finding best cell {}".format(datetime.now().time()))
+            best_cell = self._get_best_cell(excluded_cells)
+            print("Found best cell {}".format(datetime.now().time()))
+            print("best cell {}".format(best_cell))
+
+            if best_cell is None:
+                # If all cells are excluded from the search, then the UAV can't move
+                print(' Agent: {} cannot move.'.format(self.uav.uid))
+                return None
+
+            # ... and calculate the shortest path to it
+            print("Finding shortest path to best cell {}".format(datetime.now().time()))
+            shortest_path = self._get_shortest_path_between(self.uav.pos, best_cell)
+            print("Found shortest path to best cell {}".format(datetime.now().time()))
+            print(shortest_path)
+
         # Get the next cell on the shortest path
-        next_cell = shortest_path.pop(0)
-        print("Next step for {} is: {} {}".format(self.uav.uid, next_cell.pos, next_cell.altitude))
-        self.move_to(next_cell.pos, next_cell.altitude)
+        next_cell = shortest_path.pop()
+        print("{} moves from {} to {} on its way to {}".format(self.uav.uid, self.uav.pos, next_cell, best_cell))
+        self.move_to(next_cell)
 
-    def _get_best_cell(self):
+    def _get_best_cell(self, excluded_cell):
         """
-        Get the best possible cell that is known to the UAV
-        :return: A Step, which is the best possible one according to the distance to the destination
+        Get the best possible cell that is known to the UAV. Best possible means that being on that cell minimizes
+        the remaining distance to the destination.
+        :param excluded_cell: A list of cells that are excluded as best cell
+        :return: A triple of coordinates representing the best possible cell
         """
-        possible_steps = []
+        min_distance = None
+        best_cell = None
 
         # Iterate over all altitudes ...
-        for altitude in range(0, self.uav.max_altitude):
+        for altitude in range(1, self.uav.max_altitude + 1):
+            # Check if the altitude is a valid
+            if not self.uav.perceived_world.is_valid_altitude(altitude):
+                # ... and skip if it is not
+                continue
             for coordinates in self.uav.perceived_world.get_known_coordinates_at(altitude):
+                coordinates = coordinates + (altitude,)
+                # If the coordinates and altitude are excluded ...
+                if coordinates in excluded_cell:
+                    continue
                 # If there is no Obstacle at the altitude ...
-                if not self.uav.perceived_world.is_obstacle_at(coordinates, self.uav.altitude):
-                    # ... then there might be a BaseStation (-1) or nothing (0)
-                    # Calculate the distance from the coordinates to teh destination of the UAV
+                if not self.uav.perceived_world.is_obstacle_at(coordinates):
+                    # ... then there might be a BaseStation or nothing ...
+                    # ... calculate the remaining distance from the coordinates to the destination of the UAV
                     distance = get_euclidean_distance(self.uav.destination, coordinates)
-                    possible_steps.append(self._create_step(distance, coordinates, altitude))
+                    if min_distance is None:
+                        min_distance = distance
+                    else:
+                        if min_distance > distance:
+                            min_distance = distance
+                            best_cell = coordinates
+        return best_cell
 
-        # Sort all possible Steps by distance
-        possible_steps.sort(key=lambda step: step.distance)
-        # Get the best possible Step
-        return possible_steps[0]
-
-    def _get_shortest_path_between(self, pos, target, altitude):
+    def _get_shortest_path_between(self, start, goal):
         """
         Get the shortest path between two tuples of coordinates
-        :param pos: Tuple of coordinates of the current position (start)
-        :param target: Tuple of coordinates of the desired target position
-        :param altitude:
-        :return:
+        :param start: Triple of coordinates of the current position
+        :param goal: Triple of coordinates of the desired target position
+        :return: List of steps of the shortest path
         """
-        visited_cells = self._search_paths(pos, target, altitude)
-        # Get the target cell
-        cell = next((cell for cell in visited_cells if cell.pos == target and cell.altitude is altitude), None)
-        path = [cell]
-        while cell.parent:
-            cell = cell.parent
-            path.append(cell)
-        path.reverse()
-        return path
 
-    def _search_paths(self, pos, target, altitude):
-        """
-        Search for paths between pos and target
-        :param pos: Tuple of coordinates of the current position (start)
-        :param target: Tuple of coordinates of the desired target position
-        :param altitude:
-        :return: A set of all visited cells
-        """
-        print(datetime.now().time())
-        # Store the visited cells
+        # A list representing the allowed movements of the UAV. N, E, S, W, NE, SE, SW, NW, ascend straight up, descent
+        # straight down
+        allowed_movements = [(0, 1, 0), (1, 0, 0), (0, -1, 0), (-1, 0, 0), (1, 1, 0), (1, -1, 0), (-1, -1, 0),
+                             (-1, 1, 0), (0, 0, 1), (0, 0, -1)]
+        # A set of already "visited cells"
         visited_cells = set()
+        # A dictionary to track the path
+        came_from = {}
+        # A dictionary to track the "costs" of getting to a certain cell
+        g_score = {start: 0}
+        # A dictionary to track the total "costs" of getting from the start to the goal and visiting a certain cell
+        f_score = {start: get_euclidean_distance(start, goal)}
+        # A list of cells that are not "visited" yet
+        unvisited_cells = []
+        # To sort the unvisited cells by there f_score
+        heappush(unvisited_cells, (f_score[start], start))
 
-        # Get the neighboring cells of the UAV
-        unvisited_cells = self._get_cells_around(pos)
+        # As long as there are unvisited cells ...
+        while unvisited_cells:
+            # ... take the cell with the lowest f_score ...
+            current = heappop(unvisited_cells)[1]
+            # ... check if it is the goal
+            if current == goal:
+                # If that is the case return the found path
+                data = []
+                while current in came_from:
+                    data.append(current)
+                    current = came_from[current]
+                return data
 
-        # Perform A*
-        while len(unvisited_cells):
-            unvisited_cells.sort(key=lambda cell: cell.f)
-            # Pop a Cell from the heap queue
-            current_cell = unvisited_cells.pop(0)
-            # Add the Cell to the visited_cells
-            visited_cells.add(current_cell)
-            # If this is the target ...
-            if current_cell.pos == target and current_cell.altitude is altitude:
-                print(datetime.now().time())
-                return visited_cells
-            # Get neighboring cells for Cell
-            neighborhood = self._get_cells_around(current_cell.pos)
-            for neighboring_cell in neighborhood:
-                # If the cell was not already visited ...
-                if not any(cell.pos == neighboring_cell.pos and cell.altitude == neighboring_cell.altitude for cell in visited_cells):
-                    duplicate = False
-                    # Check if the Cell is in the unvisited_cells ...
-                    for cell in unvisited_cells:
-                        if cell.pos == neighboring_cell.pos and cell.altitude == neighboring_cell.altitude:
-                            neighboring_cell = cell
-                            duplicate = True
-                    # Update the cell or add it to the unvisited_cells
-                    if duplicate:
-                        # ... adjust the path, if the new one is better
-                        if neighboring_cell.g > current_cell.g + 1:
-                            # Update the cell
-                            neighboring_cell.update(current_cell.g + 1, get_euclidean_distance(current_cell.pos, neighboring_cell.pos), current_cell)
-                    else:
-                        neighboring_cell.update(current_cell.g + 1, get_euclidean_distance(current_cell.pos, neighboring_cell.pos), current_cell)
-                        unvisited_cells.append(neighboring_cell)
-
-    def _get_cells_around(self, pos):
-        """
-        Get all cells that surround a position
-        :param pos: Tuple of coordinates
-        :return: A List of Cells
-        """
-        x, y = pos
-        x_cells = [x, x + 1, x - 1]
-        y_cells = [y, y + 1, y - 1]
-        cells = []
-
-        for x_cell in x_cells:
-            for y_cell in y_cells:
-                pos = (x_cell, y_cell)
-                # Don't add the cell the UAV is currently at
-                if not (x is x_cell and y is y_cell):
-                    if self.uav.perceived_world.is_known(pos, self.uav.altitude) and not self.uav.perceived_world.is_obstacle_at(pos, self.uav.altitude):
-                        cells.append(Cell(pos, self.uav.altitude))
-                if self.uav.altitude + 1 <= self.uav.max_altitude and self.uav.perceived_world.is_known(pos, self.uav.altitude + 1) and not self.uav.perceived_world.is_obstacle_at(pos, self.uav.altitude + 1):
-                    cells.append(Cell(pos, self.uav.altitude + 1))
-                if self.uav.altitude - 1 >= 0 and self.uav.perceived_world.is_known(pos, self.uav.altitude - 1) and not self.uav.perceived_world.is_obstacle_at(pos, self.uav.altitude - 1):
-                    cells.append(Cell(pos, self.uav.altitude - 1))
-        return cells
+            # ... "mark" it as visited
+            visited_cells.add(current)
+            # ... and check all neighboring cells (according to the allowed_movements)
+            for x, y, z in allowed_movements:
+                # Get the coordinates of the neighboring cell
+                neighbor_cell = current[0] + x, current[1] + y, current[2] + z
+                # Check if it has a valid altitude ...
+                if self.uav.perceived_world.is_valid_altitude(neighbor_cell[2]):
+                    # ... if it is known to the UAV ...
+                    if self.uav.perceived_world.is_known(neighbor_cell):
+                        # ... and if there is no Obstacle
+                        if not self.uav.perceived_world.is_obstacle_at(neighbor_cell):
+                            # Calculate the new g_score for the neighboring cell
+                            temp_g_score = g_score[current] + get_euclidean_distance(current, neighbor_cell)
+                            # If the neighboring cell was already visited and the new g_score is bigger than the g_score
+                            # that is already known ...
+                            if neighbor_cell in visited_cells and temp_g_score >= g_score.get(neighbor_cell, 0):
+                                continue
+                            # If the new g_score is smaller than the already known g_score or the neighboring cell is
+                            # not listed as unvisited ...
+                            if temp_g_score < g_score.get(neighbor_cell, 0) or neighbor_cell not in [i[1] for i in
+                                                                                                     unvisited_cells]:
+                                # Save the path
+                                came_from[neighbor_cell] = current
+                                # Save the g_score
+                                g_score[neighbor_cell] = temp_g_score
+                                # Calculate the total "costs"
+                                f_score[neighbor_cell] = temp_g_score + get_euclidean_distance(neighbor_cell, goal)
+                                # Add the neighboring cell to the unvisited cells
+                                heappush(unvisited_cells, (f_score[neighbor_cell], neighbor_cell))
+        return []
 
     def get_nearest_base_station(self):
         """
@@ -185,21 +199,14 @@ class FlightController:
         print("List of BaseStations: {}".format(base_stations_by_distance))
         return base_stations_by_distance.pop(0)[0]
 
-    def move_to(self, pos, altitude):
+    def move_to(self, pos):
         """
         Move an UAV to a position
-        :param pos: Tuple of coordinates where the UAV should move to
-        :param altitude: Altitude to which the UAV should ascend/descend to
+        :param pos: Triple of coordinates where the UAV should move to
         """
-        self.uav.model.grid.move_agent(self.uav, pos)
-        self.uav.altitude = altitude
-
-    def _create_step(self, distance, pos, altitude):
-        """
-        Create a new Step
-        :param distance:
-        :param pos:
-        :param altitude:
-        :return:
-        """
-        return Step(distance=distance, pos=pos, altitude=altitude)
+        pos_x, pos_y, pos_z = pos
+        self.uav.model.grid._remove_agent((pos_x, pos_y), self.uav)
+        self.uav.model.grid._place_agent(self.uav, (pos_x, pos_y))
+        # self.uav.model.grid.move_agent(self.uav, (pos_x, pos_y))
+        # Reset the position of the UAV because the MultiGrid sets it to a 2D position
+        self.uav.pos = pos

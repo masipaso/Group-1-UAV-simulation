@@ -10,12 +10,12 @@ class BaseStation(Agent):
     """
     A BaseStation is an Agent that cannot move
     """
-    def __init__(self, model, pos, id, center, range_of_base_station):
+    def __init__(self, model, pos, bid, center, range_of_base_station):
         """
         Initialize a BaseStation
         :param model: world model
         :param pos: position of the base station
-        :param id: unique id of the base station
+        :param bid: unique id of the base station
         :param center: center of the assigned area in which items can spawn
         :param range_of_base_station: range of the base station
         """
@@ -26,15 +26,14 @@ class BaseStation(Agent):
         self.range_of_base_station = range_of_base_station
         self.model = model
         self.pos = pos
-        self.id = id
+        self.bid = bid
         self.items = []
         self.picked_up_items = 0
         self.center = center
-        pass
 
     def step(self):
         # A BaseStation creates an Item if max_items_per_base_station has not been reached
-        if len(self.items)< self.max_items_per_base_station:
+        if len(self.items) < self.max_items_per_base_station:
             self.create_item()
 
     def create_item(self):
@@ -51,11 +50,11 @@ class BaseStation(Agent):
                                  self.center[0] + self.range_of_base_station)
             y = random.randrange(self.center[1] - self.range_of_base_station,
                                  self.center[1] + self.range_of_base_station)
-        item_destination = (x, y)
+        item_destination = (x, y, self.pos[2])
         # The Item receives a random priority between 1 and ...
         item_priority = random.randint(1, self.max_item_priority)
         # Create the Item
-        item = Item(destination=item_destination, priority=item_priority, iid=str(self.id) + "_" + str(len(self.items)))
+        item = Item(destination=item_destination, priority=item_priority, iid=str(self.bid) + "_" + str(len(self.items)))
         # Add the Item to the BaseStation
         self.items.append(item)
         # Add the Item to the scheduler of the model
@@ -97,6 +96,6 @@ class BaseStation(Agent):
     def get_pos(self):
         """
         Get the position of the Base Station
-        :return: tuple of coordinates
+        :return: Triple of coordinates
         """
         return self.pos

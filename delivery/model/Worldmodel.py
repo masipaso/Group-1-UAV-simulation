@@ -44,6 +44,7 @@ class WorldModel(Model):
         self.height = config.getint('Grid', 'height')
         self.pixel_ratio = config.getint('Grid', 'pixel_ratio')
         self.max_altitude = config.getint('Grid', 'max_altitude')
+        self.min_altitude = 1
         # ... BaseStations
         self.range_of_base_station = config.getfloat('Basestation', 'range_of_base_station')
         self.number_of_uavs_per_base_station = config.getint('Uav', 'number_of_uavs_per_base_station')
@@ -110,12 +111,12 @@ class WorldModel(Model):
         print("Obstacles done")
 
         # Create BaseStations
-        self.create_base_stations()
+        base_stations = self.create_base_stations()
         print("BaseStations done")
 
         # Create UAVs
         uid = 0
-        for base_station in self.schedule.agents_by_type[BaseStation]:
+        for base_station in base_stations:
             uid += 1
             for i in range(self.number_of_uavs_per_base_station):
                 self.create_uav(uid + i, base_station)
@@ -124,25 +125,29 @@ class WorldModel(Model):
     def create_base_stations(self):
         """
         Calculate how many base stations need to be created and create them
+        :returns A list of BaseStations
         """
+        base_stations = []
         width = 2 * self.range_of_base_station
         height = 2 * self.range_of_base_station
         number_of_base_stations = int((self.width * self.height) / (width * height))
         x = width
         y = height
         for i in range(0, number_of_base_stations):
-            self.create_base_station(i, (round(x - self.range_of_base_station), round(y - self.range_of_base_station)))
+            base_stations.append(self.create_base_station(i, (round(x - self.range_of_base_station), round(y - self.range_of_base_station))))
             if x + width > self.width:
                 y += height
                 x = width
             else:
                 x += width
+        return base_stations
 
     def create_base_station(self, bid, pos):
         """
         Create a BaseStation at a given position or close to it
         :param bid: unique identifier of the BaseStation
         :param pos: Tuple of coordinates
+        :return The created BaseStation
         """
         x, y = pos
         # Store available cells
@@ -180,16 +185,19 @@ class WorldModel(Model):
                     break
 
         # If there are possible cells, choose one at random
-        pos = random.choice(possible_cells)
+        pos_x, pos_y = random.choice(possible_cells)
         # Create the BaseStation
-        base_station = BaseStation(model=self, pos=pos, id=bid, center=(x, y),
+        base_station = BaseStation(model=self, pos=(pos_x, pos_y, self.min_altitude), bid=bid, center=(x, y),
                                    range_of_base_station=self.range_of_base_station)
         # Place the BaseStation on the grid
-        self.grid.place_agent(base_station, pos)
+        self.grid.place_agent(base_station, (pos_x, pos_y))
+        # Reset the position of the UAV because the MultiGrid sets it to a 2D position
+        base_station.pos = (pos_x, pos_y, self.min_altitude)
         # Place the BaseStation on the landscape
-        self.landscape.place_base_station(pos)
+        self.landscape.place_base_station((pos_x, pos_y))
         # Add the BaseStation to the schedule
         self.schedule.add(base_station)
+        return base_station
 
     def create_uav(self, uid, base_station):
         """
@@ -197,13 +205,17 @@ class WorldModel(Model):
         :param uid: unique identifier of the Uav
         :param base_station: the assigned BaseStation
         """
+        pos_x, pos_y, pos_z = base_station.get_pos()
         # Create the uav
-        uav = Uav(self, pos=base_station.get_pos(), uid=uid, max_charge=self.max_charge, battery_low=self.battery_low,
+        position = (pos_x, pos_y, pos_z)
+        uav = Uav(self, pos=position, uid=uid, max_charge=self.max_charge, battery_low=self.battery_low,
                   base_station=base_station, battery_decrease_per_step=self.battery_decrease_per_step,
                   battery_increase_per_step=self.battery_increase_per_step, altitude=self.uav_default_altitude,
                   max_altitude=self.max_altitude, sensor_range=self.sensor_range)
         # Place the uav on the grids
-        self.grid.place_agent(uav, base_station.get_pos())
+        self.grid.place_agent(uav, (pos_x, pos_y))
+        # Reset the position of the UAV because the MultiGrid sets it to a 2D position
+        uav.pos = position
         # Add the Uav to the schedule
         self.schedule.add(uav)
 

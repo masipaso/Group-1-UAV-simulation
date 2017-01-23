@@ -56,25 +56,25 @@ class staticGrid_Test(unittest.TestCase):
 
     def test_out_of_bounds(self):
         # 1st Test: Valid position: 0 <= x < width, 0 <= y < height. Expected result: False
-        self.assertFalse(self.grid.out_of_bounds((self.width-1 ,self.height-1)))
+        self.assertFalse(self.grid.is_out_of_bounds((self.width - 1 , self.height - 1)))
 
         # 2nd Test: Invalid position: -1 = x, 0 <= y < height. Expected result: True
-        self.assertTrue(self.grid.out_of_bounds((-1, self.height-1)))
+        self.assertTrue(self.grid.is_out_of_bounds((-1, self.height - 1)))
 
         # 3rd Test: Invalid position: 0 <= x < width, -1 = y. Expected result: True
-        self.assertTrue(self.grid.out_of_bounds((self.width-1, -1)))
+        self.assertTrue(self.grid.is_out_of_bounds((self.width - 1, -1)))
 
         # 4th Test: Invalid position: -1 = x = y. Expected Result: True
-        self.assertTrue(self.grid.out_of_bounds((-1, -1)))
+        self.assertTrue(self.grid.is_out_of_bounds((-1, -1)))
 
         # 5th Test: Invalid position:  x >= width, 0 <= y <= height. Expected Result: True
-        self.assertTrue(self.grid.out_of_bounds((self.width+1, self.height-1)))
+        self.assertTrue(self.grid.is_out_of_bounds((self.width + 1, self.height - 1)))
 
         # 6th Test: Invalid position:  0 <= x < height, y >= height. Expected Result: True
-        self.assertTrue(self.grid.out_of_bounds((self.width-1, self.height+1)))
+        self.assertTrue(self.grid.is_out_of_bounds((self.width - 1, self.height + 1)))
 
         # 7th Test: Invalid position: x = width+1, y = height + 1
-        self.assertTrue(self.grid.out_of_bounds((self.width  + 1, self.height + 1)))
+        self.assertTrue(self.grid.is_out_of_bounds((self.width + 1, self.height + 1)))
 
     def test_place_obstacle(self):
         # No Error handling so far!

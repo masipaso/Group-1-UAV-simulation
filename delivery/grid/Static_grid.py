@@ -84,7 +84,7 @@ class StaticGrid:
                 coordinates = (px, py)
 
                 # Check if the new coordinates are out of bounds
-                if self.out_of_bounds(coordinates):
+                if self.is_out_of_bounds(coordinates):
                     # ... and skip if this is the case
                     continue
 
@@ -94,7 +94,7 @@ class StaticGrid:
 
         return list(neighborhood)
 
-    def out_of_bounds(self, pos):
+    def is_out_of_bounds(self, pos):
         """
         Check if a position is out of bounds of the grid.
         :param pos: Tuple of coordinates to check.
