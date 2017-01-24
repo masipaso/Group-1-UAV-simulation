@@ -61,7 +61,7 @@ class Uav(Agent):
         # Add CommunicationModule
         self.communication_module = CommunicationModule(self.perceived_world, model, max_altitude)
         # Add Sensor
-        self.sensor = Sensor(model.grid, model.landscape, self.perceived_world, sensor_range)
+        self.sensor = Sensor(model.schedule.agents_by_type[Uav], model.landscape, self.perceived_world, sensor_range)
 
         # Base Stations
         self.base_station = base_station

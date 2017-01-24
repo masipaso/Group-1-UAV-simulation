@@ -4,8 +4,6 @@ from delivery.utils.get_euclidean_distance import get_euclidean_distance
 from operator import itemgetter
 from heapq import *
 
-from datetime import datetime
-
 
 class FlightController:
     """
@@ -30,9 +28,7 @@ class FlightController:
             return None
 
         # Initiate scan of the neighborhood
-        print("Scanning start {}".format(datetime.now().time()))
         self.uav.sensor.scan(self.uav.pos)
-        print("Scanning end {}".format(datetime.now().time()))
 
         # Store the shortest path
         shortest_path = []
@@ -45,10 +41,7 @@ class FlightController:
         # As long as there is no shortest path to the best_cell ...
         while not shortest_path:
             # ... get the best possible cell that is currently in sensor_range
-            print("Finding best cell {}".format(datetime.now().time()))
             best_cell = self._get_best_cell(excluded_cells)
-            print("Found best cell {}".format(datetime.now().time()))
-            print("best cell {}".format(best_cell))
 
             if best_cell is None:
                 # If all cells are excluded from the search, then the UAV can't move
@@ -56,14 +49,16 @@ class FlightController:
                 return None
 
             # ... and calculate the shortest path to it
-            print("Finding shortest path to best cell {}".format(datetime.now().time()))
             shortest_path = self._get_shortest_path_between(self.uav.pos, best_cell)
-            print("Found shortest path to best cell {}".format(datetime.now().time()))
-            print(shortest_path)
+
+            # If there is no path to the best_cell ...
+            if not shortest_path:
+                # ... exclude it from further attempts
+                excluded_cells.append(best_cell)
 
         # Get the next cell on the shortest path
         next_cell = shortest_path.pop()
-        print("{} moves from {} to {} on its way to {}".format(self.uav.uid, self.uav.pos, next_cell, best_cell))
+        print("Agent: {} moves from {} to {} on its way to {}".format(self.uav.uid, self.uav.pos, next_cell, best_cell))
         self.move_to(next_cell)
 
     def _get_best_cell(self, excluded_cell):
@@ -204,9 +199,4 @@ class FlightController:
         Move an UAV to a position
         :param pos: Triple of coordinates where the UAV should move to
         """
-        pos_x, pos_y, pos_z = pos
-        self.uav.model.grid._remove_agent((pos_x, pos_y), self.uav)
-        self.uav.model.grid._place_agent(self.uav, (pos_x, pos_y))
-        # self.uav.model.grid.move_agent(self.uav, (pos_x, pos_y))
-        # Reset the position of the UAV because the MultiGrid sets it to a 2D position
         self.uav.pos = pos

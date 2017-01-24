@@ -7,6 +7,8 @@ from delivery.model.Worldmodel import WorldModel
 from delivery.visualization.Perceived_world_grid import PerceivedWorldGrid
 from delivery.visualization.Real_world_grid import RealWorldGrid
 
+from delivery.visualization.VisualizationServer import VisualizationServer
+
 
 def launch_world_model():
 
@@ -33,7 +35,6 @@ def launch_world_model():
     )
 
     # Create Server
-    server = ModularServer(WorldModel, [real_world_grid], "Delivery Simulation")
-    # server = ModularServer(WorldModel, [real_world_grid, perceived_world_grid, chart], "Delivery Simulation")
+    server = VisualizationServer(WorldModel, [real_world_grid], "Delivery Simulation")
     server.port = 8521
     server.launch()

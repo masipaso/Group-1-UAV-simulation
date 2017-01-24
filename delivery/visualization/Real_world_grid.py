@@ -1,18 +1,16 @@
-from mesa.visualization.ModularVisualization import VisualizationElement
-
 from collections import defaultdict
 
 from delivery.agents.BaseStation import BaseStation
 from delivery.agents.uav.Uav import Uav
 
 
-class RealWorldGrid(VisualizationElement):
+class RealWorldGrid:
 
-    local_includes = ["delivery/visualization/js/RealWorldCanvas.js"]
+    includes = ["RealWorldCanvas.js"]
 
     def __init__(self, grid_width, grid_height, canvas_width=500, canvas_height=500):
         """
-        Instantiate a new CanvasGrid
+        Instantiate a new RealWorldGrid
         :param grid_width: Width of the grid (in cells)
         :param grid_height: Height of the grid (in cells)
         :param canvas_width: Width of the canvas to draw in the client, in pixels
@@ -27,7 +25,7 @@ class RealWorldGrid(VisualizationElement):
                        format(self.canvas_width, self.canvas_height, self.grid_width, self.grid_height))
         self.js_code = "elements.push(" + new_element + ");"
 
-    def world_portrayal(self, agent):
+    def portrayal(self, agent):
         """
         Create the visualization of an agent
         :param agent: an agent in the model
@@ -36,47 +34,34 @@ class RealWorldGrid(VisualizationElement):
         if agent is None:
             return
 
-        portrayal = {"Filled": "true"}
+        x, y, z = agent.pos
+        portrayal = {"x": x, "y": y, "w": 1, "h": 1}
 
         if type(agent) is BaseStation:
-            portrayal["Color"] = "#FFC319"
-            portrayal["Type"] = "BaseStation"
-            portrayal["Layer"] = 1
+            portrayal["color"] = "#FFC319"
+            portrayal["type"] = "BaseStation"
+            portrayal["layer"] = 0
+            portrayal["id"] = agent.bid
         elif type(agent) is Uav:
-            portrayal["Type"] = "Uav"
-            portrayal["Color"] = "rgb(0, 205, 255)"
-            portrayal["Layer"] = 2
+            portrayal["type"] = "Uav"
+            portrayal["color"] = "rgb(0, 205, 255)"
+            portrayal["layer"] = z
+            portrayal["id"] = agent.uid
         else:
             return
-
-        portrayal["w"] = 1
-        portrayal["h"] = 1
 
         return portrayal
 
     def render(self, model):
-        grid_state = defaultdict(list)
-        for x in range(model.grid.width):
-            for y in range(model.grid.height):
-                cell_objects = model.grid.get_cell_list_contents([(x, y)])
-                for obj in cell_objects:
-                    portrayal = self.world_portrayal(obj)
-                    if portrayal:
-                        portrayal["x"] = x
-                        portrayal["y"] = y
-                        grid_state[portrayal["Layer"]].append(portrayal)
-
-        return grid_state
-
-    def move_agent(self, agent, pos):
         """
-        Move an agent from its current position to a new position.
-
-        Args:
-            agent: Agent object to move. Assumed to have its current location
-                   stored in a 'pos' tuple.
-            pos: Tuple of new position to move the agent to.
-
+        Get all agents that need to be drawn
+        :param model: The model which needs to be visualized
+        :return: A dictionary with different layers of agent portrayals
         """
-        self._remove_agent(agent.pos, agent)
-        self._place_agent(pos, agent)
+        current_state = defaultdict(list)
+        for agent in model.schedule.agents:
+            portrayal = self.portrayal(agent)
+            if portrayal:
+                current_state[portrayal["layer"]].append(portrayal)
+
+        return current_state

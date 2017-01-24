@@ -71,7 +71,7 @@ class PerceivedWorldGrid:
         # perceived_world is 0-index
         pos_z -= 1
         if 0 <= pos_z < len(self.perceived_world):
-            if pos in self.perceived_world[pos_z]:
+            if (pos_x, pos_y) in self.perceived_world[pos_z]:
                 return True if math.isclose(self.perceived_world[pos_z][(pos_x, pos_y)], self.OBSTACLE, rel_tol=1e-5) else False
         return False
 

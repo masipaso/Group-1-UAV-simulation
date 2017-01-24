@@ -6,7 +6,6 @@ from mesa import Model
 from mesa.datacollection import DataCollector
 
 from delivery.grid.Static_grid import StaticGrid
-from mesa.space import MultiGrid
 
 from delivery.agents.BaseStation import BaseStation
 from delivery.agents.Item import Item
@@ -34,8 +33,6 @@ class WorldModel(Model):
 
         # Configure schedule for Uavs and BaseStations
         self.schedule = RandomActivationByType(self)
-        # Configure schedule for Repellents
-        self.repellent_schedule = RandomActivationByType(self)
         # Configure schedule for items
         self.item_schedule = RandomActivationByType(self)
         # Set parameters for ...
@@ -46,7 +43,7 @@ class WorldModel(Model):
         self.max_altitude = config.getint('Grid', 'max_altitude')
         self.min_altitude = 1
         # ... BaseStations
-        self.range_of_base_station = config.getfloat('Basestation', 'range_of_base_station')
+        self.range_of_base_station = config.getint('Basestation', 'range_of_base_station')
         self.number_of_uavs_per_base_station = config.getint('Uav', 'number_of_uavs_per_base_station')
         # ... UAV
         self.max_charge = config.getint('Uav', 'max_charge')
@@ -58,9 +55,6 @@ class WorldModel(Model):
 
         # Counter for number of steps
         self.steps = 0
-
-        # Add a grid that is used to visualize the 'actual' world; This grid contains ONLY UAVs and BaseStations
-        self.grid = MultiGrid(self.height, self.width, torus=False)
 
         # Create the StaticGrid that contains the landscape (Obstacles, BaseStations, ...)
         self.landscape = StaticGrid(self.width, self.height, self.pixel_ratio, background)
@@ -92,14 +86,14 @@ class WorldModel(Model):
         """
         Advance the model one step
         """
+        print("Step {}".format(self.steps))
         self.schedule.step()
         # Increase number of steps
         self.steps += 1
-        self.repellent_schedule.step()
         self.item_schedule.step()
-        self.datacollector.collect(self)
-        dataframe = self.datacollector.get_model_vars_dataframe()
-        dataframe.to_csv('out.csv')
+        # self.datacollector.collect(self)
+        # dataframe = self.datacollector.get_model_vars_dataframe()
+        # dataframe.to_csv('out.csv')
 
     def populate_grid(self):
         """
@@ -189,10 +183,6 @@ class WorldModel(Model):
         # Create the BaseStation
         base_station = BaseStation(model=self, pos=(pos_x, pos_y, self.min_altitude), bid=bid, center=(x, y),
                                    range_of_base_station=self.range_of_base_station)
-        # Place the BaseStation on the grid
-        self.grid.place_agent(base_station, (pos_x, pos_y))
-        # Reset the position of the UAV because the MultiGrid sets it to a 2D position
-        base_station.pos = (pos_x, pos_y, self.min_altitude)
         # Place the BaseStation on the landscape
         self.landscape.place_base_station((pos_x, pos_y))
         # Add the BaseStation to the schedule
@@ -212,10 +202,6 @@ class WorldModel(Model):
                   base_station=base_station, battery_decrease_per_step=self.battery_decrease_per_step,
                   battery_increase_per_step=self.battery_increase_per_step, altitude=self.uav_default_altitude,
                   max_altitude=self.max_altitude, sensor_range=self.sensor_range)
-        # Place the uav on the grids
-        self.grid.place_agent(uav, (pos_x, pos_y))
-        # Reset the position of the UAV because the MultiGrid sets it to a 2D position
-        uav.pos = position
         # Add the Uav to the schedule
         self.schedule.add(uav)
 

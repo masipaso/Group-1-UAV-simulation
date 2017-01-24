@@ -54,7 +54,7 @@ class BaseStation(Agent):
         # The Item receives a random priority between 1 and ...
         item_priority = random.randint(1, self.max_item_priority)
         # Create the Item
-        item = Item(destination=item_destination, priority=item_priority, iid=str(self.bid) + "_" + str(len(self.items)))
+        item = Item(destination=item_destination, priority=item_priority, iid=str(self.bid) + "_" + str(len(self.items) + self.picked_up_items))
         # Add the Item to the BaseStation
         self.items.append(item)
         # Add the Item to the scheduler of the model
@@ -69,6 +69,7 @@ class BaseStation(Agent):
         :return: either an Item, if one is available, or None
         """
         if not len(self.items) == 0:
+            # TODO: use pop() ?
             item = self.items[0]
             self.items.remove(item)
             self.picked_up_items += 1
