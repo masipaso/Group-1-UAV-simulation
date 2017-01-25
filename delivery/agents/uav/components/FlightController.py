@@ -17,6 +17,8 @@ class FlightController:
         :param uav: The UAV to which the FlightController belongs
         """
         self.uav = uav
+        self.current_path = []
+        self.current_best_cell = None
 
     def make_step(self):
         """
@@ -28,6 +30,7 @@ class FlightController:
             return None
 
         # Initiate scan of the neighborhood
+        print("Scanning ...")
         self.uav.sensor.scan(self.uav.pos)
 
         # Store the shortest path
@@ -38,15 +41,24 @@ class FlightController:
         # Store the best possible cell that the UAV should move towards
         best_cell = None
 
+        print("Finding path ...")
         # As long as there is no shortest path to the best_cell ...
         while not shortest_path:
             # ... get the best possible cell that is currently in sensor_range
             best_cell = self._get_best_cell(excluded_cells)
 
+            # If all cells are excluded from the search, then the UAV can't move
             if best_cell is None:
-                # If all cells are excluded from the search, then the UAV can't move
-                print(' Agent: {} cannot move.'.format(self.uav.uid))
+                print('Agent: {} cannot move.'.format(self.uav.uid))
                 return None
+
+            # TODO
+            # # If the found best_cell is the current_best_cell ...
+            # if self.current_best_cell and best_cell[0] is self.current_best_cell[0] and best_cell[1] is self.current_best_cell[1] and best_cell[2] is self.current_best_cell[2]:
+            #     print("best_cell is current_best_cell")
+            #     # ... there is no need to find a new path, since we already know it
+            #     shortest_path = self.current_path
+            #     continue
 
             # ... and calculate the shortest path to it
             shortest_path = self._get_shortest_path_between(self.uav.pos, best_cell)
@@ -58,6 +70,10 @@ class FlightController:
 
         # Get the next cell on the shortest path
         next_cell = shortest_path.pop()
+        # Store the current shortest path for future usage
+        self.current_path = shortest_path
+        self.current_best_cell = best_cell
+        # Move the UAV
         print("Agent: {} moves from {} to {} on its way to {}".format(self.uav.uid, self.uav.pos, next_cell, best_cell))
         self.move_to(next_cell)
 
