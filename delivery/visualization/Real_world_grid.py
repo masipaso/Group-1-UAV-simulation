@@ -47,6 +47,8 @@ class RealWorldGrid:
             portrayal["color"] = "rgb(0, 205, 255)"
             portrayal["layer"] = z
             portrayal["id"] = agent.uid
+            if not agent.cargo_bay.is_empty():
+                portrayal["item"] = agent.cargo_bay.get_item().destination
         else:
             return
 

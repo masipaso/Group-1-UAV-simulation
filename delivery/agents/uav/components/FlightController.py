@@ -1,6 +1,7 @@
 from delivery.agents.BaseStation import BaseStation
 # Import utils
 from delivery.utils.get_euclidean_distance import get_euclidean_distance
+from delivery.utils.are_same_positions import are_same_positions
 from operator import itemgetter
 from heapq import *
 
@@ -17,6 +18,7 @@ class FlightController:
         :param uav: The UAV to which the FlightController belongs
         """
         self.uav = uav
+        self.visited_cells = []
         self.current_path = []
         self.current_best_cell = None
 
@@ -33,13 +35,61 @@ class FlightController:
         print("Scanning ...")
         self.uav.sensor.scan(self.uav.pos)
 
-        # Store the shortest path
-        shortest_path = []
+        shortest_path = self.current_path
+
+        # If the current_best_cell is the destination ...
+        if are_same_positions(self.current_best_cell, self.uav.destination):
+            possible_next_cell = self.current_path[len(self.current_path) - 1]
+            # ... check if the UAV could take the next step ...
+            if self.uav.perceived_world.is_obstacle_at(possible_next_cell):
+                # ... if it cannot, recalculate
+                shortest_path = self._calculate_next_steps()
+                if shortest_path is None:
+                    print('Agent: {} cannot move.'.format(self.uav.uid))
+                    return None
+            else:
+                # ... otherwise use the already known path
+                shortest_path = self.current_path
+        else:
+            # Get the next cell on the shortest path
+            shortest_path = self._calculate_next_steps()
+            if shortest_path is None:
+                print('Agent: {} cannot move.'.format(self.uav.uid))
+                return None
+
+        # Store the current_best_cell for future usage
+        if shortest_path:
+            self.current_best_cell = shortest_path[0]
+        else:
+            self.current_best_cell = self.uav.destination
+
+        # Get the next cell to which the UAV will move
+        next_cell = shortest_path.pop()
+
+        # Store the current shortest path for future usage
+        self.current_path = shortest_path
+
+        # Move the UAV
+        print("Agent: {} moves from {} to {} on its way to {}".format(self.uav.uid, self.uav.pos, next_cell, self.current_best_cell))
+        self.move_to(next_cell)
+
+        # If the UAV reached the destination, clear the visited cells of that tour
+        if are_same_positions(next_cell, self.uav.destination):
+            self.visited_cells = []
+            self.current_best_cell = None
+            self.current_path = []
+
+    def _calculate_next_steps(self):
+        """
+        Calculate the next steps that the UAV should take
+        :return: A list of coordinates or None
+        """
+
         # Store cells that were excluded from the search for a best_cell because they are not accessible from the
         # current position of the UAV
-        excluded_cells = []
-        # Store the best possible cell that the UAV should move towards
-        best_cell = None
+        excluded_cells = [self.uav.pos]
+        # Store the shortest path
+        shortest_path = []
 
         print("Finding path ...")
         # As long as there is no shortest path to the best_cell ...
@@ -49,16 +99,7 @@ class FlightController:
 
             # If all cells are excluded from the search, then the UAV can't move
             if best_cell is None:
-                print('Agent: {} cannot move.'.format(self.uav.uid))
                 return None
-
-            # TODO
-            # # If the found best_cell is the current_best_cell ...
-            # if self.current_best_cell and best_cell[0] is self.current_best_cell[0] and best_cell[1] is self.current_best_cell[1] and best_cell[2] is self.current_best_cell[2]:
-            #     print("best_cell is current_best_cell")
-            #     # ... there is no need to find a new path, since we already know it
-            #     shortest_path = self.current_path
-            #     continue
 
             # ... and calculate the shortest path to it
             shortest_path = self._get_shortest_path_between(self.uav.pos, best_cell)
@@ -68,14 +109,7 @@ class FlightController:
                 # ... exclude it from further attempts
                 excluded_cells.append(best_cell)
 
-        # Get the next cell on the shortest path
-        next_cell = shortest_path.pop()
-        # Store the current shortest path for future usage
-        self.current_path = shortest_path
-        self.current_best_cell = best_cell
-        # Move the UAV
-        print("Agent: {} moves from {} to {} on its way to {}".format(self.uav.uid, self.uav.pos, next_cell, best_cell))
-        self.move_to(next_cell)
+        return shortest_path
 
     def _get_best_cell(self, excluded_cell):
         """
@@ -95,6 +129,7 @@ class FlightController:
                 continue
             for coordinates in self.uav.perceived_world.get_known_coordinates_at(altitude):
                 coordinates = coordinates + (altitude,)
+
                 # If the coordinates and altitude are excluded ...
                 if coordinates in excluded_cell:
                     continue
@@ -103,8 +138,14 @@ class FlightController:
                     # ... then there might be a BaseStation or nothing ...
                     # ... calculate the remaining distance from the coordinates to the destination of the UAV
                     distance = get_euclidean_distance(self.uav.destination, coordinates)
+                    # If the UAV already visited this cell on its current tour ...
+                    if coordinates in self.visited_cells:
+                        # ... weight it by the times the cell was already visited
+                        # TODO
+                        distance += distance / self.visited_cells.count(coordinates) * get_euclidean_distance(self.uav.pos, coordinates)
                     if min_distance is None:
                         min_distance = distance
+                        best_cell = coordinates
                     else:
                         if min_distance > distance:
                             min_distance = distance
@@ -216,3 +257,5 @@ class FlightController:
         :param pos: Triple of coordinates where the UAV should move to
         """
         self.uav.pos = pos
+        # Store the cell to be able to weight it later
+        self.visited_cells.append(pos)
