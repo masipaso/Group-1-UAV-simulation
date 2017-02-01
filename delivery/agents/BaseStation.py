@@ -30,6 +30,7 @@ class BaseStation(Agent):
         self.items = []
         self.picked_up_items = 0
         self.center = center
+        self.item_counter = 0
 
     def step(self):
         # A BaseStation creates an Item if max_items_per_base_station has not been reached
@@ -51,11 +52,11 @@ class BaseStation(Agent):
             y = random.randrange(self.center[1] - self.range_of_base_station,
                                  self.center[1] + self.range_of_base_station)
         item_destination = (x, y, self.pos[2])
-        item_destination = (24, 82, self.pos[2])
         # The Item receives a random priority between 1 and ...
         item_priority = random.randint(1, self.max_item_priority)
         # Create the Item
-        item = Item(destination=item_destination, priority=item_priority, iid=str(self.bid) + "_" + str(len(self.items) + self.picked_up_items))
+        item = Item(destination=item_destination, priority=item_priority, iid=str(self.bid) + "_" + str(self.item_counter + self.picked_up_items))
+        self.item_counter += 1
         # Add the Item to the BaseStation
         self.items.append(item)
         # Add the Item to the scheduler of the model
