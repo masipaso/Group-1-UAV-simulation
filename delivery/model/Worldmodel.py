@@ -28,7 +28,7 @@ class WorldModel(Model):
         config.read('./config.ini')
 
         # Read landscape
-        background_image = Image.open('./delivery/visualization/images/a_city500x500.jpg')
+        background_image = Image.open('./delivery/visualization/images/city500x500.jpg')
         background = background_image.load()
 
         # Configure schedule for Uavs and BaseStations
@@ -155,8 +155,8 @@ class WorldModel(Model):
             # ... search the neighborhood and center
             for coordinates in neighborhood:
                 # ... check if there is an obstacle
-                for altitude in range(1, self.max_altitude):
-                    if self.landscape.is_obstacle_at(coordinates):
+                for altitude in range(1, self.max_altitude + 1):
+                    if self.landscape.is_obstacle_at(coordinates, altitude):
                         # ... and add the cell to the list of possible cells
                         available_cells.append(coordinates)
 
@@ -173,8 +173,8 @@ class WorldModel(Model):
             # ... search the neighborhood
             for coordinates in neighborhood:
                 # ... check if there is an obstacle
-                for altitude in range(1, self.max_altitude):
-                    if not self.landscape.is_obstacle_at(coordinates):
+                for altitude in range(1, self.max_altitude + 1):
+                    if not self.landscape.is_obstacle_at(coordinates, altitude):
                         # ... and add the cell to the list of possible cells if there is one adjacent cell
                         # without an Obstacle
                         possible_cells.append(cell)
