@@ -46,6 +46,7 @@ class StaticGrid:
             for i in range(1, self.width, multiplier):
                 r, g, b = self.landscape[i, j]
                 if self.is_obstacle_color(r, g, b):
+                    altitude = self.get_altitude(r, g, b)
                     fill_cells_x = []
                     fill_cells_y = []
                     for k in range(0, multiplier):
@@ -56,7 +57,7 @@ class StaticGrid:
                         if 0 < x < self.width:
                             for y in fill_cells_y:
                                 if 0 < y < self.height:
-                                    self.place_obstacle((x, y))
+                                    self.place_obstacle((x, y), altitude)
                                 else:
                                     break
 
@@ -124,7 +125,7 @@ class StaticGrid:
         """
         Place a specific type of obstacle at the given position
         :param pos: Tuple of coordinates
-        :param type: 1 = Obstacle, 2 = BaseStation
+        :param type: 1 = Obstacle, -1 = BaseStation
         """
         x, y = pos
         self.grid[x][y] = type
@@ -159,8 +160,36 @@ class StaticGrid:
 
     @staticmethod
     def is_obstacle_color(r, g, b):
-        black = range(0, 240)
-        return r in black and g in black and b in black
+        red = range(240, 255)
+        green = range(240, 255)
+        blue = range(240, 255)
+        black = range(0, 15)
+
+        if r in black and g in black and b in black:
+            return True
+        elif r in black and g in black and b in blue:
+            return True
+        elif r in black and g in green and b in black:
+            return True
+        elif r in red and g in black and b in black:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def get_altitude(r, g, b):
+        red = range(240, 255)
+        green = range(240, 255)
+        blue = range(240, 255)
+        black = range(0, 15)
+        if r in black and g in black and b in black:
+            return 1
+        if r in black and g in black and b in blue:
+            return 2
+        if r in black and g in green and b in black:
+            return 3
+        if r in red and g in black and b in black:
+            return 4
 
     def get_width(self):
         return self.width

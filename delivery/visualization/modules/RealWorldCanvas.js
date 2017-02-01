@@ -57,7 +57,7 @@ var RealWorldVisualization = function(height, width, gridWidth, gridHeight, fore
 
     // Create image
     const backgroundImage = new Image();
-    const backgroundImageFile = "http://127.0.0.1:8521/images/city500x500_landscape.jpg"
+    const backgroundImageFile = "http://127.0.0.1:8521/images/a_city500x500_landscape.jpg"
     // Load the map into the image
     backgroundImage.src = backgroundImageFile;
 
