@@ -56,13 +56,10 @@ class Sensor:
 
         pos_x, pos_y, pos_z = pos
 
-        min_altitude_to_check = max(0, pos_z - self.sensor_range)
-        max_altitude_to_check = min(self.sensor_range, self.perceived_world.get_max_altitude())
-
         # Add neighboring coordinates until the desired radius is reached
         for dy in range(-self.sensor_range, self.sensor_range + 1):
             for dx in range(-self.sensor_range, self.sensor_range + 1):
-                for dz in range(min_altitude_to_check, max_altitude_to_check):
+                for dz in range(-self.sensor_range, self.sensor_range + 1):
                     # Calculate new coordinates
                     px = pos_x + dx
                     py = pos_y + dy
