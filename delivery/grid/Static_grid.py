@@ -181,7 +181,7 @@ class StaticGrid:
         red = range(240, 255)
         green = range(240, 255)
         blue = range(240, 255)
-        black = range(0, 15)
+        black = range(0, 240)
         if r in black and g in black and b in black:
             return 1
         if r in black and g in black and b in blue:

@@ -91,17 +91,21 @@ class FlightController:
         # Store the shortest path
         shortest_path = []
 
-        print("Finding path ...")
         # As long as there is no shortest path to the best_cell ...
         while not shortest_path:
             # ... get the best possible cell that is currently in sensor_range
             best_cell = self._get_best_cell(excluded_cells)
+
+            # If the new best_cell is the current_best_cell ...
+            if are_same_positions(best_cell, self.current_best_cell):
+                return self.current_path
 
             # If all cells are excluded from the search, then the UAV can't move
             if best_cell is None:
                 return None
 
             # ... and calculate the shortest path to it
+            print("Finding path ...")
             shortest_path = self._get_shortest_path_between(self.uav.pos, best_cell)
 
             # If there is no path to the best_cell ...
@@ -111,7 +115,7 @@ class FlightController:
 
         return shortest_path
 
-    def _get_best_cell(self, excluded_cell):
+    def _get_best_cell(self, excluded_cells):
         """
         Get the best possible cell that is known to the UAV. Best possible means that being on that cell minimizes
         the remaining distance to the destination.
@@ -131,7 +135,7 @@ class FlightController:
                 coordinates = coordinates + (altitude,)
 
                 # If the coordinates and altitude are excluded ...
-                if coordinates in excluded_cell:
+                if coordinates in excluded_cells:
                     continue
                 # If there is no Obstacle at the altitude ...
                 if not self.uav.perceived_world.is_obstacle_at(coordinates):
@@ -142,7 +146,7 @@ class FlightController:
                     if coordinates in self.visited_cells:
                         # ... weight it by the times the cell was already visited
                         # TODO
-                        distance += distance / self.visited_cells.count(coordinates) * get_euclidean_distance(self.uav.pos, coordinates)
+                        distance += (distance * self.visited_cells.count(coordinates)) / 100
                     if min_distance is None:
                         min_distance = distance
                         best_cell = coordinates
