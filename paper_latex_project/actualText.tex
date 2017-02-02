@@ -1,19 +1,54 @@
 \section{Introduction}
-\begin{enumerate}
-	\item UAV's
-	\item Smart Cities
-	\item Why simulation engine?
-\end{enumerate}
+Unmanned Aerial Vehicles (UAV) are gaining popularity in private as well as commercial sector. One often-mentioned use-case is the parcel delivery. In the near future, UAV might be used to deliver parcels to your doorstep. The logistics industry hopes for positive impacts on their costs and competitiveness. The deployment of a delivery concept is quite complex. To allow for early evaluation and reduce the number of required flight-testing, a simulation engine is required. This is why SIMULATIONNAME has been developed. It supports multiple depots and UAV as well as  simple change of path-planning algorithm. UAVs move in a 3D environment  The engine does not simulate the behaviour of the UAV in the aerial space itself but allows for evaluation of spatial distribution of depots or the suitability of a path-planning algorithm. It was developed considering the use of swarm algorithms in the delivery use-case and allow for inter-drone communication and autonomous organisation avoiding a central ground control.
 
 \section{Related Work}
-\begin{enumerate}
-	\item Objectives
-	\item ant algorithms for UAV / Path planning
-	\item path planning with multiple depots / battery
-	\item ...
-\end{enumerate}
+Literature on simulation engines for UAV delivery is still relatively scarce. Simulation engines that were developed concentrate rather on specific components or flight behaviour.
+\cite{johnson.2001} developed a simulation engine for the behaviour of specific hardware components of a UAV. \cite{lu.2011} simulated the flight dynamic behaviour of a UAV using Matlab/Simulink. MultiUAV \cite{rasmussen.2003}, a very general simulation engine has been developed to simulate cooperative algorithms for finding targets. In 2005,  an agent-based simulation engine implementing a surveillance scenario has been developed \cite{jang.2005}. UAV try to find targets without prior knowledge of the targets’ locations. They implement UAVs as agents and also use the notion of obstacles and bases. The sensor concept is similar to the one used in this paper.
+
+\section{Scenario}
+Before embarking the software model, the delivery scenario shall be described.  Every UAV has a depot, in the engine called basestation, from which it receives items to be delivered. An item's destination is within the range of a Basestation which means that every Basestation has a limited range in the area. UAVs are assigned to one specific Basestation and only deliver items of it. After receiving an item, the UAV will begin flying to the specific destination. It scans the area and stores information on all fields it has seen en-route. If a UAV meets another one, they will exchange information on the already-explored parts of the area.\\
+If a field on the route contains an obstacle, it will deviate from its route and try to find one around the obstacle. Obstacles can have different heights, thus UAV als\\
+After delivering the item, it will fly back to the basestation to receive a new item. If the battery reaches a certain threshold, the UAV will fly to the nearest basestation (not neccessarily its home base) and recharge its battery. 
+ UAVs are moving in a 3D environment which means that obstacles can have different heights.
 
 \section{Description of the model}
+\subsection{MESA}
+MESA \cite{masad.2015} is an agent-based modeling framework (ABM) developed specifically for the Python programming language. 
+\begin{enumerate}
+	\item Agent-Based, shortly describe what this means
+	\item MESA concepts in general \cite{masad.2015}
+	\begin{enumerate}
+		\item Agent-Based Modeling framework for Python in particular as it got a more important language over time
+		\item Agent schedule, 
+		\item visualization in a browser-based interface to avoid additional dependencies to GUI frameworks
+		\item allows for data analysis using Python's built-in analysis tools
+		\item Activation: Calling step method of agent, leads to an action. In every step, all agents are activated. We are using random activation: Random order of agent activations. Why did we take this? Find a stupid reason
+		\item Space is implemented using Grid. A grid has rectangular fields, used because this is closest to reality, every grid can contain multiple agents (different heights). Grid stores the agents and has methods to add, move or remove them
+		\item DataCollector component is used to collect data and easily export 
+		
+	\end{enumerate}
+	\item Which components did we remove or modify and why?
+	\item Reprogramming of rendering engine. How and why?
+	
+	\item Why did we decide for specific components or not?
+\end{enumerate}
+\subsection{Simulation Model}
+\begin{enumerate}
+	
+	\item General Structure 
+	
+\end{enumerate}
+\subsection{UAV}
+\begin{enumerate}
+	\item Perceived World
+	\item Components/Sensors (make a drawing)
+	\item States
+\end{enumerate}
+
+
+\cite{jang.2005} can be helpful to structure this part!
+
+
 \begin{enumerate}
 	\item multiple depots
 	\item Describe the modular and extensible character of the architecture
@@ -24,64 +59,16 @@
 	
 \end{enumerate}
 
-\section{Description of the Use-Case}
-
-\begin{enumerate}
-	\item Use Case and taken assumptions
-	\item Describe the algorithm - add pseudo-code?! Remove wikipedia graphic!!
-\end{enumerate}
 
 \subsection{Algorithm}
-
-The algorithm that is used to optimize the path-finding and item delivery is inspired by the Ant Colony Algorithm. This algorithm was originally proposed by Marco Dorigo in 1992 \cite{dorigo.1992}. The Ant Colony Algorithm describes how ants find the shortest path between the colony and a source of food (see Figure \ref{fig:algo_dreo.2016}). The search for the shortest path is conducted in multiple steps. In the first step an ant finds a food source (F) and during its way back to the colony (N) the ant lays a pheromone trail. In the next step, other ants might find the same food source and also lay down a trail of pheromones. Other ants might follow different pheromone trails to the food source and drop pheromones as well. Since the ants that walk the shortest path can traverse the route more often than ants that follow a longer path, the pheromone level on the shorter path is higher than the level on other paths. As a result, more and more ants favour the shorter path (3rd step).\\
-
-\begin{figure}[htbp]\label{fig:algo_dreo.2016}
-	\centering
-	\includegraphics[width=0.6\textwidth]{images/algorithm_Picture1.png}
-	\caption{Shortest path find by an ant colony Source: \url{https://de.wikipedia.org/wiki/Datei:Aco_branches.svg}} 
-
-\end{figure}
-
-
-%\subsection{Adaption}
-In our use case we invert the Ant Colony Algorithm. Instead of using pheromones that attract, we employed repellents which are used to divert. Every time a UAV finds a non-optimal cell, it creates a repellent to let other UAVs know that it is not wise to include this cell on the route to find the target location. In the real world the pheromones decay over time. Each repellent has a strength which decreases over time.
-The decay of repellents' strength is employed to avoid UAVs getting stuck in local optima because they cannot deliver an item to a location that is surrounded by repellents or the UAV itself is encompassed by repellents.\\
-
-%\subsection{Implementation}
-In the first step the algoritm calculates all available steps. Available steps are defined as all neighboring cells that a UAV can visit from its current location (see Figure \ref{fig:algo_steps})
-.
-\begin{figure}[htbp]\label{fig:algo_steps}
-	\centering
-	\includegraphics[width=0.3\textwidth]{images/algorithm_Picture2.png}
-	\caption{All available steps a UAV can make (blue = UAV)} 
-\end{figure}
-
-To decide which of these available steps is the best, the euclidean distance to the target destination is calculated for each of the available steps. From these available steps, the cells that contain an obstacle are removed, as long as this obstacle is not a depot. Furthermore, the algorithm factors in repellents that might be in one or more of the available neighbouring cells.  
-The calculated Euclidean distance is weighted with the current strength of a repellent:
-\centering{
-$
-distance = distance + \frac{available_step.distance * repellent.strength}{100}
-$}\newline
-The weighted distance makes it more unlikely that the UAV will visit this cell. 
-The cells are then added to the possible steps with their weighted distance.
-After this second step, the possible steps are either cells that don't contain an obstacle other than a base station, empty cells and cells that contain a repellent. The possible steps are then sorted by distance.
-\\
-In the third step of the algorithm, the best step of the possible steps is selected. The best step is the step that has the lowest distance to the target cell. In the last step, the algorithm checks the last two steps the UAV has taken in order to identify sub-optimal routes (see Figure \ref{fig:algo_find_routes}).
-
-\begin{figure}[htbp]\label{fig:algo_find_routes}
-	\centering
-	\includegraphics[width=0.6\textwidth]{images/algorithm_Picture3.png}
-	\caption{Find sub-optimal routes and place repellents} 
-\end{figure}
-
-The UAV (blue) started at the base station (orange) and is on its way to deliver an item to a target location (green). When applying the algorithm, the UAV selects the cell that doptmizes the distance to the target location. As a result, the UAV moves to the bottom left neighbouring cell. In the second picture the UAV cannot move to the bottom left cell, because there is an obstacle. The next best cells are either to the left or the bottom. But again both cells are blocked by an obstacle. From the remaining three cells that are not blocked by an obstacle, the first two (right and top) have the same distance to the target destination and the third one has a higher distance to the target destination. Because of that, the UAV moves to the right. To find possible sub-optimal routes the last two steps of the UAV are checked (black arrow).
-\\ 
-The algorithm identifies that in order to reach the cell the UAV reached in picture 3, it could have taken a different path (red arrow). As a result, the UAV will place a repellent at the last cell (red square, picture4). If, for some reason, a UAV has visited a cell that contained a repellent and in the next step it becomes clear that the UAV took a sub-optimal path, it does not create a new repellent but instead resets the repellent's strength back to its initial value.
+To provide an example simulation, the A* algorithm has been used 
+SOURCES!
 
 \section{Evaluation}
 \begin{enumerate}
 	\item Use KPI's that we defined
-	\item Use graphics with cool Excel tables to present data or we make tables here
+	\item Compare with existing
+	%\item Use graphics with cool Excel tables to present data or we make tables here
 \end{enumerate}
 
 \section{Conclusion}

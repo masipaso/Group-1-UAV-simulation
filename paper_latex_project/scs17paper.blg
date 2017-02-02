@@ -1,0 +1,52 @@
+This is BibTeX, Version 0.99d (TeX Live 2016)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: scs17paper.aux
+The style file: scsproc.bst
+Database file #1: paper.bib
+Warning--empty organization in jang.2005
+Warning--empty organization in johnson.2001
+Warning--empty booktitle in masad.2015
+Warning--empty organization in masad.2015
+Warning--empty organization in rasmussen.2003
+You've used 5 entries,
+            2956 wiz_defined-function locations,
+            657 strings with 5857 characters,
+and the built_in function-call counts, 4320 in all, are:
+= -- 356
+> -- 346
+< -- 4
++ -- 112
+- -- 120
+* -- 376
+:= -- 739
+add.period$ -- 15
+call.type$ -- 5
+change.case$ -- 36
+chr.to.int$ -- 5
+cite$ -- 10
+duplicate$ -- 139
+empty$ -- 255
+format.name$ -- 140
+if$ -- 845
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 5
+newline$ -- 28
+num.names$ -- 50
+pop$ -- 60
+preamble$ -- 1
+purify$ -- 71
+quote$ -- 0
+skip$ -- 144
+stack$ -- 0
+substring$ -- 150
+swap$ -- 55
+text.length$ -- 4
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 120
+warning$ -- 5
+while$ -- 47
+width$ -- 0
+write$ -- 76
+(There were 5 warnings)
