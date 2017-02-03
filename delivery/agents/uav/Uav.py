@@ -23,7 +23,7 @@ class Uav(Agent):
         6: stranded without battery life left
     """
     def __init__(self, model, pos, uid, max_charge, battery_low, battery_decrease_per_step, battery_increase_per_step,
-                 base_station, altitude, max_altitude):
+                 base_station, altitude, max_altitude, sensor_range):
         """
         Initialize the UAV
         :param model: world model
@@ -36,6 +36,7 @@ class Uav(Agent):
         :param base_station: The 'home' BaseStation
         :param altitude: The height the UAV is flying in
         :param max_altitude: The max altitude that is allowed
+        :param sensor_range: The range the the Sensor can cover
         """
         # TODO: Why do we have the model here? This should not be available
         self.model = model
@@ -45,6 +46,7 @@ class Uav(Agent):
         self.walk = []
         self.state = 1
         self.altitude = altitude
+        self.max_altitude = max_altitude
 
         # Construct UAV
         # Create a UAV-specific grid for Repellents and Item destinations
@@ -59,9 +61,7 @@ class Uav(Agent):
         # Add CommunicationModule
         self.communication_module = CommunicationModule(self.perceived_world, model, max_altitude)
         # Add Sensor
-        # TODO: Make the coverage_range configurable
-        # TODO: When we make this configurable, we have to adjust the FlightController!
-        self.sensor = Sensor(model.grid, model.landscape, coverage_range=1)
+        self.sensor = Sensor(model.schedule.agents_by_type[Uav], model.landscape, self.perceived_world, sensor_range)
 
         # Base Stations
         self.base_station = base_station
@@ -80,7 +80,7 @@ class Uav(Agent):
         # If the UAV is IDLE at a BaseStation
 
         if self.state == 1:
-            if self.base_station.pos == self.pos:
+            if self.base_station.get_pos() == self.pos:
                 # ... try to pick up an Item if one is available
                 self.pick_up_item(self.base_station.get_item())
                 return

@@ -6,7 +6,6 @@ from mesa import Model
 from mesa.datacollection import DataCollector
 
 from delivery.grid.Static_grid import StaticGrid
-from mesa.space import MultiGrid
 
 from delivery.agents.BaseStation import BaseStation
 from delivery.agents.Item import Item
@@ -34,8 +33,6 @@ class WorldModel(Model):
 
         # Configure schedule for Uavs and BaseStations
         self.schedule = RandomActivationByType(self)
-        # Configure schedule for Repellents
-        self.repellent_schedule = RandomActivationByType(self)
         # Configure schedule for items
         self.item_schedule = RandomActivationByType(self)
         # Set parameters for ...
@@ -44,8 +41,9 @@ class WorldModel(Model):
         self.height = config.getint('Grid', 'height')
         self.pixel_ratio = config.getint('Grid', 'pixel_ratio')
         self.max_altitude = config.getint('Grid', 'max_altitude')
+        self.min_altitude = 1
         # ... BaseStations
-        self.range_of_base_station = config.getfloat('Basestation', 'range_of_base_station')
+        self.range_of_base_station = config.getint('Basestation', 'range_of_base_station')
         self.number_of_uavs_per_base_station = config.getint('Uav', 'number_of_uavs_per_base_station')
         # ... UAV
         self.max_charge = config.getint('Uav', 'max_charge')
@@ -53,12 +51,10 @@ class WorldModel(Model):
         self.battery_decrease_per_step = config.getint('Uav', 'battery_decrease_per_step')
         self.battery_increase_per_step = config.getint('Uav', 'battery_increase_per_step')
         self.uav_default_altitude = config.getint('Uav', 'uav_default_altitude')
+        self.sensor_range = config.getint('Uav', 'sensor_range')
 
         # Counter for number of steps
         self.steps = 0
-
-        # Add a grid that is used to visualize the 'actual' world; This grid contains ONLY UAVs and BaseStations
-        self.grid = MultiGrid(self.height, self.width, torus=False)
 
         # Create the StaticGrid that contains the landscape (Obstacles, BaseStations, ...)
         self.landscape = StaticGrid(self.width, self.height, self.pixel_ratio, background)
@@ -90,14 +86,14 @@ class WorldModel(Model):
         """
         Advance the model one step
         """
+        print("Step {}".format(self.steps))
         self.schedule.step()
         # Increase number of steps
         self.steps += 1
-        self.repellent_schedule.step()
         self.item_schedule.step()
-        self.datacollector.collect(self)
-        dataframe = self.datacollector.get_model_vars_dataframe()
-        dataframe.to_csv('out.csv')
+        # self.datacollector.collect(self)
+        # dataframe = self.datacollector.get_model_vars_dataframe()
+        # dataframe.to_csv('out.csv')
 
     def populate_grid(self):
         """
@@ -109,12 +105,12 @@ class WorldModel(Model):
         print("Obstacles done")
 
         # Create BaseStations
-        self.create_base_stations()
+        base_stations = self.create_base_stations()
         print("BaseStations done")
 
         # Create UAVs
         uid = 0
-        for base_station in self.schedule.agents_by_type[BaseStation]:
+        for base_station in base_stations:
             uid += 1
             for i in range(self.number_of_uavs_per_base_station):
                 self.create_uav(uid + i, base_station)
@@ -123,25 +119,29 @@ class WorldModel(Model):
     def create_base_stations(self):
         """
         Calculate how many base stations need to be created and create them
+        :returns A list of BaseStations
         """
+        base_stations = []
         width = 2 * self.range_of_base_station
         height = 2 * self.range_of_base_station
         number_of_base_stations = int((self.width * self.height) / (width * height))
         x = width
         y = height
         for i in range(0, number_of_base_stations):
-            self.create_base_station(i, (round(x - self.range_of_base_station), round(y - self.range_of_base_station)))
+            base_stations.append(self.create_base_station(i, (round(x - self.range_of_base_station), round(y - self.range_of_base_station))))
             if x + width > self.width:
                 y += height
                 x = width
             else:
                 x += width
+        return base_stations
 
     def create_base_station(self, bid, pos):
         """
         Create a BaseStation at a given position or close to it
         :param bid: unique identifier of the BaseStation
         :param pos: Tuple of coordinates
+        :return The created BaseStation
         """
         x, y = pos
         # Store available cells
@@ -155,9 +155,10 @@ class WorldModel(Model):
             # ... search the neighborhood and center
             for coordinates in neighborhood:
                 # ... check if there is an obstacle
-                if self.landscape.is_obstacle_at(coordinates):
-                    # ... and add the cell to the list of possible cells
-                    available_cells.append(coordinates)
+                for altitude in range(1, self.max_altitude + 1):
+                    if self.landscape.is_obstacle_at(coordinates, altitude):
+                        # ... and add the cell to the list of possible cells
+                        available_cells.append(coordinates)
 
             # Increase the search radius if there are no possible cells
             radius += 1
@@ -172,23 +173,23 @@ class WorldModel(Model):
             # ... search the neighborhood
             for coordinates in neighborhood:
                 # ... check if there is an obstacle
-                if not self.landscape.is_obstacle_at(coordinates):
-                    # ... and add the cell to the list of possible cells if there is one adjacent cell
-                    # without an Obstacle
-                    possible_cells.append(cell)
-                    break
+                for altitude in range(1, self.max_altitude + 1):
+                    if not self.landscape.is_obstacle_at(coordinates, altitude):
+                        # ... and add the cell to the list of possible cells if there is one adjacent cell
+                        # without an Obstacle
+                        possible_cells.append(cell)
+                        break
 
         # If there are possible cells, choose one at random
-        pos = random.choice(possible_cells)
+        pos_x, pos_y = random.choice(possible_cells)
         # Create the BaseStation
-        base_station = BaseStation(model=self, pos=pos, id=bid, center=(x, y),
+        base_station = BaseStation(model=self, pos=(pos_x, pos_y, self.min_altitude), bid=bid, center=(x, y),
                                    range_of_base_station=self.range_of_base_station)
-        # Place the BaseStation on the grid
-        self.grid.place_agent(base_station, pos)
         # Place the BaseStation on the landscape
-        self.landscape.place_base_station(pos)
+        self.landscape.place_base_station((pos_x, pos_y))
         # Add the BaseStation to the schedule
         self.schedule.add(base_station)
+        return base_station
 
     def create_uav(self, uid, base_station):
         """
@@ -196,13 +197,13 @@ class WorldModel(Model):
         :param uid: unique identifier of the Uav
         :param base_station: the assigned BaseStation
         """
+        pos_x, pos_y, pos_z = base_station.get_pos()
         # Create the uav
-        uav = Uav(self, pos=base_station.get_pos(), uid=uid, max_charge=self.max_charge, battery_low=self.battery_low,
+        position = (pos_x, pos_y, pos_z)
+        uav = Uav(self, pos=position, uid=uid, max_charge=self.max_charge, battery_low=self.battery_low,
                   base_station=base_station, battery_decrease_per_step=self.battery_decrease_per_step,
                   battery_increase_per_step=self.battery_increase_per_step, altitude=self.uav_default_altitude,
-                  max_altitude=self.max_altitude)
-        # Place the uav on the grids
-        self.grid.place_agent(uav, base_station.get_pos())
+                  max_altitude=self.max_altitude, sensor_range=self.sensor_range)
         # Add the Uav to the schedule
         self.schedule.add(uav)
 

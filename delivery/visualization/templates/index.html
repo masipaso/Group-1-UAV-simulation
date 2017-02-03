@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<head>
+  <title>{{ model_name }} - Custom Template</title>
+  <script src="/js/jquery-3.1.1.min.js"></script>
+  <script>
+    /*
+    				This is the Tornado template for the Modular Visualization. The Javascript code opens a WebSocket connection to the server
+    				(the port is set via the template). On every step, it receives inputs, one per module, and sends them to the associated function to render
+
+    				Users can reset() the model, advance it by one step(), or run() it through. reset() and
+    				step() send a message to the server, which then sends back the appropriate data. run() just
+    				calls the step() method at fixed intervals.
+
+    				The model parameters are controlled via the MesaVisualizationControl object. The GUI is
+    				created using the dat.GUI library.
+
+    			*/
+    let player; // Variable to store the continuous player
+    const control = {
+      // Counts at which tick of the model we are
+      tick: -1,
+      // Whether there is currently a model running
+      running: false,
+      // Frames per second
+      fps: 1
+    }
+    const elements = []; // List of element objects
+
+    /*
+     WebSocket Stuff
+    */
+    // Open the websocket connection
+    var ws = new WebSocket("ws://127.0.0.1:{{ port }}/ws");
+    ws.onopen = function() {
+      console.log("Connection opened!");
+      reset();
+    };
+
+    // Parse an incoming message
+    ws.onmessage = function(message) {
+      msg = JSON.parse(message.data);
+      switch (msg["type"]) {
+        case "viz_state":
+          data = msg["data"]
+          for (let i in elements) {
+            elements[i].render(data[i]);
+          }
+          break;
+        case "end":
+          // We have reached the end of the model
+          control.running = false;
+          break;
+        default:
+          // There shouldn't be any other message
+          console.log("Unexpected message.");
+      }
+    }
+
+    // Turn an object into a string to send to the server, and send it
+    var send = function(message) {
+      msg = JSON.stringify(message);
+      ws.send(msg);
+    }
+
+    /**
+     *	Simulation Controls
+     */
+
+    // Reset the model, and rest the appropriate local variables.
+    const reset = function() {
+      control.tick = 0;
+      updateUI();
+      send({
+        "type": "reset"
+      });
+
+      // Reset all the visualizations
+      for (let i in elements) {
+        elements[i].reset();
+      }
+    };
+
+    // Send a message to the server get the next visualization state.
+    const single_step = function() {
+      control.tick += 1;
+      updateUI();
+      send({
+        "type": "get_step",
+        "step": control.tick
+      });
+    };
+
+    // Do the next simulation step
+    const step = function() {
+      if (!control.running) {
+        single_step()
+      } else {
+        run()
+      };
+    };
+
+
+    // Call the step function at fixed intervals, until getting an end message from the server.
+    const run = function() {
+      if (!control.running) {
+        control.running = true;
+        player = setInterval(single_step, 1000 / control.fps);
+      }
+    };
+
+    // Pause the simulation
+    const pause = function() {
+      if (control.running) {
+        control.running = false;
+        if (player) {
+          clearInterval(player);
+          player = null;
+        }
+      }
+    }
+
+    // Change FPS
+    const changeFPS = function(fps) {
+      if (control.fps != fps) {
+        control.fps = fps;
+        if (control.running) {
+          // Start and stop to use new FPS
+          pause();
+          run();
+        }
+      }
+    }
+
+    // Update the current step number in the UI
+    const updateUI = function() {
+      $("#current-step").html(control.tick)
+    }
+
+  </script>
+  <!-- Get Controls -->
+  <script src="/js/controls.js"></script>
+  <!-- Get Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/styles/styles.css">
+</head>
+
+<body>
+  <nav class="navbar navbar-fixed-top navbar-light bg-faded">
+    <a class="navbar-brand" href="#">{{ model_name }}</a>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="flex-row">
+      <div class="grids">
+        <!-- Script includes go here -->
+        {% for file_name in includes %}
+          <script src="/modules/{{ file_name }}" type="text/javascript"></script>
+        {% end %}
+        <script>
+        // JS snippets used to generate the visualizations
+        {% for script in scripts %}
+          {% raw script %}
+        {% end %}
+        </script>
+      </div>
+
+      <div class="controls">
+        <h5>Controls</h5>
+        <hr>
+
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+          <div class="btn-group" role="group" aria-label="First group">
+            <button type="button" id="controls-reset" class="btn btn-outline-danger" disabled><i class="fa fa-repeat"></i></button>
+            <button type="button" id="controls-play" class="btn btn-outline-success"><i class="fa fa-play"></i></button>
+            <button type="button" id="controls-step" class="btn btn-outline-success"><i class="fa fa-step-forward"></i></button>
+            <button type="button" id="controls-pause" class="btn btn-outline-info" disabled><i class="fa fa-pause"></i></button>
+          </div>
+        </div>
+
+        <br>
+        <hr>
+
+        <select id="controls-fps" class="custom-select">
+          <option disabled>Choose FPS</option>
+          <option value="0">0 FPS</option>
+          <option selected value="1">1 FPS</option>
+          <option value="5">5 FPS</option>
+          <option value="10">10 FPS</option>
+          <option value="15">15 FPS</option>
+          <option value="20">20 FPS</option>
+        </select>
+
+        <hr>
+        <h6>Current step: <span id="current-step">0</span></h6>
+        <hr>
+        <span id="mouse-position"></span>
+      </div>
+    </div>
+  </div>
+
+</body>
