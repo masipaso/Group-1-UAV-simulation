@@ -1,0 +1,41 @@
+\begin{thebibliography}{}
+
+\bibitem[\protect\citeauthoryear{Axtell}{Axtell}{2000}]{axtell.2000}
+Axtell, R. 2000.
+\newblock ``Why agents?: on the varied motivations for agent computing in the
+  social sciences''.
+
+
+\bibitem[\protect\citeauthoryear{Jang, Reddy, Tosic, Chen, and Agha}{Jang
+  et~al.}{2005}]{jang.2005}
+Jang, M.-W., S.~Reddy, P.~Tosic, L.~Chen, and G.~Agha. 2005.
+\newblock ``An actor-based simulation for studying UAV coordination''.
+\newblock In {\em 15th European Simulation Symposium}, pp.  323.
+
+\bibitem[\protect\citeauthoryear{Johnson and Fontaine}{Johnson and
+  Fontaine}{2001}]{johnson.2001}
+Johnson, E., and S.~Fontaine. 2001.
+\newblock ``Use of flight simulation to complement flight testing of low-cost
+  UAVs''.
+\newblock In {\em AIAA Modeling and Simulation Technologies Conference}.
+
+\bibitem[\protect\citeauthoryear{Lu and Geng}{Lu and Geng}{2011}]{lu.2011}
+Lu, P., and Q.~Geng. 2011.
+\newblock ``Real-time simulation system for UAV based on Matlab/Simulink''.
+\newblock In {\em Computing, Control and Industrial Engineering (CCIE), 2011
+  IEEE 2nd International Conference on}, Volume~1, pp.  399--404.
+\newblock IEEE.
+
+\bibitem[\protect\citeauthoryear{Masad and Kazil}{Masad and
+  Kazil}{2015}]{masad.2015}
+Masad, D., and J.~Kazil. 2015.
+\newblock ``Mesa: An Agent-Based Modeling Framework''.
+
+\bibitem[\protect\citeauthoryear{Rasmussen, Mitchell, Schulz, Schumacher, and
+  Chandler}{Rasmussen et~al.}{2003}]{rasmussen.2003}
+Rasmussen, S., J.~Mitchell, C.~Schulz, C.~Schumacher, and P.~Chandler. 2003.
+\newblock ``A multiple UAV simulation for researchers''.
+\newblock In {\em AIAA Modeling and Simulation Technologies Conference and
+  Exhibit}, pp.  5684.
+
+\end{thebibliography}

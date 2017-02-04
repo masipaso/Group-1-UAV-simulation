@@ -66,7 +66,7 @@ class WorldModel(Model):
                 "Items (Waiting)": self.compute_number_of_items,
                 "Items (Picked up)": self.compute_number_of_picked_up_items,
                 "Items (Delivered)": self.compute_number_of_delivered_items,
-                "Average Walk Length": self.compute_average_walk_length,
+                "Average Delivery Walk Length": self.compute_average_walk_length,
                 "Standard Deviation of Average Walk Lengths": self.compute_standard_deviation_walk_lengths,
                 "Walklength Divided by Distance": self.compute_walk_length_divided_by_distance,
                 "Average lifetime of item": self.compute_item_average_lifetime,
@@ -91,9 +91,9 @@ class WorldModel(Model):
         # Increase number of steps
         self.steps += 1
         self.item_schedule.step()
-        # self.datacollector.collect(self)
-        # dataframe = self.datacollector.get_model_vars_dataframe()
-        # dataframe.to_csv('out.csv')
+        self.datacollector.collect(self)
+        dataframe = self.datacollector.get_model_vars_dataframe()
+        dataframe.to_csv('out.csv')
 
     def populate_grid(self):
         """
@@ -251,25 +251,25 @@ class WorldModel(Model):
 
     @staticmethod
     def compute_standard_deviation_walk_lengths(model):
-        average_walks = []
+        walks = []
 
         for uav in model.schedule.agents_by_type[Uav]:
             for elem in uav.get_walk_lengths():
-                average_walks.append(elem)
-        if len(average_walks) > 0:
-            return np.std(average_walks)
+                walks.append(elem)
+        if len(walks) > 0:
+            return np.std(walks)
         else:
             return 0
 
     @staticmethod
     def compute_walk_length_divided_by_distance(model):
-        length_by_distance = []
+        initial_length_by_distance = []
 
         for uav in model.schedule.agents_by_type[Uav]:
-            for elem in uav.get_initial_delivery_distance_divided_by_average_walk_length():
-                length_by_distance.append(elem)
-        if len(length_by_distance) > 0:
-            return sum(length_by_distance) / len(length_by_distance)
+            for elem in uav.get_initial_delivery_distance_divided_by_walk_length():
+                initial_length_by_distance.append(elem)
+        if len(initial_length_by_distance) > 0:
+            return sum(initial_length_by_distance) / len(initial_length_by_distance)
         else:
             return 0
 

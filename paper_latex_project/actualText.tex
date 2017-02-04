@@ -6,43 +6,63 @@ Literature on simulation engines for UAV delivery is still relatively scarce. Si
 \cite{johnson.2001} developed a simulation engine for the behaviour of specific hardware components of a UAV. \cite{lu.2011} simulated the flight dynamic behaviour of a UAV using Matlab/Simulink. MultiUAV \cite{rasmussen.2003}, a very general simulation engine has been developed to simulate cooperative algorithms for finding targets. In 2005,  an agent-based simulation engine implementing a surveillance scenario has been developed \cite{jang.2005}. UAV try to find targets without prior knowledge of the targets’ locations. They implement UAVs as agents and also use the notion of obstacles and bases. The sensor concept is similar to the one used in this paper.
 
 \section{Scenario}
+NO CENTRAL ENTITY
+\\
 Before embarking the software model, the delivery scenario shall be described.  Every UAV has a depot, in the engine called basestation, from which it receives items to be delivered. An item's destination is within the range of a Basestation which means that every Basestation has a limited range in the area. UAVs are assigned to one specific Basestation and only deliver items of it. After receiving an item, the UAV will begin flying to the specific destination. It scans the area and stores information on all fields it has seen en-route. If a UAV meets another one, they will exchange information on the already-explored parts of the area.\\
 If a field on the route contains an obstacle, it will deviate from its route and try to find one around the obstacle. Obstacles can have different heights, thus UAV als\\
 After delivering the item, it will fly back to the basestation to receive a new item. If the battery reaches a certain threshold, the UAV will fly to the nearest basestation (not neccessarily its home base) and recharge its battery. 
  UAVs are moving in a 3D environment which means that obstacles can have different heights.
 
 \section{Description of the model}
-\subsection{MESA}
-MESA \cite{masad.2015} is an agent-based modeling framework (ABM) developed specifically for the Python programming language. 
+ARCHITECTURE GRAPHIC
 \begin{enumerate}
-	\item Agent-Based, shortly describe what this means
-	\item MESA concepts in general \cite{masad.2015}
-	\begin{enumerate}
-		\item Agent-Based Modeling framework for Python in particular as it got a more important language over time
-		\item Agent schedule, 
-		\item visualization in a browser-based interface to avoid additional dependencies to GUI frameworks
-		\item allows for data analysis using Python's built-in analysis tools
-		\item Activation: Calling step method of agent, leads to an action. In every step, all agents are activated. We are using random activation: Random order of agent activations. Why did we take this? Find a stupid reason
-		\item Space is implemented using Grid. A grid has rectangular fields, used because this is closest to reality, every grid can contain multiple agents (different heights). Grid stores the agents and has methods to add, move or remove them
-		\item DataCollector component is used to collect data and easily export 
-		
-	\end{enumerate}
+	\item General Structure :  UI, UAV Simulator, MESA, Analysis
+	\item MESA
+	\item UI: GUI in Browser, config.ini
+	\item UAV Simulator
+	\item Data Analysis: CSV output of KPI, out.csv
+\end{enumerate}
+
+\subsection{MESA}
+MESA \cite{masad.2015} is an agent-based modeling framework (ABM) developed specifically for the Python programming language.  Agents are objects that have rules and states that act accordingly on every step of the simulation \cite{axtell.2000}. ABM allows to captures the path of the simulation along with the solution and allows for analysing the dynamic history \cite{axtell.2000}. ABM also allows to dynamically pause and resume the simulation at any given step and analyse the current results.\\
+MESA comes with implementations of important components, such as a grid for implementing a simple 2D environment, a web-browser-based UI, a data analysis tool and an agent scheduler. It allows for easy extension or modifications to develop specific simulation engines. \\
+Our simulation uses all core components of MESA, such as the MultiGrid, the DataCollector, the scheduler (RandomActivation), agents and the server component \cite{masad.2015}:
+\begin{itemize}
+	\item The MultiGrid is a 2D grid with fields that allow for more than one agent on one field.
+	\item The DataCollector is used for collecting relevant quantitative data  to support the evaluation of an algorithm.
+	\item The scheduler activates the agents. An agent will only do an action if the scheduler activates it. We use the RandomActivation which means that in every step the agents are activated in a random order.
+	\item The server renders the graphical user interfaces and renders changes on the model. It also allows for pausing and resuming the simulation or progress step-wise.
+\end{itemize} 
+In order for MESA to meet our requirements, we made some modifications to MESA.
+
+
+\begin{itemize}
 	\item Which components did we remove or modify and why?
 	\item Reprogramming of rendering engine. How and why?
-	
-	\item Why did we decide for specific components or not?
-\end{enumerate}
-\subsection{Simulation Model}
+\end{itemize}
+
+
+\subsection{GUI}
 \begin{enumerate}
-	
-	\item General Structure 
-	
+
+	\item No simulation of a ground control system! The software is built for simulating decentralized organization.
+	\item The GUI is implemented using MESA's standard server with some changes to improve rendering
 \end{enumerate}
+
 \subsection{UAV}
 \begin{enumerate}
-	\item Perceived World
-	\item Components/Sensors (make a drawing)
+	\item most important component, tried to make a realistic simulation of a UAVs components
+	\item Perceived World contains all cells that the UAV knows already. It stores information on obstacles. To improve performance, this is realized using dictionaries, one for each height level, mapping coordinates to information whether there is an obstacle on that field or not. For performance reasons, we decided against using MESA's grid here as iterating it reduces performance significantly. This is especially true for the grid exchange where each UAV  would have to check every field on the grid for content.  A dictionary contains unique values and is easier to exchange.
+	\item Components (make a drawing). No sensors for physical flight behavior
+	\begin{itemize}
+		\item FlightController: This component contains the path-finding/route-planning algoritm. It represents a navigation unit. Multiple algorithms could be implemented, compare section \ref{sec:algorithm} for an example. The algorithm can make use of the exchanged information on the grid provided by the \textit{CommunicationModule} component and thus supports swarm algorithms.
+		\item Battery: The battery has a limited battery life that decreases on each step. When the battery reaches a certain threshold (configurable), the UAV will fly to the nearest depot to recharge.
+		\item CargoBay: The cargoBay represents the UAV's storage unit which can contain exactly one item.
+		\item CommunicationModule: If the sensor found another UAV in the sensor's radius, this component will communicate with the other UAV and exchange grid information.
+		\item Sensor: Scanning the grid for obstacles and other agents. This component is the interface to the model
+	\end{itemize}
 	\item States
+	\item Obstacles can be any static object that obstructs a UAV on its way flying to a point (such as trees, buildings...). Obstacles can have different heights. The simulator will load the height information from a JPEG file with different colors for different heights. The height levels are unlimited. In our first version, we are using 5 different height levels.
 \end{enumerate}
 
 
@@ -60,9 +80,18 @@ MESA \cite{masad.2015} is an agent-based modeling framework (ABM) developed spec
 \end{enumerate}
 
 
-\subsection{Algorithm}
+\subsection{Data Analysis}
+\begin{itemize}
+	\item KPI's
+	\item out.csv
+	\item DataCollector from MESA
+	
+\end{itemize}
+
+\section{Implementation of a sample algorithm: A Star}\label{sec:algorithm}
 To provide an example simulation, the A* algorithm has been used 
 SOURCES!
+
 
 \section{Evaluation}
 \begin{enumerate}

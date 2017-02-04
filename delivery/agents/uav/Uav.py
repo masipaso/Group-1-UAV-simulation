@@ -67,9 +67,12 @@ class Uav(Agent):
         self.base_station = base_station
         # Delivery
         self.initial_delivery_distance = 0
-        self.initial_delivery_distance_divided_by_average_walk_length = []
+        #This is the ratio of direct walk (initial distance, euclidean) against Length of actual walk taken.
+        # This value is calculated on every delivery for every order.
+        self.initial_delivery_distance_divided_by_walk_length = []
         # ??
         self.real_walk = []
+        # On arrival at a destination, the UAV will store how many steps it took to deliver an item
         self.walk_lengths = []
         pass
 
@@ -179,6 +182,7 @@ class Uav(Agent):
             self.state = 2
             # Clear out the previous walk
             self.walk = []
+            self.real_walk = []
             self.initial_delivery_distance = get_euclidean_distance(self.pos, self.destination)
             print(' Agent: {} Received Item {}. Delivering to {}. Distance to Destination: {}. Battery: {}'
                   .format(self.uid, item.iid, self.destination, get_euclidean_distance(self.pos, self.destination),
@@ -203,10 +207,11 @@ class Uav(Agent):
         # Clear out the previous walk
         self.walk = []
         self.walk_lengths.append(len(self.real_walk))
-        self.initial_delivery_distance_divided_by_average_walk_length.append(len(self.real_walk)
-                                                                             / self.initial_delivery_distance)
+        self.initial_delivery_distance_divided_by_walk_length.append(len(self.real_walk)
+                                                                     / self.initial_delivery_distance)
         self.initial_delivery_distance = []
         self.real_walk = []
+        self.walk_lengths.append(len(self.real_walk))
 
         print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}. Battery: {}'
               .format(self.uid, iid, self.pos, self.destination, self.battery.get_charge()))
@@ -236,9 +241,13 @@ class Uav(Agent):
         """
         return self.walk_lengths
 
-    # TODO: @Dominik please write a method definition (and describe what this does)
-    def get_initial_delivery_distance_divided_by_average_walk_length(self):
-        return self.initial_delivery_distance_divided_by_average_walk_length
+
+    def get_initial_delivery_distance_divided_by_walk_length(self):
+        '''
+        Return KPI "Initial Delivery Distance by Avg. Walk length". This is the ratio of direct walk (euclidean) against
+        Length of actual walk taken. This value is calculated on every delivery for every order.
+        '''
+        return self.initial_delivery_distance_divided_by_walk_length
 
     def find_uavs_close(self):
         """

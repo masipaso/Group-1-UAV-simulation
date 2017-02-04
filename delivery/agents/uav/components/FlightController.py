@@ -261,5 +261,6 @@ class FlightController:
         :param pos: Triple of coordinates where the UAV should move to
         """
         self.uav.pos = pos
+        self.uav.real_walk.append(pos)
         # Store the cell to be able to weight it later
         self.visited_cells.append(pos)
