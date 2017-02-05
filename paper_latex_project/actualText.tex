@@ -17,25 +17,25 @@ After delivering the item, it will fly back to the basestation to receive a new 
 ARCHITECTURE GRAPHIC
 \begin{enumerate}
 	\item General Structure :  UI, UAV Simulator, MESA, Analysis, BaseStations (depots)
-	\item BaseStation: In the real world, this is the depot of a logistics company. It assigns orders to UAVs and hands items over to them. Basestations are responsible for a part of the map and a subset of all drones. Also, they contain chargers and even UAVs from other basestations can come and charge here if they are in need and close to the station. In the configuration, one can set how many basestations are supposed to be on the map by specifying the number of fields the basestation is responsible for (its delivery area). Basestations are located as close to the center of their area as possible, but only on obstacles.
-		\item Obstacles can be any static object that obstructs a UAV on its way flying to a point (such as trees, buildings...). Obstacles can have different heights. The simulator will load the height information from a JPEG file with different colors for different heights. The height levels are unlimited. 
-	\item MESA
+	\item BaseStation: In the real world, this is the depot of a logistics company. It assigns orders to UAVs and hands items over to them. Basestations are responsible for all items in a part of the map and for a subset of all drones. Also, they contain chargers for UAVs whose battery reached a low level. In the configuration, one can set how many basestations are supposed to be on the map by specifying the number of fields the basestation is responsible for (its delivery area). Basestations are located as close to the center of their area as possible, but only on obstacles (on buildings).
+		\item An obstacle can be any static object that obstructs a UAV on its way flying to a point (such as trees, buildings etc). Obstacles can have different heights. The simulator will load the height information from a JPEG file with different colors for different heights. The height levels represent different height corridors that UAVs are allowed to fly in.
+	\item The simulation is built upon the MESA modeling framework. The following 
 	\item UI: GUI in Browser, config.ini: As per MESA standard, the User interface is realized using a web-server and a browser-based UI. The configuration is parsed from a configuration file,  config.ini. It configures the setup of the grid (altitude levels, pixel width/height), UAV settings such as battery life and the sensor range. The simulation also supports different runmodes, one for running unit-tests, one for ordinary run with the server and graphical user interface as well as running without GUI which improves performance as no rendering is required.
 	\item UAV Simulator
 	\item Data Analysis: CSV output of KPI, out.csv
 \end{enumerate}
 
 \subsection{MESA}
-MESA \cite{masad.2015} is an agent-based modeling framework (ABM) developed specifically for the Python programming language.  Agents are objects that have rules and states that act accordingly on every step of the simulation \cite{axtell.2000}. ABM allows to captures the path of the simulation along with the solution and allows for analysing the dynamic history \cite{axtell.2000}. ABM also allows to dynamically pause and resume the simulation at any given step and analyse the current results.\\
+MESA \cite{masad.2015} is an open source agent-based modeling framework (ABM) developed specifically for the Python programming language.  Agents are objects that have rules and states that act accordingly on every step of the simulation \cite{axtell.2000}. ABM allows to capture the path of the simulation along with the solution and allows for analysing the dynamic history \cite{axtell.2000}. ABM also allows to dynamically pause and resume the simulation at any given step and analyse the current results.\\
 MESA comes with implementations of important components, such as a grid for implementing a simple 2D environment, a web-browser-based UI, a data analysis tool and an agent scheduler. It allows for easy extension or modifications to develop specific simulation engines. \\
 Our simulation uses all core components of MESA, such as the MultiGrid, the DataCollector, the scheduler (RandomActivation), agents and the server component \cite{masad.2015}:
 \begin{itemize}
 	\item The MultiGrid is a 2D grid with fields that allow for more than one agent on one field. This is particularly important for our simulation as agents of different height are all stored in the same grid in the model.
 	\item The DataCollector is used for collecting relevant quantitative data to support the evaluation of an algorithm.
 	\item The scheduler activates the agents. An agent will only do an action if the scheduler activates it. We use the RandomActivation which means that in every step the agents are activated in a random order.
-	\item The server renders the graphical user interfaces and renders changes on the model. It also allows for pausing and resuming the simulation or progress step-wise.
+	\item The server renders the graphical user interfaces and renders changes on the model. It also allows for pausing and resuming the simulation or progress step-wise. 
 \end{itemize} 
-In order for MESA to meet our requirements, we made some modifications to MESA.
+In order for MESA to meet our requirements, we made some modifications to MESA. 
 
 
 \begin{itemize}
