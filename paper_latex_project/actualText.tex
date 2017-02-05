@@ -18,8 +18,9 @@ ARCHITECTURE GRAPHIC
 \begin{enumerate}
 	\item General Structure :  UI, UAV Simulator, MESA, Analysis, BaseStations (depots)
 	\item BaseStation: In the real world, this is the depot of a logistics company. It assigns orders to UAVs and hands items over to them. Basestations are responsible for a part of the map and a subset of all drones. Also, they contain chargers and even UAVs from other basestations can come and charge here if they are in need and close to the station. In the configuration, one can set how many basestations are supposed to be on the map by specifying the number of fields the basestation is responsible for (its delivery area). Basestations are located as close to the center of their area as possible, but only on obstacles.
+		\item Obstacles can be any static object that obstructs a UAV on its way flying to a point (such as trees, buildings...). Obstacles can have different heights. The simulator will load the height information from a JPEG file with different colors for different heights. The height levels are unlimited. 
 	\item MESA
-	\item UI: GUI in Browser, config.ini
+	\item UI: GUI in Browser, config.ini: As per MESA standard, the User interface is realized using a web-server and a browser-based UI. The configuration is parsed from a configuration file,  config.ini. It configures the setup of the grid (altitude levels, pixel width/height), UAV settings such as battery life and the sensor range. The simulation also supports different runmodes, one for running unit-tests, one for ordinary run with the server and graphical user interface as well as running without GUI which improves performance as no rendering is required.
 	\item UAV Simulator
 	\item Data Analysis: CSV output of KPI, out.csv
 \end{enumerate}
@@ -64,7 +65,7 @@ In order for MESA to meet our requirements, we made some modifications to MESA.
 		\item Sensor: Scanning the grid for obstacles and other agents. This component is the interface to the model
 	\end{itemize}
 	\item States
-	\item Obstacles can be any static object that obstructs a UAV on its way flying to a point (such as trees, buildings...). Obstacles can have different heights. The simulator will load the height information from a JPEG file with different colors for different heights. The height levels are unlimited. In our first version, we are using 5 different height levels.
+
 \end{enumerate}
 
 

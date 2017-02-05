@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2017.2.2)  4 FEB 2017 18:16
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2017.2.2)  5 FEB 2017 20:00
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1088,19 +1088,19 @@ Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 
 [2]
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 31.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 33.
  [3]
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\uppercase' on input line 92.
+(hyperref)                removing `\uppercase' on input line 94.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\uppercase' on input line 97.
+(hyperref)                removing `\uppercase' on input line 99.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `\uppercase' on input line 104.
+(hyperref)                removing `\uppercase' on input line 106.
 
 ) (./scs17paper.bbl [4]) [5] [6]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 289.
@@ -1114,8 +1114,8 @@ Package rerunfilecheck Info: File `scs17paper.out' has not changed.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 289.
  ) 
 Here is how much of TeX's memory you used:
- 16881 strings out of 493013
- 309880 string characters out of 6133344
+ 16882 strings out of 493013
+ 309887 string characters out of 6133344
  370157 words of memory out of 5000000
  20022 multiletter control sequences out of 15000+600000
  30590 words of font info for 57 fonts, out of 8000000 for 9000
@@ -1127,10 +1127,10 @@ xlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texl
 ive/2016/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2016/t
 exmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2016/texmf-dist/
 fonts/type1/urw/times/utmri8a.pfb>
-Output written on scs17paper.pdf (7 pages, 82093 bytes).
+Output written on scs17paper.pdf (7 pages, 82877 bytes).
 PDF statistics:
- 178 PDF objects out of 1000 (max. 8388607)
- 157 compressed objects within 2 object streams
- 55 named destinations out of 1000 (max. 500000)
+ 179 PDF objects out of 1000 (max. 8388607)
+ 158 compressed objects within 2 object streams
+ 56 named destinations out of 1000 (max. 500000)
  101 words of extra memory for PDF output out of 10000 (max. 10000000)
 
