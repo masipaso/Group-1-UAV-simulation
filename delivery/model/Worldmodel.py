@@ -266,7 +266,7 @@ class WorldModel(Model):
         initial_length_by_distance = []
 
         for uav in model.schedule.agents_by_type[Uav]:
-            for elem in uav.get_initial_delivery_distance_divided_by_walk_length():
+            for elem in uav.get_walk_length_divided_by_initial_distance():
                 initial_length_by_distance.append(elem)
         if len(initial_length_by_distance) > 0:
             return sum(initial_length_by_distance) / len(initial_length_by_distance)
