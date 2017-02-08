@@ -48,7 +48,7 @@ class RealWorldGrid:
             portrayal["layer"] = z
             portrayal["id"] = agent.uid
             if not agent.cargo_bay.is_empty():
-                portrayal["item"] = agent.cargo_bay.get_item().destination
+                portrayal["item"] = agent.cargo_bay.get_destination()
         else:
             return
 
@@ -65,5 +65,4 @@ class RealWorldGrid:
             portrayal = self.portrayal(agent)
             if portrayal:
                 current_state[portrayal["layer"]].append(portrayal)
-
         return current_state

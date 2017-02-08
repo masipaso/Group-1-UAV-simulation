@@ -52,29 +52,27 @@ class BaseStation(Agent):
             y = random.randrange(self.center[1] - self.range_of_base_station,
                                  self.center[1] + self.range_of_base_station)
         item_destination = (x, y, self.pos[2])
-        item_destination = (24, 82, self.pos[2])
+        item_destination = (279, 450, 1)
         # The Item receives a random priority between 1 and ...
         item_priority = random.randint(1, self.max_item_priority)
         # Create the Item
-        item = Item(destination=item_destination, priority=item_priority, iid=str(self.bid) + "_" + str(self.item_counter + self.picked_up_items))
+        item = Item(destination=item_destination, priority=item_priority, iid=str(self.bid) + "_" + str(self.item_counter))
         self.item_counter += 1
         # Add the Item to the BaseStation
         self.items.append(item)
         # Add the Item to the scheduler of the model
         self.model.item_schedule.add(item)
-        print("Created item {}, destination: {}, priority: {}".format(item.iid, item.destination, item.priority))
+        print("Created item {}, destination: {}, priority: {}".format(item.iid, item.pos, item.priority))
         # Sort the items by priority
         self.sort_items_by_priority()
 
     def get_item(self):
         """
-        Assigns an Item to a Uav
+        Get the Item with the highest priority
         :return: either an Item, if one is available, or None
         """
         if not len(self.items) == 0:
-            # TODO: use pop() ?
-            item = self.items[0]
-            self.items.remove(item)
+            item = self.items.pop()
             self.picked_up_items += 1
             return item
         else:
@@ -86,16 +84,27 @@ class BaseStation(Agent):
         """
         self.items.sort(key=lambda item: item.priority)
 
-    def get_number_of_items(self, picked_up=False):
+    def get_number_of_items(self, picked_up=False, by_priority=False):
         """
         Get the number of Items that are currently at the BaseStation or the number of Items that were picked up at the
         BaseStation
         :param picked_up: indicator for deciding which number should be returned
+        :param by_priority: indicator for deciding what should be returned
         :return: either the currently available Items or the number of Items that were picked up at the BaseStation
         """
         if picked_up:
             return self.picked_up_items
-        return len(self.items)
+        elif by_priority:
+            items_by_priority = {}
+            for priority in range(1, self.max_item_priority + 1):
+                items_by_priority[priority] = 0
+                for item in self.items:
+                    if item.priority == priority:
+                        items_by_priority[priority] += 1
+            return items_by_priority
+        else:
+            return len(self.items)
+
 
     def get_pos(self):
         """
