@@ -57,3 +57,10 @@ class Battery:
         :return: The current_charge
         """
         return self._current_charge
+
+    def get_max_charge(self):
+        """
+        Get the max charge
+        :return: The max charge
+        """
+        return self._max_charge

@@ -1,5 +1,6 @@
 import configparser
 import random
+import math
 import numpy as np
 from PIL import Image
 from mesa import Model
@@ -28,7 +29,7 @@ class WorldModel(Model):
         config.read('./config.ini')
 
         # Read landscape
-        background_image = Image.open('./delivery/visualization/images/city500x500.jpg')
+        background_image = Image.open('./delivery/visualization/images/a_city500x500.jpg')
         background = background_image.load()
 
         # Configure schedule for Uavs and BaseStations
@@ -37,8 +38,7 @@ class WorldModel(Model):
         self.item_schedule = RandomActivationByType(self)
         # Set parameters for ...
         # ... Grid
-        self.width = config.getint('Grid', 'width')
-        self.height = config.getint('Grid', 'height')
+        self.width, self.height = background_image.size
         self.pixel_ratio = config.getint('Grid', 'pixel_ratio')
         self.max_altitude = config.getint('Grid', 'max_altitude')
         self.min_altitude = 1
@@ -55,6 +55,9 @@ class WorldModel(Model):
 
         # Counter for number of steps
         self.steps = 0
+
+        # Store the agent that should be send to the client for more details
+        self.details_for = None
 
         # Create the StaticGrid that contains the landscape (Obstacles, BaseStations, ...)
         self.landscape = StaticGrid(self.width, self.height, self.pixel_ratio, background)
@@ -102,6 +105,13 @@ class WorldModel(Model):
 
         # Populate the background with static Obstacles
         self.landscape.populate_grid()
+
+        image = Image.new("RGBA", (self.width, self.height))
+        for x in range(0, self.width):
+            for y in range(0, self.height):
+                image.putpixel((x, self.height - y - 1), self.landscape.get_obstacle_color((x, y)))
+
+        image.save("./delivery/visualization/images/a_city500x500_obstacles.png")
         print("Obstacles done")
 
         # Create BaseStations
@@ -182,6 +192,9 @@ class WorldModel(Model):
 
         # If there are possible cells, choose one at random
         pos_x, pos_y = random.choice(possible_cells)
+
+        print(pos_x, pos_y)
+
         # Create the BaseStation
         base_station = BaseStation(model=self, pos=(pos_x, pos_y, self.min_altitude), bid=bid, center=(x, y),
                                    range_of_base_station=self.range_of_base_station)
@@ -206,6 +219,34 @@ class WorldModel(Model):
                   max_altitude=self.max_altitude, sensor_range=self.sensor_range)
         # Add the Uav to the schedule
         self.schedule.add(uav)
+
+    def get_details_for(self, pos):
+        """
+        Pick an agent based on the position
+        :param pos: Tuple of coordinates (not normalized)
+        :return: An agent, if there is an agent at the requested position. Otherwise, None
+        """
+        pos_x, pos_y = pos
+        pos_x = math.floor(pos_x / self.pixel_ratio)
+        pos_y = math.floor(pos_y / self.pixel_ratio)
+        print(pos_x, pos_y)
+        # Search for BaseStations
+        for baseStation in self.schedule.agents_by_type[BaseStation]:
+            if pos_x == baseStation.pos[0] and pos_y == baseStation.pos[1]:
+                print("Base")
+                return baseStation
+        # Search for UAVs
+        for UAV in self.schedule.agents_by_type[Uav]:
+            if pos_x == UAV.pos[0] and pos_y == UAV.pos[1]:
+                print("uav")
+                return UAV
+        # Search for Items
+        for item in self.item_schedule.agents_by_type[Item]:
+            if pos_x == item.pos[0] and pos_y == item.pos[1]:
+                print("item")
+                return item
+
+        return None
 
     @staticmethod
     def compute_number_of_items(model):

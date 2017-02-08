@@ -7,7 +7,7 @@ class Item:
     :param iid: A unique item identifier of the Item
     """
     def __init__(self, destination, priority=1, iid=0):
-        self.destination = destination
+        self.pos = destination
         self.priority = priority
         self.iid = iid
         self.lifetime = 0
@@ -32,7 +32,7 @@ class Item:
         Get the destination of the Item
         :return: destination of the Item as a tuple of coordinates
         """
-        return self.destination
+        return self.pos
 
     def get_lifetime(self):
         """

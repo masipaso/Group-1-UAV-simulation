@@ -15,8 +15,7 @@ body {
 /* Layout */
 .container-fluid {
   padding: 0;
-  padding-top: 54px;
-  height: 100%;
+  height: calc(100% - 54px);
 }
 .flex-row {
   display: flex;
@@ -39,9 +38,15 @@ canvas.background {
   background: #c9c9c9;
   z-index: 0;
 }
-canvas.real-world {
+canvas.obstacle {
   position: absolute;
   left: 0;
   top: 0;
   z-index: 1;
+}
+canvas.real-world {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
 }

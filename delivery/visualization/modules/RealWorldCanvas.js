@@ -1,4 +1,4 @@
-var RealWorldCanvas = function(canvas_width, canvas_height, grid_width, grid_height) {
+let RealWorldCanvas = function(canvas_width, canvas_height, grid_width, grid_height) {
   // Create background canvas
   // ------------------------
   // Create the tag
@@ -8,6 +8,22 @@ var RealWorldCanvas = function(canvas_width, canvas_height, grid_width, grid_hei
   $(".grids").append(backgroundCanvas);
   // Get the context
   const backgroundContext = backgroundCanvas.getContext("2d");
+  // Flip background horizontal
+  backgroundContext.translate(0, canvas_width);
+  backgroundContext.scale(1, -1);
+
+  // Create obstacle canvas
+  // ------------------------
+  // Create the tag
+  const obstacleCanvasTag = `<canvas class='obstacle' width='${canvas_width}' height='${canvas_height}' ></canvas>`
+  // Append it to the body
+  const obstacleCanvas = $(obstacleCanvasTag)[0];
+  $(".grids").append(obstacleCanvas);
+  // Get the context
+  const obstacleContext = obstacleCanvas.getContext("2d");
+  // Flip obstacles horizontal
+  obstacleContext.translate(0, canvas_width);
+  obstacleContext.scale(1, -1);
 
   // Create foreground canvas
   // ------------------------
@@ -21,7 +37,7 @@ var RealWorldCanvas = function(canvas_width, canvas_height, grid_width, grid_hei
 
   // Create drawing controller
   // -------------------------
-  let drawController = new RealWorldVisualization(canvas_width, canvas_height, grid_width, grid_height, foregroundContext, backgroundContext);
+  let drawController = new RealWorldVisualization(canvas_width, canvas_height, grid_width, grid_height, foregroundContext, backgroundContext, obstacleContext);
 
   // Store if the background was already created
   this.hasBackground = false;
@@ -31,6 +47,7 @@ var RealWorldCanvas = function(canvas_width, canvas_height, grid_width, grid_hei
     // Only draw background if there is no background
     if (!this.hasBackground) {
       drawController.drawBackground();
+      drawController.drawObstacles();
       this.hasBackground = true;
     }
     drawController.drawForeground(data);
@@ -42,7 +59,7 @@ var RealWorldCanvas = function(canvas_width, canvas_height, grid_width, grid_hei
 
 };
 
-var RealWorldVisualization = function(height, width, gridWidth, gridHeight, foregroundContext, backgroundContext) {
+var RealWorldVisualization = function(height, width, gridWidth, gridHeight, foregroundContext, backgroundContext, obstacleContext) {
   // Find cell size:
   const cellWidth = Math.floor(width / gridWidth);
   const cellHeight = Math.floor(height / gridHeight);
@@ -57,7 +74,7 @@ var RealWorldVisualization = function(height, width, gridWidth, gridHeight, fore
 
     // Create image
     const backgroundImage = new Image();
-    const backgroundImageFile = "http://127.0.0.1:8521/images/a_city500x500_landscape.jpg"
+    const backgroundImageFile = "http://127.0.0.1:8521/images/a_city500x500_background.jpg"
     // Load the map into the image
     backgroundImage.src = backgroundImageFile;
 
@@ -65,6 +82,27 @@ var RealWorldVisualization = function(height, width, gridWidth, gridHeight, fore
     backgroundImage.onload = function() {
       // Draw background image
       backgroundContext.drawImage(backgroundImage, 0, 0, width, height);
+    };
+  };
+
+  /*
+   * Draw the obstacle image
+   */
+  this.drawObstacles = function() {
+    const that = this;
+    maxX = cellWidth * gridWidth;
+    maxY = cellHeight * gridHeight;
+
+    // Create image
+    const obstacleImage = new Image();
+    const obstacleImageFile = "http://127.0.0.1:8521/images/a_city500x500_obstacles.png"
+    // Load the map into the image
+    obstacleImage.src = obstacleImageFile;
+
+    // Draw the obstacle image
+    obstacleImage.onload = function() {
+      // Draw obstacle image
+      obstacleContext.drawImage(obstacleImage, 0, 0, width, height);
     };
   };
 
@@ -184,7 +222,8 @@ var RealWorldVisualization = function(height, width, gridWidth, gridHeight, fore
    * Does the inversion of y positioning because of html5 canvas y direction is from top to bottom
    */
   this.convertToCanvas = function(y) {
-    return  gridHeight - y - 1;
+    return y
+    return gridHeight - y - 1;
   }
 
 }

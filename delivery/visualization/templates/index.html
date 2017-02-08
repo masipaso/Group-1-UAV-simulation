@@ -46,6 +46,9 @@
           for (let i in elements) {
             elements[i].render(data[i]);
           }
+          if (msg["details"]) {
+            console.log(msg["details"])
+          }
           break;
         case "end":
           // We have reached the end of the model
@@ -58,7 +61,7 @@
     }
 
     // Turn an object into a string to send to the server, and send it
-    var send = function(message) {
+    const send = function(message) {
       msg = JSON.stringify(message);
       ws.send(msg);
     }
@@ -70,7 +73,6 @@
     // Reset the model, and rest the appropriate local variables.
     const reset = function() {
       control.tick = 0;
-      updateUI();
       send({
         "type": "reset"
       });
@@ -84,7 +86,6 @@
     // Send a message to the server get the next visualization state.
     const single_step = function() {
       control.tick += 1;
-      updateUI();
       send({
         "type": "get_step",
         "step": control.tick
@@ -132,17 +133,22 @@
       }
     }
 
-    // Update the current step number in the UI
-    const updateUI = function() {
-      $("#current-step").html(control.tick)
+    // Request details
+    const getDetails = function(mousePosition) {
+      send({
+        "type": "get_details_for",
+        "pos": mousePosition
+      });
     }
 
   </script>
   <!-- Get Controls -->
   <script src="/js/controls.js"></script>
   <!-- Get Bootstrap -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   <!-- Custom Styles -->
@@ -198,7 +204,7 @@
         <hr>
         <h6>Current step: <span id="current-step">0</span></h6>
         <hr>
-        <span id="mouse-position"></span>
+        <div class="details"></div>
       </div>
     </div>
   </div>
