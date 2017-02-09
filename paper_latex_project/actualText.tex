@@ -22,36 +22,27 @@ Figure \ref{fig:architecture} shows the architecture of the simulation model. In
 
 \subsection{MESA}
 MESA \cite{masad.2015} is an open source agent-based modeling framework (ABM) developed specifically for the Python programming language.  Agents are objects that have rules and states that act accordingly on every step of the simulation \cite{axtell.2000}. ABM allows to capture the path of the simulation along with the solution and allows for analysing the dynamic history \cite{axtell.2000}. ABM also allows to dynamically pause and resume the simulation at any given step and analyse the current results.\\
-MESA comes with implementations of important components, such as a grid for implementing a simple 2D environment, a web-browser-based UI, a data analysis tool and an agent scheduler. It allows for easy extension or modifications to develop specific simulation engines. \\
-Our simulation uses all core components of MESA, such as the MultiGrid, the DataCollector, the scheduler (RandomActivation), agents and the server component \cite{masad.2015}:
-\begin{itemize}
-	\item The MultiGrid is a 2D grid with fields that allow for more than one agent on one field. This is particularly important for our simulation as agents of different height are all stored in the same grid in the model.
-	\item The DataCollector is used for collecting relevant quantitative data to support the evaluation of an algorithm.
-	\item The scheduler activates the agents. An agent will only do an action if the scheduler activates it. We use the RandomActivation which means that in every step the agents are activated in a random order.
-	\item The server renders the graphical user interfaces and renders changes on the model. It also allows for pausing and resuming the simulation or progress step-wise. 
-\end{itemize} 
-\begin{itemize}
-	\item Which components did we remove or modify and why?
-	\item In order to optimize rendering performance, some modifications to the user interface components of MESA have been made. For example, an explicit "Obstacle" class is not required anymore as the MultiGrid was modified to not store whole objects with attributes anymore but using numerical codes to identify obstacles or depots. Storing the actual agents in the grid was not required anymore as the model keeps a collection of depots (in the simulation called "BaseStations") in the scheduler and thus did not require for the grid to store those information anymore. The GUI itself parses an image file and does not require information on the actual objects inside the simulation model.
-	\item Reprogramming of rendering engine. How and why?
-\end{itemize}
-
-
+MESA comes with implementations of important components, such as a grid for implementing a simple 2D environment, a web-browser-based UI, a data analysis tool and an agent scheduler. Our simulation makes use of some of these components while modifying others to suit our needs. We use the data collector, the scheduler and the agent base class without modifications. The scheduler activates the agents and triggers an action. We use the RandomActivation which means that in every step the agents are activated in a random order. The DataCollector is used for collecting relevant quantitative data to support the evaluation of an algorithm.\\
+To better fit our needs, we modified the MESA grid, visualization elements and the visualization server. In the following section we describe what we changed and explain the reasons behind the modifications.
+The MESA grid is "a simple list-of lists" \footnote{|url{ttp://mesa.readthedocs.io/en/latest/apis/space.html}}. Each entry in such a grid has to be an agent. Since we wanted to perform our simulation on a larger scale, i.e. on a 500 x 500 grid, we had to place a lot of obstacles to come up with a realistic simulation environment. With such a huge amount of obstacles we experienced severe performance issues. The reasons behind this is the standard visualization element that is used to render the grid. The visualization element iterates over all registered agents and renders them in the GUI. As a result we decided to not consider obstacles as agents. Instead, we introduced our own grid, which is a matrix, that only contains numeric values. Each value represents either an obstacle, a base station or "nothing". 
 
 \subsection{User Interface: Configuration and GUI}
 The user interface consists of two parts: The file \textit{config.ini} to change the simulation scenario and a web server responsible for rendering the GUI and delivering it through a web browser.\\
 The configuration file is being parsed at the startup of the simulation engine and contains all the required settings for the simulation to work properly. It contains crucial information that have a high impact on an algorithm's performance and makes it easy to set up different scenarios, e.g. one might consider testing the results using different number of UAVs per depot or more or less depots itself.
 Furthermore the impact of different battery capacity (in steps) can easily be simulated. A higher sensor range can be beneficial for an algorithm's performance but should be chosen realistically according to the model.\\
-As mentioned earlier, the GUI is implemented using a web server. For the GUI to properly function, two image files are required. One contains the map as the user is supposed to see it. The other one stores information on obstacles and their respective heights using color codes. White means that there is no obstacle and other colors represent different altitude levels. An obstacle is any static object (such as trees or buildings etc.) that obstructs the movement of the UAV. The file will be parsed on start-up and the information stored in the model.  Depots are placed on obstacles.\\
+As mentioned earlier, the GUI is implemented using a web server. For the GUI to properly function, two image files are required. One contains the map as the user is supposed to see it. The other one stores information on obstacles and their respective heights using color codes. White means that there is no obstacle and other colors represent different altitude levels. An obstacle is any static object (such as trees or buildings etc.) that obstructs the movement of the UAV. The file will be parsed on start-up and the information stored in the model.  Depots are placed on obstacles. Compare figure  \ref{fig:gui} for an overview of the GUI.
+\begin{figure}[htbp]\label{fig:gui}
+	\centering
+	\includegraphics[scale=0.3]{images/gui}
+	\caption{The GUI of the simulation engine}
+\end{figure}
 The GUI allows for starting, pausing and resetting the simulation and shows the movement of UAVs in the space. It is implemented in a 2D fashion although internally the model calculates with 3-dimensional coordinates. The image's color codes for obstacles are used to represent the different altitudes. For now, the simulation tool supports 5 different height levels but one can easily modify the parser and define more colors for more altitude levels.
-To receive immediate information on UAV without waiting for the simulation to reach an amount of desired steps, one can click on a UAV, receive position and destination information as well as battery status. Figure \ref{fig:uav_detail} shows this view.
-
-
+To be able to see more detailed information on each agent (UAV, base station and item), one can click on the visual representation of the agent. The click activates a detail view. The detail view for UAV can be seen in figure \ref{fig:uav_detail}.
 
 	\begin{figure}[htbp]\label{fig:uav_detail}
 		\centering
 		\includegraphics[scale=0.5]{images/uav_detail.png}
-		\caption{Detailed view of UAV information}
+		\caption{Detailed view of UAV}
 	\end{figure}
 
 
