@@ -18,7 +18,7 @@ The simulation has been written in Python, using the MESA framework for agent-ba
 The simulation's aim is to support comparing of different decentralized path-planning algorithms by making them easily exchangeable. Predefined KPI's and an output method are used to support for analysing the performance of one's implementation. Section \ref{sec:KPI} discusses the way KPI's are defined.
 \begin{figure}[htbp]\label{fig:architecture}
 	\centering
-	\includegraphics[scale=0.3]{images/architecture.png} 
+	\includegraphics[scale=0.2]{images/architecture.png} 
 	\caption{Architecture of simulation model}
 \end{figure}
 
@@ -52,20 +52,14 @@ Our simulation uses all core components of MESA, such as the MultiGrid, the Data
 
 
 \subsection{User Interface: Configuration and GUI}
-\begin{itemize}
-	\item config.ini
-	\item The configuration file is being parsed at the startup of the simulation engine and contains all the required settings for the simulation to work properly. It contains crucial information that have a high impact on an algorithm's performance and makes it easy to set up different scenarios, e.g. one might consider testing the results using different number of UAVs per depot or more or less depots itself.
-	\item Also the impact of different battery capacity (in steps) can easily be simulated. A higher sensor range can be beneficial for an algorithm's performance but should be chosen realistically according to the model.
-\end{itemize}
-\begin{enumerate}
-	\item The GUI is implemented using MESA's standard server with some changes to improve rendering. WHICH CHANGES?
-	\item GUI SCREENSHOT
-	\item For the GUI to properly function, two image files are required. One contains the map as the user is supposed to see it. The other one stores information on obstacles and heights using color codes. White means that there is no obstacle and other colors stand for different altitude levels. The file will be parsed on start-up and the information stored in the model.  Depots are placed on obstacles and visible as COLOR colored fields.
-	\item The GUI allows for starting, pausing and resetting the simulation and shows the movement of UAVs in the space. It is implemented in a 2D fashion although internally the model calculates with 3-dimensional coordinates. The color codes for obstacles from the image file are used to represent the different altitudes. For now, the simulation tool supports 5 different height levels but one can easily modify the parser and define more colors for more altitude levels.
-	\item To receive immediate information on UAV without waiting for the simulation to reach an amount of desired steps, one can click on a UAV, receive position and destination information as well as battery status. Figure \ref{fig:uav_detail} shows this view.
+The user interface consists of two parts: The file \textit{config.ini} to change the simulation scenario and a web server responsible for rendering the GUI and delivering it through a web browser.\\
+The configuration file is being parsed at the startup of the simulation engine and contains all the required settings for the simulation to work properly. It contains crucial information that have a high impact on an algorithm's performance and makes it easy to set up different scenarios, e.g. one might consider testing the results using different number of UAVs per depot or more or less depots itself.
+Furthermore the impact of different battery capacity (in steps) can easily be simulated. A higher sensor range can be beneficial for an algorithm's performance but should be chosen realistically according to the model.\\
+As mentioned earlier, the GUI is implemented using a web server. For the GUI to properly function, two image files are required. One contains the map as the user is supposed to see it. The other one stores information on obstacles and heights using color codes. White means that there is no obstacle and other colors represent different altitude levels. The file will be parsed on start-up and the information stored in the model.  Depots are placed on obstacles.\\
+The GUI allows for starting, pausing and resetting the simulation and shows the movement of UAVs in the space. It is implemented in a 2D fashion although internally the model calculates with 3-dimensional coordinates. The image's color codes for obstacles are used to represent the different altitudes. For now, the simulation tool supports 5 different height levels but one can easily modify the parser and define more colors for more altitude levels.
+To receive immediate information on UAV without waiting for the simulation to reach an amount of desired steps, one can click on a UAV, receive position and destination information as well as battery status. Figure \ref{fig:uav_detail} shows this view.
 
 
-\end{enumerate}
 
 	\begin{figure}[htbp]\label{fig:uav_detail}
 		\centering
@@ -75,35 +69,19 @@ Our simulation uses all core components of MESA, such as the MultiGrid, the Data
 
 
 \subsection{UAV}\label{sec:UAV}
-\begin{enumerate}
-	\item most important component, tried to make a realistic simulation of a UAV's components and behavior, excluding flight behavior
-	\item UAV do not communicate with a central entity such as a control server organizing the flight traffic. UAV communicate with each other if they are in sensor range and only rely on their own sensors.
-	\item Perceived World contains all cells that the UAV knows already. It stores information on obstacles. To improve performance, this is realized using dictionaries, one for each height level, mapping coordinates to information whether there is an obstacle on that field or not. For performance reasons, we decided against using MESA's grid here as iterating it reduces performance significantly. This is especially true for the grid exchange where each UAV  would have to check every field on the grid for content.  A dictionary contains unique values and is easier to exchange.
-	\item Components: The simulated UAV has certain components that are taken from the real world:
+The most important component of a UAV simulation is the UAV itself. We developed a realistic simulation representing the required components and behavior and omitted not required components to cover the delivery scenario. The simulated UAV has the following components:
 	\begin{itemize}
-		\item FlightController: This component contains the path-finding/route-planning algoritm. It represents a navigation unit. Multiple algorithms could be implemented, compare section \ref{sec:algorithm} for an example. The algorithm can make use of the exchanged information on the grid provided by the \textit{CommunicationModule} component and thus supports swarm algorithms.
-		\item Battery: The battery has a limited battery life that decreases on each step. When the battery reaches a certain threshold (configurable), the UAV will fly to the nearest depot to recharge.
-		\item CargoBay: The cargoBay represents the UAV's storage unit which can contain exactly one item.
+			\item Battery: The battery has a limited battery life that decreases on each step. When the battery reaches a certain threshold (configurable), the UAV will fly to the nearest depot to recharge.
+					\item CargoBay: The cargoBay represents the UAV's storage unit which can contain exactly one item.
+		\item FlightController: This component contains the path-finding/route-planning algoritm. It represents a navigation unit. Multiple algorithms could be implemented, compare section \ref{sec:algorithm} for an example. The algorithm uses the sensor to identify its neighboring fields at any step. Additionally it stores a perceived world which holds all fields that are already explored.
 		\item CommunicationModule: If the sensor found another UAV in the sensor's radius, this component will communicate with the other UAV and exchange grid information. Exchange of information on previously-unknown terrain helps when a UAV has to deliver an item to a new area of the map. This allows for precomputing optimal routes before exploring the actual area.
 		\item Sensor: Scanning the grid for obstacles and other agents. This component is the interface to the model
 	\end{itemize}
-	\item States
 
-\end{enumerate}
+UAVs do not communicate with a central entity such as a control server organizing the flight traffic. They communicate with each other if they are in sensor range and only rely on their own sensor.
+To optimize performance for the exchange of grids, the UAVs only store a dictionary containing their perceived world rather than a full matrix implemented in MESA's grid.
+There is one dictionary for each height level, mapping coordinates to information whether there is an obstacle on that field or not. 
 
-
-\cite{jang.2005} can be helpful to structure this part!
-
-
-\begin{enumerate}
-	\item multiple depots
-	\item Describe the modular and extensible character of the architecture
-	\item Describe how the model accomodates for the integration of self-organizing algorithms for UAVs
-	\item Describing changes and extensions in the mesa framework
-	\item drones have to recharge and thus deviate from their actual route
-	\item ...
-	
-\end{enumerate}
 
 
 \subsection{Analytics}\label{sec:KPI}
@@ -125,12 +103,7 @@ The results are step-wise written out into a CSV file during the simulation and 
 	\caption{Example of analyzing KPI's in a spreadsheet software}
 \end{figure}
 
-\begin{itemize}
-	\item KPI's
-	\item out.csv
-	\item DataCollector from MESA
-	
-\end{itemize}
+
 
 \section{Implementation of a sample algorithm: A Star}\label{sec:algorithm}
 To provide an example simulation, the A* algorithm has been used 
@@ -138,13 +111,15 @@ SOURCES!
 
 
 \section{Evaluation}
-NOT SURE WHAT TO WRITE HERE. ALGORITHM EVALUATION OR RATHER OUR TOOL? BUT THEN WHAT TO EVALUATE? PERFORMANCE? \\
-The simulation engine presented in this paper allows for a simple evaluation of a path planning algorithm in a 3-dimensional space. Also it helps to implement traditional algorithms into a swarm optimization problem as UAVs exchange their grid whenever they come close enough to each other. A bottleneck is the calculation performance. On a mid-2015 Macbook Pro with a i5 Dual core processor, the simulation of 5000 steps (run without GUI) still takes a very long time. This is due to the fact that the implementation of the MESA grid used in the model is not very performance-optimized. Also, the exchange of the grid is a complex task. It was tried to optimize performance by using dictionaries for the grid's perceived world rather than storing a complete grid. The model's internal grid also has been modified to just store values for obstacles (1+altitude), baseStations/depots (-1) or 0 for nothing. This step had a high impact on performance but optimizing the complexity in an algorithm's calculations is the programmer's task.
+The simulation engine presented in this paper allows for a simple evaluation of a path planning algorithm in a 3-dimensional space. Also it helps to implement traditional algorithms into a swarm optimization problem as UAVs exchange their grid whenever they come close enough to each other. A bottleneck is the calculation performance. On a mid-2015 Macbook Pro with a i5 Dual core processor, the simulation of 5000 steps (run without GUI) still takes a very long time. This is due to the fact that the implementation of the MESA grid used in the model is not performance-optimized. Also, the exchange of the grid is a complex task. It was tried to optimize performance by using dictionaries for the UAV's perceived world rather than storing a complete matrix. The model's internal grid also has been modified to just store numerical values for obstacles (1+ altitude), baseStations/depots (-1) or 0 for nothing. This step had a high impact on performance but optimizing the complexity in an algorithm's calculations is the programmer's task.\\
+
 
 \section{Conclusion}
 \begin{enumerate}
 	\item Overall summary
+	
 	\item limitations of this approach
 	\item future development?
+	\item carrying more than one itme
 \end{enumerate}
 
