@@ -63,8 +63,6 @@ class BaseStation(Agent):
         # Add the Item to the scheduler of the model
         self.model.item_schedule.add(item)
         print("Created item {}, destination: {}, priority: {}".format(item.iid, item.pos, item.priority))
-        # Sort the items by priority
-        self.sort_items_by_priority()
 
     def get_item(self):
         """
@@ -72,6 +70,8 @@ class BaseStation(Agent):
         :return: either an Item, if one is available, or None
         """
         if not len(self.items) == 0:
+            # Sort items by priority
+            self.sort_items_by_priority()
             item = self.items.pop()
             self.picked_up_items += 1
             return item
@@ -82,7 +82,11 @@ class BaseStation(Agent):
         """
         Sort the currently available Items based on their priority
         """
-        self.items.sort(key=lambda item: item.priority)
+        for item in self.items:
+            # TODO: Validate this
+            item.pick_up_priority = item.lifetime + item.priority * 100
+
+        self.items.sort(key=lambda item: item.pick_up_priority)
 
     def get_number_of_items(self, picked_up=False, by_priority=False):
         """

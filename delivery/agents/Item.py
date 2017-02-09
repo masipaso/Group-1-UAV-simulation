@@ -11,6 +11,7 @@ class Item:
         self.priority = priority
         self.iid = iid
         self.lifetime = 0
+        self.pick_up_priority = 0
         self.delivered = False
 
     def step(self):
