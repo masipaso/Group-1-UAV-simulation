@@ -1,7 +1,3 @@
-import configparser
-from delivery.agents.Repellent import Repellent
-
-
 class CommunicationModule:
     """
     The CommunicationModule of an UAV

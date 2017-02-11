@@ -1,7 +1,6 @@
 from delivery.tests.test_baseStation import baseStation_Test
 from delivery.tests.test_uav import UAV_test
 from delivery.tests.test_worldmodel import worldModel_Test
-from delivery.tests.test_repellent import repellent_Test
 from delivery.tests.test_static_grid import staticGrid_Test
 from delivery.tests.test_item import Item_Test
 from delivery.tests.test_battery import battery_Test
@@ -69,16 +68,6 @@ class tests_runner():
         suite.addTest(worldModel_Test('test_compute_walk_length_divided_by_distance'))
         suite.addTest(worldModel_Test('test_create_base_station'))
         suite.addTest(worldModel_Test('test_create_uav'))
-        return suite
-
-    def create_Repellent_suite(self):
-        # Creating Test Suite
-        suite = unittest.TestSuite()
-        suite.addTest(repellent_Test('test_init'))
-        suite.addTest(repellent_Test('test_step'))
-        suite.addTest(repellent_Test('test_weaken'))
-        suite.addTest(repellent_Test('test_strengthen'))
-        suite.addTest(repellent_Test('test_get_position'))
         return suite
 
     def create_StaticGrid_suite(self):
