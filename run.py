@@ -8,14 +8,15 @@ from delivery.model.Worldmodel import WorldModel
 def run_gui():
     launch_world_model()
 
+
 def run_no_gui(number_steps):
     print("\033[1mStart of Simulation without GUI\033[0m")
     model = WorldModel()
-    for i in range(0,number_steps):
-        print("Step {}".format(i))
+    for i in range(0, number_steps):
         model.step()
 
     print("\033[1mSimulation terminated successfully\033[0m")
+
 
 def run_tests():
     tests_runner().run_tests()
@@ -29,7 +30,7 @@ if runmode == 1:
     run_gui()
 
 elif runmode == 2:
-    number_steps = config.getint('Runmode','number_steps')
+    number_steps = config.getint('Runmode', 'number_steps')
     run_no_gui(number_steps=number_steps)
 
 elif runmode == 3:
