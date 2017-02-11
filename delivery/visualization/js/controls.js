@@ -36,6 +36,8 @@ $( document ).ready(function() {
   */
   function getMousePosition(canvas, event) {
     const rect = canvas.getBoundingClientRect();
+    // Convert coordinates to matrix
+    let y = rect.height - (event.clientY - rect.top) + 1
     return {
       x: event.clientX - rect.left,
       y: event.clientY - rect.top
@@ -43,8 +45,8 @@ $( document ).ready(function() {
   };
 
   const realWorld = $(".real-world")[0];
-  realWorld.addEventListener('mousemove', function(event) {
-    var mousePosition = getMousePosition(realWorld, event);
-    $("#mouse-position").html("x: " + mousePosition.x + ", y: " + mousePosition.y);
+  realWorld.addEventListener('click', function(event) {
+    let mousePosition = getMousePosition(realWorld, event);
+    getDetails(mousePosition);
   });
 });

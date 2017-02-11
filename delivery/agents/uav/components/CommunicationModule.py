@@ -19,38 +19,12 @@ class CommunicationModule:
         self.model = model
         self.max_altitude = max_altitude
 
-    def exchange_repellents_with(self, other_uav):
+    def exchange_grid(self, other_uav):
         other_perceived_world = self._receive_perceived_world_from(other_uav)
-        # Iterate over all altitudes ...
-        for altitude in range(1, self.max_altitude):
-            # ... and check if there are Repellents stored on that altitude
-            if other_perceived_world.has_repellents_on(altitude):
-                # ... if there are at least on Repellent on the altitude
-                # Check if I have Repellents on that altitude
-                if self.perceived_world.has_repellents_on(altitude):
-                    # ... if I do, we need to compare all Repellents
-                    repellents = other_perceived_world.get_repellents_on(altitude)
-                    for pos in repellents:
-                        # Get the Repellent from the other perceived_world
-                        other_repellent = other_perceived_world.get_repellent_on(pos, altitude)
-                        # Check if there is a Repellent in my own perceived_world
-                        my_repellent = self.perceived_world.get_repellent_on(pos, altitude)
-                        if my_repellent is not None:
-                            # I do have a Repellent on that position
-                            # Compare which Repellent was last updated ...
-                            if my_repellent.get_last_updated_at() < other_repellent.get_last_updated_at():
-                                # ... and update my own Repellent if the other one was updated more recently
-                                my_repellent.set_strength(other_repellent.strength)
-                                my_repellent.set_last_updated_at(self.model.steps)
-                        else:
-                            # I don`t have a Repellent on that position
-                            #  ... place a new one
-                            new_repellent = Repellent(self.model, pos, self.perceived_world, altitude)
-                            new_repellent.set_strength(other_repellent.strength)
-                            self.perceived_world.place_repellent_at(new_repellent, pos, altitude)
-                else:
-                    # ... if I don´t, than I can just copy the other Repellents
-                    self.perceived_world[altitude] = other_perceived_world.get_repellents_on(altitude).copy()
+        for altitude in range(0, self.max_altitude):
+            print("Exchange at altitude {} before: {}".format(altitude+1,self.perceived_world.perceived_world[altitude]))
+            self.perceived_world.perceived_world[altitude] = self._merge_two_dicts(self.perceived_world.perceived_world[altitude],other_perceived_world.perceived_world[altitude])
+            print("Exchange at altitude {} after: {}".format(altitude+1,self.perceived_world.perceived_world[altitude]))
 
     @staticmethod
     def _receive_perceived_world_from(other_uav):
@@ -67,3 +41,10 @@ class CommunicationModule:
         :return: The perceived_world of the UAV
         """
         return self.perceived_world
+
+    @staticmethod
+    def _merge_two_dicts(x, y):
+        """Given two dicts, merge them into a new dict as a shallow copy."""
+        z = x.copy()
+        z.update(y)
+        return z

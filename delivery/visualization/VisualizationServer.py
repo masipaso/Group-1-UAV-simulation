@@ -36,11 +36,19 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
 
         if msg["type"] == "get_step":
             self.application.model.step()
-            self.write_message({"type": "viz_state", "data": self.application.render_model()})
-
+            message = {"type": "viz_state", "data": self.application.render_model()}
+            self.write_message(message)
         elif msg["type"] == "reset":
             self.application.reset_model()
-            self.write_message({"type": "viz_state", "data": self.application.render_model()})
+            message = {"type": "viz_state", "data": self.application.render_model()}
+            self.write_message(message)
+        elif msg["type"] == "get_details_for":
+            pos = (msg["pos"]["x"], msg["pos"]["y"])
+            print(pos)
+            details_for = self.application.model.get_details_for(pos)
+            self.application.model.details_for = details_for
+            message = {"type": "viz_state", "data": self.application.render_model()}
+            self.write_message(message)
 
         else:
             if self.application.verbose:

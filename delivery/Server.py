@@ -1,11 +1,10 @@
 import configparser
 
-from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import ChartModule
 
 from delivery.model.Worldmodel import WorldModel
-from delivery.visualization.Perceived_world_grid import PerceivedWorldGrid
 from delivery.visualization.Real_world_grid import RealWorldGrid
+from delivery.visualization.Details import Details
 
 from delivery.visualization.VisualizationServer import VisualizationServer
 
@@ -20,9 +19,11 @@ def launch_world_model():
     height = config.getint('Grid', 'height')
     pixel_ratio = config.getint('Grid', 'pixel_ratio')
 
-    # Create Grids
     # real_world_grid - representing the 'actual' world
     real_world_grid = RealWorldGrid(width, height, width * pixel_ratio, height * pixel_ratio)
+
+    # Detail information
+    details = Details()
 
     # Create Chart
     chart = ChartModule([
@@ -35,6 +36,6 @@ def launch_world_model():
     )
 
     # Create Server
-    server = VisualizationServer(WorldModel, [real_world_grid], "Delivery Simulation")
+    server = VisualizationServer(WorldModel, [real_world_grid, details], "Delivery Simulation")
     server.port = 8521
     server.launch()

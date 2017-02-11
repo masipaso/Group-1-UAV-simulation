@@ -39,27 +39,16 @@ class StaticGrid:
         Parse the landscape and populate the grid with the parsed information.
         Whenever there is a black pixel, create an Obstacle at the position
         """
-        multiplier = max(round(self.pixel_ratio / 2), 1)
 
         # Read landscape to get locations of obstacles
-        for j in range(1, self.height, multiplier):
-            for i in range(1, self.width, multiplier):
-                r, g, b = self.landscape[i, j]
+        for y in range(0, self.height):
+            for x in range(0, self.width):
+                r, g, b = self.landscape[x, y]
+                new_y = self.height - y
                 if self.is_obstacle_color(r, g, b):
                     altitude = self.get_altitude(r, g, b)
-                    fill_cells_x = []
-                    fill_cells_y = []
-                    for k in range(0, multiplier):
-                        fill_cells_x.append(i - k)
-                        fill_cells_y.append(self.height - j - k)
-
-                    for x in fill_cells_x:
-                        if 0 < x < self.width:
-                            for y in fill_cells_y:
-                                if 0 < y < self.height:
-                                    self.place_obstacle((x, y), altitude)
-                                else:
-                                    break
+                    if 0 < x < self.width and 0 < new_y < self.height:
+                        self.place_obstacle((x, new_y), altitude)
 
     def get_neighborhood(self, pos, include_center=False, radius=1):
         """
@@ -158,37 +147,47 @@ class StaticGrid:
         x, y = pos
         return True if math.isclose(self.grid[x, y], self.BASE_STATION, rel_tol=1e-5) else False
 
+    def get_obstacle_color(self, pos):
+        # TODO: Description
+        x, y = pos
+        for altitude in range(1, self.max_altitude + 1):
+            if self.is_obstacle_at((x, y), altitude):
+                if altitude == 1:
+                    return 0, 0, 0, 255
+                elif altitude == 2:
+                    return 0, 0, 255, 255
+                elif altitude == 3:
+                    return 0, 255, 0, 255
+                else:
+                    return 255, 0, 0, 255
+        return 255, 255, 255, 0
+
     @staticmethod
     def is_obstacle_color(r, g, b):
-        red = range(240, 255)
-        green = range(240, 255)
-        blue = range(240, 255)
-        black = range(0, 15)
+        black = range(0, 150)
 
         if r in black and g in black and b in black:
             return True
-        elif r in black and g in black and b in blue:
+        if r in black and g in black and b not in black:
             return True
-        elif r in black and g in green and b in black:
+        if r in black and g not in black and b in black:
             return True
-        elif r in red and g in black and b in black:
+        if r not in black and g in black and b in black:
             return True
         else:
             return False
 
     @staticmethod
     def get_altitude(r, g, b):
-        red = range(240, 255)
-        green = range(240, 255)
-        blue = range(240, 255)
-        black = range(0, 240)
+        black = range(0, 150)
+
         if r in black and g in black and b in black:
             return 1
-        if r in black and g in black and b in blue:
+        if r in black and g in black and b not in black:
             return 2
-        if r in black and g in green and b in black:
+        if r in black and g not in black and b in black:
             return 3
-        if r in red and g in black and b in black:
+        if r not in black and g in black and b in black:
             return 4
 
     def get_width(self):
