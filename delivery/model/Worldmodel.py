@@ -121,9 +121,9 @@ class WorldModel(Model):
         # Create UAVs
         uid = 0
         for base_station in base_stations:
-            uid += 1
             for i in range(self.number_of_uavs_per_base_station):
-                self.create_uav(uid + i, base_station)
+                uid += 1
+                self.create_uav(uid, base_station)
         print("UAVs done")
 
     def create_base_stations(self):
@@ -155,7 +155,9 @@ class WorldModel(Model):
         """
         x, y = pos
         # Store available cells
-        available_cells = []
+        available_cells = set()
+        # To check if the coordinates are already stored
+        available_cells_helper = set()
         radius = 1
         # If the center is an empty cell
         while not available_cells:
@@ -165,38 +167,39 @@ class WorldModel(Model):
             # ... search the neighborhood and center
             for coordinates in neighborhood:
                 # ... check if there is an obstacle
-                for altitude in range(1, self.max_altitude + 1):
+                for altitude in range(self.max_altitude, 1, -1):
                     if self.landscape.is_obstacle_at(coordinates, altitude):
-                        # ... and add the cell to the list of possible cells
-                        available_cells.append(coordinates)
+                        # ... and add the cell to the list of available cells
+                        if coordinates not in available_cells_helper:
+                            available_cells.add(coordinates + (altitude,))
+                            available_cells_helper.add(coordinates)
 
             # Increase the search radius if there are no possible cells
             radius += 1
 
         # If there are available cells, choose the cell that has at least one non-obstacle-neighbor
         # Store possible cells
-        possible_cells = []
+        possible_cells = set()
         for cell in available_cells:
+            pos_x, pos_y, pos_z = cell
             # ... get neighboring cells without center cell
-            neighborhood = self.landscape.get_neighborhood(cell, False, 1)
+            neighborhood = self.landscape.get_neighborhood((pos_x, pos_y), False, 1)
 
             # ... search the neighborhood
             for coordinates in neighborhood:
                 # ... check if there is an obstacle
-                for altitude in range(1, self.max_altitude + 1):
-                    if not self.landscape.is_obstacle_at(coordinates, altitude):
-                        # ... and add the cell to the list of possible cells if there is one adjacent cell
-                        # without an Obstacle
-                        possible_cells.append(cell)
-                        break
+                if not self.landscape.is_obstacle_at(coordinates, pos_z):
+                    # ... and add the cell to the list of possible cells if there is one adjacent cell
+                    # without an Obstacle
+                    possible_cells.add(cell)
+                    break
 
+        # TODO: Error Handling: keine possible cells
         # If there are possible cells, choose one at random
-        pos_x, pos_y = random.choice(possible_cells)
-
-        print(pos_x, pos_y)
+        pos_x, pos_y, pos_z = random.sample(possible_cells, 1)[0]
 
         # Create the BaseStation
-        base_station = BaseStation(model=self, pos=(pos_x, pos_y, self.min_altitude), bid=bid, center=(x, y),
+        base_station = BaseStation(model=self, pos=(pos_x, pos_y, pos_z), bid=bid, center=(x, y),
                                    range_of_base_station=self.range_of_base_station)
         # Place the BaseStation on the landscape
         self.landscape.place_base_station((pos_x, pos_y))
@@ -233,17 +236,14 @@ class WorldModel(Model):
         # Search for BaseStations
         for baseStation in self.schedule.agents_by_type[BaseStation]:
             if pos_x == baseStation.pos[0] and pos_y == baseStation.pos[1]:
-                print("Base")
                 return baseStation
         # Search for UAVs
         for UAV in self.schedule.agents_by_type[Uav]:
             if pos_x == UAV.pos[0] and pos_y == UAV.pos[1]:
-                print("uav")
                 return UAV
         # Search for Items
         for item in self.item_schedule.agents_by_type[Item]:
             if pos_x == item.pos[0] and pos_y == item.pos[1]:
-                print("item")
                 return item
 
         return None

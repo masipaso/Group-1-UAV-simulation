@@ -22,9 +22,8 @@ class CommunicationModule:
     def exchange_grid(self, other_uav):
         other_perceived_world = self._receive_perceived_world_from(other_uav)
         for altitude in range(0, self.max_altitude):
-            print("Exchange at altitude {} before: {}".format(altitude+1,self.perceived_world.perceived_world[altitude]))
-            self.perceived_world.perceived_world[altitude] = self._merge_two_dicts(self.perceived_world.perceived_world[altitude],other_perceived_world.perceived_world[altitude])
-            print("Exchange at altitude {} after: {}".format(altitude+1,self.perceived_world.perceived_world[altitude]))
+            # self.perceived_world.perceived_world[altitude] = self._merge_two_dicts(self.perceived_world.perceived_world[altitude],other_perceived_world.perceived_world[altitude])
+            self.perceived_world.perceived_world[altitude] = {**self.perceived_world.perceived_world[altitude], **other_perceived_world.perceived_world[altitude]}
 
     @staticmethod
     def _receive_perceived_world_from(other_uav):

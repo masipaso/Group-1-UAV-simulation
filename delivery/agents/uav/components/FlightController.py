@@ -32,7 +32,7 @@ class FlightController:
             return None
 
         # Initiate scan of the neighborhood
-        print("Scanning ...")
+        # print("Scanning ...")
         self.uav.sensor.scan(self.uav.pos)
 
         shortest_path = self.current_path
@@ -45,7 +45,7 @@ class FlightController:
                 # ... if it cannot, recalculate
                 shortest_path = self._calculate_next_steps()
                 if shortest_path is None:
-                    print('Agent: {} cannot move.'.format(self.uav.uid))
+                    # print('Agent: {} cannot move.'.format(self.uav.uid))
                     return None
             else:
                 # ... otherwise use the already known path
@@ -54,7 +54,7 @@ class FlightController:
             # Get the next cell on the shortest path
             shortest_path = self._calculate_next_steps()
             if shortest_path is None:
-                print('Agent: {} cannot move.'.format(self.uav.uid))
+                # print('Agent: {} cannot move.'.format(self.uav.uid))
                 return None
 
         # Store the current_best_cell for future usage
@@ -70,7 +70,7 @@ class FlightController:
         self.current_path = shortest_path
 
         # Move the UAV
-        print("Agent: {} moves from {} to {} on its way to {}".format(self.uav.uid, self.uav.pos, next_cell, self.current_best_cell))
+        # print("Agent: {} moves from {} to {} on its way to {}".format(self.uav.uid, self.uav.pos, next_cell, self.current_best_cell))
         self.move_to(next_cell)
 
         # If the UAV reached the destination, clear the visited cells of that tour
@@ -105,7 +105,7 @@ class FlightController:
                 return None
 
             # ... and calculate the shortest path to it
-            print("Finding path ...")
+            # print("Finding path ...")
             shortest_path = self._get_shortest_path_between(self.uav.pos, best_cell)
 
             # If there is no path to the best_cell ...

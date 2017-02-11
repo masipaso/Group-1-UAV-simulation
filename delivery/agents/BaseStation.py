@@ -52,7 +52,7 @@ class BaseStation(Agent):
             y = random.randrange(self.center[1] - self.range_of_base_station,
                                  self.center[1] + self.range_of_base_station)
         item_destination = (x, y, self.pos[2])
-        #item_destination = (24, 82, self.pos[2])
+        item_destination = (118, 112, self.pos[2])
         # The Item receives a random priority between 1 and ...
         item_priority = random.randint(1, self.max_item_priority)
         # Create the Item
@@ -62,7 +62,7 @@ class BaseStation(Agent):
         self.items.append(item)
         # Add the Item to the scheduler of the model
         self.model.item_schedule.add(item)
-        print("Created item {}, destination: {}, priority: {}".format(item.iid, item.pos, item.priority))
+        # print("Created item {}, destination: {}, priority: {}".format(item.iid, item.pos, item.priority))
 
     def get_item(self):
         """
