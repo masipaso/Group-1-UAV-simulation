@@ -18,7 +18,6 @@ class CommunicationModule:
     def exchange_grid(self, other_uav):
         other_perceived_world = self._receive_perceived_world_from(other_uav)
         for altitude in range(0, self.max_altitude):
-            # self.perceived_world.perceived_world[altitude] = self._merge_two_dicts(self.perceived_world.perceived_world[altitude],other_perceived_world.perceived_world[altitude])
             self.perceived_world.perceived_world[altitude] = {**self.perceived_world.perceived_world[altitude], **other_perceived_world.perceived_world[altitude]}
 
     @staticmethod
@@ -36,10 +35,3 @@ class CommunicationModule:
         :return: The perceived_world of the UAV
         """
         return self.perceived_world
-
-    @staticmethod
-    def _merge_two_dicts(x, y):
-        """Given two dicts, merge them into a new dict as a shallow copy."""
-        z = x.copy()
-        z.update(y)
-        return z
