@@ -255,4 +255,4 @@ class Uav(Agent):
             # ... exchange perceived_world_grids with them
             for other_uav in other_uavs:
                 print("Agent {} and {} exchanging grid".format(self.uid, other_uav.uid))
-                self.communication_module.exchange_repellents_with(other_uav)
+                self.communication_module.exchange_grid(other_uav)
