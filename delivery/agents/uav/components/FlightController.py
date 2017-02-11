@@ -141,19 +141,15 @@ class FlightController:
                 if not self.uav.perceived_world.is_obstacle_at(coordinates):
                     # ... then there might be a BaseStation or nothing ...
                     # ... calculate the remaining distance from the coordinates to the destination of the UAV
-                    distance = get_euclidean_distance(self.uav.destination, coordinates)
+                    distance = get_euclidean_distance(self.uav.destination, coordinates) + get_euclidean_distance(self.uav.pos, coordinates)
                     # If the UAV already visited this cell on its current tour ...
-                    if coordinates in self.visited_cells:
+                    # Don't weight cells if the UAV is low on battery and trying to reach the base station
+                    if coordinates in self.visited_cells and not self.uav.state == 4:
                         # ... weight it by the times the cell was already visited
-                        # TODO
-                        distance += (distance * self.visited_cells.count(coordinates)) / 100
-                    if min_distance is None:
+                        distance += distance * self.visited_cells.count(coordinates)
+                    if not min_distance or min_distance > distance:
                         min_distance = distance
                         best_cell = coordinates
-                    else:
-                        if min_distance > distance:
-                            min_distance = distance
-                            best_cell = coordinates
         return best_cell
 
     def _get_shortest_path_between(self, start, goal):
