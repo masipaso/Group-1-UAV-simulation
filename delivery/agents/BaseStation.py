@@ -52,7 +52,7 @@ class BaseStation(Agent):
             y = random.randrange(self.center[1] - self.range_of_base_station,
                                  self.center[1] + self.range_of_base_station)
         item_destination = (x, y, self.pos[2])
-        item_destination = (239, 231, 1)
+        #item_destination = (24, 82, self.pos[2])
         # The Item receives a random priority between 1 and ...
         item_priority = random.randint(1, self.max_item_priority)
         # Create the Item

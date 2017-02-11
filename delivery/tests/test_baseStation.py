@@ -6,7 +6,7 @@ from delivery.model.Worldmodel import WorldModel
 class baseStation_Test(unittest.TestCase):
     def setUp(self):
         self.model = WorldModel()
-        self.baseStation = BaseStation(model=self.model, pos=(2, 2), id=1, center=(2, 2), range_of_base_station=250)
+        self.baseStation = BaseStation(model=self.model, pos=(2, 2), bid=1, center=(2, 2), range_of_base_station=250)
 
     def test_init(self):
         self.assertEqual(self.baseStation.model,self.model)

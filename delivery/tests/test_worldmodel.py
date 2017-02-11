@@ -192,7 +192,7 @@ class worldModel_Test(unittest.TestCase):
         length_by_distance = []
         result = 0
         for uav in self.model.schedule.agents_by_type[Uav]:
-            for elem in uav.get_initial_delivery_distance_divided_by_average_walk_length():
+            for elem in uav.get_walk_length_divided_by_initial_distance():
                 length_by_distance.append(elem)
         if len(length_by_distance) > 0:
             result = sum(length_by_distance) / len(length_by_distance)
