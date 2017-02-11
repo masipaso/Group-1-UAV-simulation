@@ -87,16 +87,9 @@ WORK IN PROGRESS
 \begin{itemize}
 	\item Describe algorithm based on \cite{hart.1968}
 	\item Describe how we implemented the search
-	\item The implementation was tested in four scenarios on a 500x500 map with five altitude levels: two scenarios with 2 BaseStations and 5 and 10 UAV per BaseStation, respectively. The two other scenarios involve 10 BaseStations and 5/10 UAVs as well. These scenarios simulate different density of depots in the city with varying numbers of UAVs. We expected that a very big number of UAVs leads to a slow-down in simulation due to expensive inter-drone communication and exchange of explored areas. A higher density of UAVs should lead to faster exploration of the area and thus allow for less 
-	\begin{itemize}
-		\item 2 BaseStations, 500x500, 10 UAV per BaseStation
-		\item 10 BaseStations, 500x500, 10 UAV per BaseStation
-		\item 2 BaseStations, 500x500, 5 UAV per BaseStation
-		\item 10 BaseStations, 500x500, 5 UAV per BaseStation
-	\end{itemize}
+	\item The implementation was tested in four scenarios on a 500x500 map with five altitude levels: two scenarios with 2 BaseStations and 5 and 10 UAV per BaseStation, respectively. The two other scenarios involve 10 BaseStations and 5/10 UAVs as well. These scenarios simulate different density of depots in the city with varying numbers of UAVs. We expected that a very big number of UAVs leads to a slow-down in simulation due to expensive inter-drone communication and exchange of explored areas. A higher density of UAVs should lead to faster exploration of the area, more communication and thus allow for less computation steps of the algorithm we implemented. After a certain number of steps, the required steps for delivering should decrease as UAVs gained knowledge of their area and are able to calculate best routes. Every scenario was run for 5000 steps. If one considers one step as one simulated second, this means the simulation runs for almost 90 minutes.
+
 \end{itemize}
-
-
 \section{Evaluation}\label{sec:evaluation}
 The simulation engine presented in this paper allows for a simple evaluation of a path planning algorithm in a 3-dimensional space. Also it helps to iexpose traditional algorithms to a swarm optimization problem as UAVs exchange their grid whenever they come close enough to each other.\\
  A bottleneck is the calculation performance. On a mid-2015 Apple Macbook Pro with a i5 Dual core processor, the calculation of 5000 steps (run without GUI) still takes a very long time. This is due to the fact that the implementation of the MESA grid used in the model is not performance-optimized. Also, the exchange of the grid is a complex task. It was tried to optimize performance by using dictionaries for the UAV's perceived world rather than storing a complete matrix. The model's internal grid also has been modified to just store numerical values for obstacles (1+ altitude), baseStations/depots (-1) or 0 for no content.
