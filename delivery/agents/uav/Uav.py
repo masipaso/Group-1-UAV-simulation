@@ -193,8 +193,10 @@ class Uav(Agent):
         The Uav delivers an Item
         """
         # Store iid for logging
-        iid = self.cargo_bay.get_item().iid
+        item = self.cargo_bay.get_item()
+        iid = item.iid
         # ... remove the Item from the CargoBay
+        self.model.item_schedule.remove(item)
         self.cargo_bay.remove_item()
         # ... adjust the state
         self.state = 3
