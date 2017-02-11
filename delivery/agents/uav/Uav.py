@@ -120,7 +120,7 @@ class Uav(Agent):
         elif self.state == 5 or self.state == 1:
             # ... charge the battery
             self.battery.charge()
-            print(' Agent: {}  charges battery. Battery: {}'.format(self.uid, self.battery.get_charge()))
+            # print(' Agent: {}  charges battery. Battery: {}'.format(self.uid, self.battery.get_charge()))
         # If the UAV has no battery life left
         elif self.state == 6:
             # ... do nothing ... RIP
@@ -144,7 +144,7 @@ class Uav(Agent):
         if self.state is 5:
             # ... and the battery is fully charged
             if self.battery.is_charged():
-                print(' Agent: {} is fully charged'.format(self.uid))
+                # print(' Agent: {} is fully charged'.format(self.uid))
                 # ... set the state to the previous state
                 # If the UAV doesn't carry an Item
                 if self.cargo_bay.is_empty():
@@ -160,12 +160,12 @@ class Uav(Agent):
             self.state = 4
             # ... and head to the next BaseStation to charge
             self.destination = self.flight_controller.get_nearest_base_station()
-            print(' Agent: {}  has low Battery. going to Base Station: {}'.format(self.uid, self.destination))
+            # print(' Agent: {}  has low Battery. going to Base Station: {}'.format(self.uid, self.destination))
         # If the Battery is empty ...
         elif self.battery.is_empty():
             # ... adjust the state
             self.state = 6
-            print(' Agent: {}  has no Battery life left.'.format(self.uid))
+            # print(' Agent: {}  has no Battery life left.'.format(self.uid))
 
     def pick_up_item(self, item):
         """
@@ -184,9 +184,9 @@ class Uav(Agent):
             self.walk = []
             self.real_walk = []
             self.initial_delivery_distance = get_euclidean_distance(self.pos, self.destination)
-            print(' Agent: {} Received Item {}. Delivering to {}. Distance to Destination: {}. Battery: {}'
-                  .format(self.uid, item.iid, self.destination, get_euclidean_distance(self.pos, self.destination),
-                          self.battery.get_charge()))
+            # print(' Agent: {} Received Item {}. Delivering to {}. Distance to Destination: {}. Battery: {}'
+            #       .format(self.uid, item.iid, self.destination, get_euclidean_distance(self.pos, self.destination),
+            #               self.battery.get_charge()))
 
     def deliver_item(self):
         """
@@ -201,22 +201,22 @@ class Uav(Agent):
         # ... notify model that a delivery was made
         # TODO: Make this more beautiful!
         self.model.number_of_delivered_items += 1
-        # ... pick a BaseStation
-        self.destination = self.flight_controller.choose_base_station_to_pick_up_item_from()
+        # ... fly back to the base station
+        self.destination = self.base_station.get_pos()
 
         # Clear out the previous walk
-        self.walk = []
-        self.walk_lengths.append(len(self.real_walk))
-        self.walk_length_divided_by_initial_distance.append(len(self.real_walk)
-                                                            / self.initial_delivery_distance)
-        self.initial_delivery_distance = []
-        self.real_walk = []
-        self.walk_lengths.append(len(self.real_walk))
+        # self.walk = []
+        # self.walk_lengths.append(len(self.real_walk))
+        # self.walk_length_divided_by_initial_distance.append(len(self.real_walk)
+        #                                                     / self.initial_delivery_distance)
+        # self.initial_delivery_distance = []
+        # self.real_walk = []
+        # self.walk_lengths.append(len(self.real_walk))
 
-        print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}. Battery: {}'
-              .format(self.uid, iid, self.pos, self.destination, self.battery.get_charge()))
-        print(' Agent: {}  Needed {} steps and took this walk: {}'
-              .format(self.uid, len(self.walk) - 1, self.walk))
+        # print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}. Battery: {}'
+        #       .format(self.uid, iid, self.pos, self.destination, self.battery.get_charge()))
+        # print(' Agent: {}  Needed {} steps and took this walk: {}'
+        #       .format(self.uid, len(self.walk) - 1, self.walk))
 
     def arrive_at_base_station(self, idle=False, charge=False):
         """
@@ -225,8 +225,8 @@ class Uav(Agent):
         :param charge: Indicator if the UAV should be charging in the next step
         :return:
         """
-        print(' Agent: {}  Arrived at BaseStation {}. Battery: {} '
-              .format(self.uid, self.destination, self.battery.get_charge()))
+        # print(' Agent: {}  Arrived at BaseStation {}. Battery: {} '
+        #       .format(self.uid, self.destination, self.battery.get_charge()))
         # Update state
         if charge:
             self.state = 5
@@ -263,5 +263,5 @@ class Uav(Agent):
         if len(other_uavs) is not 0:
             # ... exchange perceived_world_grids with them
             for other_uav in other_uavs:
-                print("Agent {} and {} exchanging grid".format(self.uid, other_uav.uid))
+                # print("Agent {} and {} exchanging grid".format(self.uid, other_uav.uid))
                 self.communication_module.exchange_grid(other_uav)

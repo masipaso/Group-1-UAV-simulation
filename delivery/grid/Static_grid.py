@@ -136,7 +136,7 @@ class StaticGrid:
         :return: True if the cell contains an Obstacle. Otherwise, False
         """
         x, y = pos
-        return True if math.isclose(self.grid[x, y], self.OBSTACLE_DEFAULT * altitude, rel_tol=1e-5) else False
+        return True if int(self.grid[x, y]) >= self.OBSTACLE_DEFAULT * altitude else False
 
     def is_base_station_at(self, pos):
         """
