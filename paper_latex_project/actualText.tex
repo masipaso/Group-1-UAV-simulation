@@ -80,10 +80,21 @@ For evaluating the delivery scenario, we identified the following KPI's:
 	\item \textbf{Average lifetime of item:} Calculation of the average lifetime of items by aggregating all item's lifetimes, divided by number of items. Lifetime is defined as the time from being available for delivery at the depot to the actual delivery at the item's destination.
 \end{itemize}
 
-The results are step-wise written out into a CSV file during the simulation and can for example be imported into a spreadsheet software or more sophisticated tools like R or any other application to run statistical analysis of the KPI's. Technically, this is realized by using MESA's DataCollector class. This allows for easy definition of values to be calculated every step and export them to a CSV file. The KPI's can easily be extended or modified in the source code.
+The results are step-wise written out into a CSV file during the simulation and can for example be imported into a spreadsheet software or more sophisticated tools like R or any other application to run statistical analysis of the KPI's. Technically, this is realized by using MESA's DataCollector class. This allows for easy definition of values be calculated every step and export them to a CSV file. The KPI's can easily be extended or modified in the source code.
 
 \section{Implementation of a sample algorithm: A Star}\label{sec:algorithm}
 WORK IN PROGRESS
+\begin{itemize}
+	\item Describe algorithm based on \cite{hart.1968}
+	\item Describe how we implemented the search
+	\item The implementation was tested in four scenarios on a 500x500 map with five altitude levels: two scenarios with 2 BaseStations and 5 and 10 UAV per BaseStation, respectively. The two other scenarios involve 10 BaseStations and 5/10 UAVs as well. These scenarios simulate different density of depots in the city with varying numbers of UAVs. We expected that a very big number of UAVs leads to a slow-down in simulation due to expensive inter-drone communication and exchange of explored areas. A higher density of UAVs should lead to faster exploration of the area and thus allow for less 
+	\begin{itemize}
+		\item 2 BaseStations, 500x500, 10 UAV per BaseStation
+		\item 10 BaseStations, 500x500, 10 UAV per BaseStation
+		\item 2 BaseStations, 500x500, 5 UAV per BaseStation
+		\item 10 BaseStations, 500x500, 5 UAV per BaseStation
+	\end{itemize}
+\end{itemize}
 
 
 \section{Evaluation}\label{sec:evaluation}

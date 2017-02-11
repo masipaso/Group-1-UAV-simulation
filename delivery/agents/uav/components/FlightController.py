@@ -239,22 +239,6 @@ class FlightController:
             base_stations_by_distance.sort(key=lambda tup: tup[1])
         return base_stations_by_distance.pop(0)[0]
 
-    def choose_base_station_to_pick_up_item_from(self):
-        """
-        Choose a BaseStation to pick up an Item
-        :return: The nearest BaseStations
-        """
-        # Based on number of items and distance of BaseStation, select next BaseStation to pick up items from
-        # TODO: This should be decentralized in the next step!
-        base_stations = self.uav.model.schedule.agents_by_type[BaseStation]
-        base_stations_by_distance = []
-        for station in base_stations:
-            base_stations_by_distance.append((station.pos, get_euclidean_distance(self.uav.pos, station.pos),
-                                              len(station.items)))
-            sorted(base_stations_by_distance,  key=itemgetter(2,1))
-        print("List of BaseStations: {}".format(base_stations_by_distance))
-        return base_stations_by_distance.pop(0)[0]
-
     def move_to(self, pos):
         """
         Move an UAV to a position

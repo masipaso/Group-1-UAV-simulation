@@ -202,7 +202,8 @@ class Uav(Agent):
         # TODO: Make this more beautiful!
         self.model.number_of_delivered_items += 1
         # ... pick a BaseStation
-        self.destination = self.flight_controller.choose_base_station_to_pick_up_item_from()
+        self.destination = self.base_station.get_pos()
+
 
         # Clear out the previous walk
         self.walk = []
