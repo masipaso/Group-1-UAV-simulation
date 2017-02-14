@@ -4,6 +4,6 @@ rm *.bbl
 rm *.out
 rm *.synctex.gz
 rm *.aux
-rm *.pdf
+#rm *.pdf
 rm *.blg
 rm *.log

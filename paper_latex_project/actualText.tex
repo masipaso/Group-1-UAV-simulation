@@ -17,10 +17,10 @@ In reality, this autonomous approach is especially helpful as a central ground c
 \section{Description of the model}\label{sec:model}
 The simulation has been written in Python, using the MESA \cite{masad.2015} framework for agent-based modelling. Figure \ref{fig:architecture} represents the software architecture. There are three major components: the simulation model itself, implementing the simulation environment and logic, an analytics interface for evaluating a simulation's performance and the GUI realized using a web server and allowing for easy access with a standard web-browser. The UAV as part of the simulation model, shall be described in particular in section \ref{sec:UAV}.\\
 The simulation's aim is to support comparing of different decentralized path-planning algorithms by making them easily exchangeable. Predefined KPI's and an output method are used to support analyzing the performance of one's implementation. Section \ref{sec:KPI} discusses the way KPI's are defined.\\
-\begin{figure}[htbp]\label{fig:architecture}
+\begin{figure}[tbp]\label{fig:architecture}
 	\centering
-	\includegraphics[scale=0.3]{images/architecture.png} 
-	\caption{Architecture of simulation model}
+	\includegraphics[width=0.9\textwidth]{images/domain} 
+	\caption{Architecture of the simulation software}
 \end{figure}
 Figure \ref{fig:architecture} shows the architecture of the simulation model. In general, the model contains of a UI component including configurationa and GUI, the model containing the UAV, the world model and the programming logic and the data analysis component which writes out the simulation results to allow for further evaluation. 
 
@@ -32,23 +32,18 @@ To better fit our needs, we modified the MESA grid, visualization elements and t
 The MESA grid is "a simple list-of lists" \footnote{|url{ttp://mesa.readthedocs.io/en/latest/apis/space.html}}. Each entry in such a grid has to be an agent. Since we wanted to perform our simulation on a larger scale, i.e. on a 500 x 500 grid, we had to place a lot of obstacles to come up with a realistic simulation environment. With such a huge amount of obstacles we experienced severe performance issues. The reasons behind this is the standard visualization element that is used to render the grid. The visualization element iterates over all registered agents and renders them in the GUI. As a result we decided to not consider obstacles as agents. Instead, we introduced our own grid, which is a matrix, that only contains numeric values. Each value represents either an obstacle, a base station or "nothing". 
  
 \subsection{User Interface: Configuration and GUI}
+\begin{figure}[htbp]\label{fig:gui}
+	\centering
+	\includegraphics[width=\textwidth]{images/gui}
+	\caption{The GUI of the simulation engine with UAV, Basestation (yellow),item destination (green) and detail of UAV (right)}
+\end{figure}
 The user interface consists of two parts: The file \textit{config.ini} to change the simulation scenario and a web server responsible for rendering the GUI and delivering it through a web browser.\\
 The configuration file is being parsed at the startup of the simulation engine and contains all the required settings for the simulation to work properly. It contains crucial information that have a high impact on an algorithm's performance and makes it easy to set up different scenarios, e.g. one might consider testing the results using different number of UAVs per depot or more or less depots itself.
 Furthermore the impact of different battery capacity (in steps) can easily be simulated. A higher sensor range can be beneficial for an algorithm's performance but should be chosen realistically according to the model.\\
-As mentioned earlier, the GUI is implemented using a web server. For the GUI to properly function, two image files are required. One contains the map as the user is supposed to see it. The other one stores information on obstacles and their respective heights using color codes. White means that there is no obstacle and other colors represent different altitude levels. An obstacle is any static object (such as trees or buildings etc.) that obstructs the movement of the UAV. The file will be parsed on start-up and the information stored in the model.  Depots are placed on obstacles. %Compare figure  \ref{fig:gui} for an overview of the GUI.
-%\begin{figure}[htbp]\label{fig:gui}
-%	\centering
-%	\includegraphics[scale=0.4]{images/gui}
-%	\caption{The GUI of the simulation engine}
-%\end{figure}
+As mentioned earlier, the GUI is implemented using a web server. For the GUI to properly function, two image files are required. One contains the map as the user is supposed to see it. The other one stores information on obstacles and their respective heights using color codes. White means that there is no obstacle and other colors represent different altitude levels. An obstacle is any static object (such as trees or buildings etc.) that obstructs the movement of the UAV. The file will be parsed on start-up and the information stored in the model.  Depots are placed on obstacles. Compare figure \ref{fig:gui} for an overview of the GUI.\\
 The GUI allows for starting, pausing and resetting the simulation and shows the movement of UAVs in the space. It is implemented in a 2D fashion although internally the model calculates with 3-dimensional coordinates. The image's color codes for obstacles are used to represent the different altitudes. For now, the simulation tool supports 5 different height levels but one can easily modify the parser and define more colors for more altitude levels.
-To be able to see more detailed information on each agent (UAV, base station and item), one can click on the visual representation of the agent. The click activates a detail view. The detail view for UAV can be seen in figure \ref{fig:uav_detail}.
+To be able to see more detailed information on each agent (UAV, base station and item), one can click on the visual representation of the agent. The click activates a detail view. 
 
-	\begin{figure}[htbp]\label{fig:uav_detail}
-		\centering
-		\includegraphics[scale=0.5]{images/uav_detail.png}
-		\caption{Detailed view of UAV}
-	\end{figure}
 
 
 \subsection{Agents}\label{sec:UAV}
@@ -120,5 +115,3 @@ A bottleneck is the calculation performance. On a mid-2015 Apple Macbook Pro wit
 This paper presented a new simulation engine specifically developed for the delivery use-case with autonomous UAV not being controlled by a central control server. Delivery of items will be relevant in the near future and a simulation engine is required to test for different scenarios, such as different numbers of depots or rural against urban regions. The engine supports multiple depots and UAVs, communication between UAV and different altitude levels for testing. It is based on the MESA modeling framework whereas many adjustments for performance have been implemented. The GUI allows for visual evaluation of the simulation's progress and the CSV output helps analyzing the final scenario results. The simulation of a battery helps to understand how far a destination should be from a depot and thus how many depots are required. \\
 The example implementation using the A* star algorithm helped to evaluate the overall showed that there is still space for optimization, especially finding criteria when the UAVs should actually stop exchanging their grid.\\
 The scenario described here does not simulate the parcels being delivered to the depots, it just simulates the "last mile" from the depot to the customer. Thus, the scenario could be modified by having UAVs delivering from a main depot to the other depots and other UAVs delivering from these delivery depots to the actual destinations. This simulation allows to test for the feasibility of taking the intermediate transportation of goods from the street to the air. The application might also be modified to make use of scouting UAVs that explore the area and only them sharing the grid information with the delivery UAVs. This approach could reduce the amount of inter-drone communication.
-
-
