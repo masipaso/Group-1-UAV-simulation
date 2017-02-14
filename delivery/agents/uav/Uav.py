@@ -209,12 +209,12 @@ class Uav(Agent):
 
 
         # Clear out the previous walk
-        # self.walk = []
-        # self.walk_lengths.append(len(self.real_walk))
-        # self.walk_length_divided_by_initial_distance.append(len(self.real_walk)
-        #                                                     / self.initial_delivery_distance)
-        # self.initial_delivery_distance = []
-        # self.real_walk = []
+        self.walk = []
+        self.walk_lengths.append(len(self.real_walk))
+        self.walk_length_divided_by_initial_distance.append(len(self.real_walk)
+                                                             / self.initial_delivery_distance)
+        self.initial_delivery_distance = []
+        self.real_walk = []
         # self.walk_lengths.append(len(self.real_walk))
 
         # print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}. Battery: {}'
