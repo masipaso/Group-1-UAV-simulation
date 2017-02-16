@@ -128,6 +128,17 @@ class StaticGrid:
         x, y = pos
         return True if math.isclose(self.grid[x, y], self.EMPTY, rel_tol=1e-5) else False
 
+    def is_obstacle_at_exact(self, pos, altitude=1):
+        """
+        Checks if a cell contains an Obstacle.
+        NOTE: This function checks for an exact altitude.
+        :param pos: Tuple of coordinates
+        :param altitude: Altitude to check for
+        :return: True if the cell contains an Obstacle. Otherwise, False
+        """
+        x, y = pos
+        return True if int(self.grid[x, y]) == self.OBSTACLE_DEFAULT * altitude else False
+
     def is_obstacle_at(self, pos, altitude=1):
         """
         Checks if a cell contains an Obstacle
@@ -148,10 +159,14 @@ class StaticGrid:
         return True if math.isclose(self.grid[x, y], self.BASE_STATION, rel_tol=1e-5) else False
 
     def get_obstacle_color(self, pos):
-        # TODO: Description
+        """
+        Get the color of the obstacle, if there is one.
+        :param pos: Tuple of coordinates to check
+        :return: An RGBA color
+        """
         x, y = pos
         for altitude in range(1, self.max_altitude + 1):
-            if self.is_obstacle_at((x, y), altitude):
+            if self.is_obstacle_at_exact((x, y), altitude):
                 if altitude == 1:
                     return 0, 0, 0, 255
                 elif altitude == 2:
