@@ -8,17 +8,28 @@ class UAV_test(unittest.TestCase):
 
     def setUp(self):
         self.model = WorldModel()
-        self.baseStation = BaseStation(model=self.model, pos=(200, 200), id=1, center=(200, 200), range_of_base_station=250)
-        self.uav = Uav(model=self.model, pos=(200,200),uid=1,max_charge=1000,battery_low=20,battery_decrease_per_step=1,battery_increase_per_step=10,base_station=self.baseStation,altitude=5)
+        self.base_station = BaseStation(model=self.model, pos=(200, 200, 200), bid=1, center=(200, 200, 200), range_of_base_station=250)
+        pos_x, pos_y, pos_z = self.base_station.get_pos()
+        # Create the uav
+        position = (pos_x, pos_y, pos_z)
+        self.uav = Uav(self.model, pos=position, uid=1, max_charge=1000, battery_low=500,
+                  base_station=self.base_station, battery_decrease_per_step=1,
+                  battery_increase_per_step=10, altitude=pos_z,
+                  max_altitude=4, sensor_range=5)
+        #self.uav = Uav(model=self.model, pos=(200,200,200), uid=1, max_charge=1000, battery_low=20, battery_decrease_per_step=1, battery_increase_per_step=10, base_station=self.base_station, altitude=5)
 
     def test_init(self):
         self.assertEqual(self.uav.model,self.model)
-        self.assertEqual(self.uav.pos,(200,200))
+        self.assertEqual(self.uav.pos,(200,200,200))
         self.assertEqual(self.uav.uid,1)
         self.assertIsNone(self.uav.destination)
         self.assertEqual(self.uav.state,1)
-        self.assertEqual(self.uav.base_station,self.baseStation)
-        self.assertIsNotNone(self.uav.perceived_world_grid)
+        self.assertEqual(self.uav.base_station, self.base_station)
+        self.assertIsNotNone(self.uav.perceived_world)
+        self.assertEqual(self.uav.max_altitude,4)
+        self.assertIsNotNone(self.uav.communication_module)
+        self.assertIsNotNone(self.uav.flight_controller)
+        self.assertIsNotNone(self.uav.sensor)
 
     def test_pickup_item(self):
         # 1st Test: item = None, result: state =1,  cargobay.item = None
@@ -28,17 +39,16 @@ class UAV_test(unittest.TestCase):
         self.assertIsNone(self.uav.cargo_bay.item)
 
         # 2nd Test: item is Not None, result: state = 2, cargobay.item = item, item is in perceived_world_grid
-        item = Item(destination=(0,0))
+        item = Item(destination=(0,0,0))
         self.uav.pick_up_item(item)
         self.assertEqual(self.uav.state,2)
         self.assertIs(self.uav.cargo_bay.item,item)
-        self.assertIn(item,self.uav.perceived_world_grid.get_cell_list_contents(item.destination))
-        self.assertEqual(self.uav.destination,item.destination)
+        self.assertEqual(self.uav.destination,item.get_destination())
 
 
     def test_deliver_item(self):
         # Prerequisites
-        item = Item(destination=(0,0))
+        item = Item(destination=(0,0,0))
         self.uav.pick_up_item(item)
 
         # Test: dliver item, result: real_walk = [], number_of_delivered_items = 1, uav.destination != item.destination, state =3,
@@ -46,10 +56,9 @@ class UAV_test(unittest.TestCase):
         self.uav.deliver_item()
         self.assertEqual(self.uav.real_walk,[])
         self.assertEqual(self.model.number_of_delivered_items,1)
-        self.assertIsNot(self.uav.destination,item.destination)
+        self.assertIsNot(self.uav.destination,item.get_destination())
         self.assertEqual(self.uav.state,3)
         self.assertIsNone(self.uav.cargo_bay.item)
-        self.assertNotIn(item, self.uav.perceived_world_grid.get_cell_list_contents(item.destination))
 
 
     def test_check_battery(self):
@@ -65,14 +74,14 @@ class UAV_test(unittest.TestCase):
         self.assertEqual(self.uav.state,1)
 
         # 3rd Test: battery = max_charge, state = 5, cargo_bay not empty, result: state = 2, self.destination = cargo_bay.destination
-        item = Item(destination=(0,0))
+        item = Item(destination=(0,0,0))
         self.uav.pick_up_item(item)
         self.uav.state = 5
 
         self.uav.check_battery()
         self.assertEqual(self.uav.state,2)
         self.assertEqual(self.uav.destination,self.uav.cargo_bay.get_destination())
-        self.assertEqual(self.uav.destination,item.destination)
+        self.assertEqual(self.uav.destination,item.get_destination())
 
         # 4th Test: battery < battery_low, state != 5, result: state = 4, destination != item.destination
         self.uav.state = 2
@@ -80,7 +89,7 @@ class UAV_test(unittest.TestCase):
         self.uav.check_battery()
 
         self.assertEqual(self.uav.state,4)
-        self.assertNotEqual(self.uav.destination,item.destination)
+        self.assertNotEqual(self.uav.destination,item.get_destination())
 
         # 4th Test: battery = 0, state != 5, result: state = 6
         self.uav.battery._current_charge = 0
@@ -108,9 +117,6 @@ class UAV_test(unittest.TestCase):
         self.uav.arrive_at_base_station(idle=False, charge= False)
         self.assertEqual(self.uav.state,7)
 
-    def test_find_uavs_close(self):
-        print("NOT YET DEFINED")
-        self.assertTrue(True)
 
 
 

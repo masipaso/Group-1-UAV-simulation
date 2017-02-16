@@ -108,10 +108,6 @@ class staticGrid_Test(unittest.TestCase):
         self.grid._place_agent((10,10),1)
         self.assertTrue(self.grid.is_obstacle_at((10,10)))
 
-        # 3rd Test: Other type at field. Expected Result: False
-        self.grid._place_agent((10,11),2)
-        self.assertFalse(self.grid.is_obstacle_at((10,11)))
-
 
     def test_is_base_station_at(self):
         # 1st Test: Empty field. Expected Result: False

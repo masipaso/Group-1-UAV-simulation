@@ -5,6 +5,9 @@ from delivery.tests.test_static_grid import staticGrid_Test
 from delivery.tests.test_item import Item_Test
 from delivery.tests.test_battery import battery_Test
 from delivery.tests.test_cargobay import cargoBay_Test
+from delivery.tests.test_communicationmodule import CommunicationModule_test
+from delivery.tests.test_sensor import Sensor_test
+from delivery.tests.test_FlightController import FlightController_test
 
 import sys
 
@@ -52,7 +55,6 @@ class tests_runner():
         suite.addTest(UAV_test('test_deliver_item'))
         suite.addTest(UAV_test('test_check_battery'))
         suite.addTest(UAV_test('test_arrive_at_base_station'))
-        suite.addTest(UAV_test('test_find_uavs_close'))
         return suite
 
     def create_WorldModel_test_suite(self):
@@ -66,7 +68,6 @@ class tests_runner():
         suite.addTest(worldModel_Test('test_compute_average_walk_length'))
         suite.addTest(worldModel_Test('test_compute_standard_deviation_walk_lengths'))
         suite.addTest(worldModel_Test('test_compute_walk_length_divided_by_distance'))
-        suite.addTest(worldModel_Test('test_create_base_station'))
         suite.addTest(worldModel_Test('test_create_uav'))
         return suite
 
@@ -104,6 +105,30 @@ class tests_runner():
         suite.addTest(battery_Test('test_is_empty'))
         suite.addTest(battery_Test('test_is_charged'))
         suite.addTest(battery_Test('test_get_charge'))
+        return suite #create_CommunicationModule_test_suite()
+
+    def create_CommunicationModule_test_suite(self):
+         # Creating Test Suite
+        suite = unittest.TestSuite()
+        suite.addTest(CommunicationModule_test('test_init'))
+        suite.addTest(CommunicationModule_test('test_send_perceived_world'))
+        suite.addTest(CommunicationModule_test('test__receive_perceived_world_from'))
+        suite.addTest(CommunicationModule_test('test_exchange_grid'))
+        return suite
+
+    def create_Sensor_test_suite(self):
+         # Creating Test Suite
+        suite = unittest.TestSuite()
+        suite.addTest(Sensor_test('test_init'))
+        suite.addTest(Sensor_test('test_is_out_of_bounds'))
+        suite.addTest(Sensor_test('test_is_obstacle_at')) #FlightController_Test
+        return suite
+
+    def create_FlightController_test_suite(self):
+         # Creating Test Suite
+        suite = unittest.TestSuite()
+        suite.addTest(FlightController_test('test_init'))
+        suite.addTest(FlightController_test('test_move_to'))
         return suite
 
     # Run Tests
@@ -127,7 +152,7 @@ class tests_runner():
         hider.hide_output()
         self.create_BaseStation_suite().run(result=result)
         hider.unhide_output()
-        #
+
         print("Testing UAV")
         hider.hide_output()
         self.create_UAV_suite().run(result=result)
@@ -137,32 +162,31 @@ class tests_runner():
         hider.hide_output()
         self.create_WorldModel_test_suite().run(result=result)
         hider.unhide_output()
-        #
-        print("Testing Repellent")
-        hider.hide_output()
-        self.create_Repellent_suite().run(result=result)
-        hider.unhide_output()
-        #
+
         print("Testing StaticGrid")
         hider.hide_output()
         self.create_StaticGrid_suite().run(result=result)
         hider.unhide_output()
-        #
+
         print("Testing Item")
         hider.hide_output()
         self.create_Item_test_suite().run(result=result)
         hider.unhide_output()
 
-        #print("Testing Obstacle")
-        #hider.hide_output()
-        #self.create_Obstacle_test_suite().run(result=result)
-        #hider.unhide_output()
-        #
-        #print("Testing RepellentAlgorithm")
-        #hider.hide_output()
-        #self.create_RepellenAlgorithm_test_suite().run(result=result)
-        #hider.unhide_output()
+        print("Testing CommunicatioModule") # CommunicationModule_test
+        hider.hide_output()
+        self.create_CommunicationModule_test_suite().run(result=result)
+        hider.unhide_output()
 
+        print("Testing Sensor") # CommunicationModule_test
+        hider.hide_output()
+        self.create_Sensor_test_suite().run(result=result)
+        hider.unhide_output()
+
+        print("Testing FlightController") # CommunicationModule_test
+        hider.hide_output()
+        self.create_FlightController_test_suite().run(result=result)
+        hider.unhide_output()
 
         print('\033[1mTest results (Summary): {}\033[0m'.format(result))
 
