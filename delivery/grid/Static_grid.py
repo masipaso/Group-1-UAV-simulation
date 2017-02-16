@@ -179,6 +179,13 @@ class StaticGrid:
 
     @staticmethod
     def is_obstacle_color(r, g, b):
+        """
+        Decide if the combination of input parameters (RGB color) represents an obstacle.
+        :param r: Value representing red
+        :param g: Value representing yellow
+        :param b: Value representing blue
+        :return: True, if there is an obstacle. Otherwise, false.
+        """
         black = range(0, 150)
 
         if r in black and g in black and b in black:
@@ -194,6 +201,13 @@ class StaticGrid:
 
     @staticmethod
     def get_altitude(r, g, b):
+        """
+        Get the altitude of an obstacle based on its coloring (RGB).
+        :param r: Value representing red
+        :param g: Value representing yellow
+        :param b: Value representing blue
+        :return: An integer representing the altitude.
+        """
         black = range(0, 150)
 
         if r in black and g in black and b in black:
@@ -206,10 +220,13 @@ class StaticGrid:
             return 4
 
     def get_width(self):
+        # TODO: Used?
         return self.width
 
     def get_height(self):
+        # TODO: Used?
         return self.height
 
     def get_pixel_ratio(self):
+        # TODO: Used?
         return self.get_pixel_ratio
