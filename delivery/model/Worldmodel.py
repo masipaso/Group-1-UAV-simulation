@@ -11,7 +11,7 @@ from delivery.grid.Static_grid import StaticGrid
 from delivery.agents.BaseStation import BaseStation
 from delivery.agents.Item import Item
 from delivery.agents.uav.Uav import Uav
-from delivery.schedule.Schedule import RandomActivationByType
+from delivery.schedule.Schedule import Schedule
 
 
 class WorldModel(Model):
@@ -32,10 +32,10 @@ class WorldModel(Model):
         background_image = Image.open('./delivery/visualization/images/a_city500x500.jpg')
         background = background_image.load()
 
-        # Configure schedule for Uavs and BaseStations
-        self.schedule = RandomActivationByType(self)
+        # Configure schedule for UAVs and BaseStations
+        self.schedule = Schedule(self)
         # Configure schedule for items
-        self.item_schedule = RandomActivationByType(self)
+        self.item_schedule = Schedule(self)
         # Set parameters for ...
         # ... Grid
         self.width, self.height = background_image.size

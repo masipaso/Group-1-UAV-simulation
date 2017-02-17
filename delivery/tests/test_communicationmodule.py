@@ -45,7 +45,7 @@ class CommunicationModule_test(unittest.TestCase):
 
     def test_exchange_grid(self):
         # 1st Test: Test after 0 steps if I receive the correct value (conjunction of both uav's dicts)
-        self.comm_module.exchange_grid(self.uav)
+        self.comm_module.exchange_grid_with(self.uav)
         for altitude in range(0, self.comm_module.max_altitude):
             self.assertEqual(self.comm_module.perceived_world.perceived_world[altitude],{**self.comm_module.perceived_world.perceived_world[altitude], **self.uav.perceived_world.perceived_world[altitude]})
 

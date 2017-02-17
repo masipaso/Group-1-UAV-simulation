@@ -3,7 +3,7 @@ from collections import defaultdict
 import random
 
 
-class RandomActivationByType(RandomActivation):
+class Schedule(RandomActivation):
     """
     A Scheduler which activates each type of agent once per step in random order.
     The random order is reshuffled in every step.

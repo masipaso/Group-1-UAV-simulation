@@ -4,7 +4,7 @@ from delivery.agents.uav.Uav import Uav
 import configparser
 import unittest
 from mesa.datacollection import DataCollector
-from delivery.schedule.Schedule import RandomActivationByType
+from delivery.schedule.Schedule import Schedule
 import numpy as np
 
 
@@ -29,9 +29,9 @@ class worldModel_Test(unittest.TestCase):
         self.assertEqual(self.model.landscape.height, config.getint('Grid', 'height'))
         self.assertEqual(self.model.number_of_delivered_items,0)
         self.assertIsInstance(self.model.datacollector,DataCollector)
-        self.assertIsInstance(self.model.schedule,RandomActivationByType)
+        self.assertIsInstance(self.model.schedule, Schedule)
 
-        self.assertIsInstance(self.model.item_schedule, RandomActivationByType)
+        self.assertIsInstance(self.model.item_schedule, Schedule)
 
     def test_create_uav(self):
         # Test: Place a uav at a valid position

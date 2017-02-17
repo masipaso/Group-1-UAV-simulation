@@ -15,7 +15,11 @@ class CommunicationModule:
         self.model = model
         self.max_altitude = max_altitude
 
-    def exchange_grid(self, other_uav):
+    def exchange_grid_with(self, other_uav):
+        """
+        Exchange the perceived world between two UAVs.
+        :param other_uav: The UAV to exchange the knowledge with
+        """
         other_perceived_world = self._receive_perceived_world_from(other_uav)
         for altitude in range(0, self.max_altitude):
             self.perceived_world.perceived_world[altitude] = {**self.perceived_world.perceived_world[altitude], **other_perceived_world.perceived_world[altitude]}
