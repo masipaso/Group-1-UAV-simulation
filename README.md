@@ -43,14 +43,14 @@ max_altitude = 4
 
 Image with obstacle information:
 
-![Image with obstacle information](https://gitlab.tu-berlin.de/asp_ws2016_uav/group1/blob/master/images/a_city500x500.jpg)
+![Image with obstacle information](https://gitlab.tu-berlin.de/asp_ws2016_uav/group1/raw/master/images/a_city500x500.jpg)
 
 As you can see here, different obstacles are differently colored. To be able to parse this image file and create obstacles of different heights, we have chosen to color-code different heights.
 Starting with black, the lowest level, going to blue, green and red, the highest level. As a recommendation, the parsing deliveres better results, if the obstacles have sharp borders and corners. The more exact each pixel is colored, the better the representation of the obstacles.
 
 Image with additional information:
 
-![Image with visual information](https://gitlab.tu-berlin.de/asp_ws2016_uav/group1/blob/master/images/a_city500x500_background.jpg)
+![Image with visual information](https://gitlab.tu-berlin.de/asp_ws2016_uav/group1/raw/master/images/a_city500x500_background.jpg)
 
 To see different levels of detail in the GUI, you can change the `pixel_ratio`. The lowest value is 1 and enables you to see the complete map. Higher values might allow you to see more details.
 
@@ -112,7 +112,7 @@ number_steps = 100000
 
 When starting the simulation with GUI, a browser window opens with the following content:
 
-![GUI](https://gitlab.tu-berlin.de/asp_ws2016_uav/group1/blob/master/images/gui.PNG)
+![GUI](https://gitlab.tu-berlin.de/asp_ws2016_uav/group1/raw/master/images/gui.PNG)
 
 In the upper right corner, you can see the control panel, which allows you to reset, start, make a step and pause the simulation. Below the control panel you will see the current step which the simulation rendered last. The detail view, below, will be empty at first. But as soon as you click on either a base station (yellow square), a UAV or an item (green square), you will get more detail information for that specific entity.
 
@@ -120,7 +120,7 @@ In the upper right corner, you can see the control panel, which allows you to re
 
 The system architecture is described in the following figure. This figure only contains the most important attributes and methods. For more details, please refer to the code.
 
-![System architecture](https://gitlab.tu-berlin.de/asp_ws2016_uav/group1/blob/master/images/domain.png)
+![System architecture](https://gitlab.tu-berlin.de/asp_ws2016_uav/group1/raw/master/images/domain.png)
 
 ## 5. Analysis
 
