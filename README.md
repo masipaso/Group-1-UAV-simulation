@@ -54,6 +54,8 @@ Image with additional information:
 
 To see different levels of detail in the GUI, you can change the `pixel_ratio`. The lowest value is 1 and enables you to see the complete map. Higher values might allow you to see more details.
 
+__NOTE__: The `landscape_image` has to be placed inside `./delivery/visualization/images/`. Otherwise, the server won't be able to serve the image to the browser.
+
 The `max_altitude` defines the maximum height of obstacles and the maximum altitude that UAVs can travel at. Be aware, if you set the `max_altitude` to `1`, than only black obstacles are parsed!
 
 ### 2.2 UAV
