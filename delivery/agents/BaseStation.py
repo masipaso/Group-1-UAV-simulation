@@ -1,3 +1,4 @@
+import sys
 import random
 import configparser
 
@@ -21,8 +22,18 @@ class BaseStation(Agent):
         """
         config = configparser.ConfigParser()
         config.read('./config.ini')
-        self.max_item_priority = config.getint('Base_station', 'max_item_priority', fallback=3)
-        self.max_items_per_base_station = config.getint('Base_station', 'max_items_per_base_station', fallback=10)
+        try:
+            self.max_item_priority = config.getint('Base_station', 'max_item_priority', fallback=3)
+        except ValueError:
+            print("[Configuration] The max_item_priority is not valid.")
+            sys.exit(1)
+
+        try:
+            self.max_items_per_base_station = config.getint('Base_station', 'max_items_per_base_station', fallback=10)
+        except ValueError:
+            print("[Configuration] The max_items_per_base_station is not valid.")
+            sys.exit(1)
+
         self.range_of_base_station = range_of_base_station
         self.pos = pos
         self.bid = bid

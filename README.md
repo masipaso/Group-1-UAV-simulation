@@ -31,9 +31,9 @@ The `image` that contains obstacle information is used to define the positions a
 # Needs to be the same as the input images
 width = 500 # Width of the simulation environment
 height = 500 # Height of the simulation environment
-# Path to the image which contains obstacle information
+# Path to the image which contains obstacle information; needs to be jpg; must not contain more than one dot in the file name
 image = ./delivery/visualization/images/a_city500x500.jpg
-# Path to the image which contains landscape (streets, ...)
+# Path to the image which contains landscape (streets, ...); needs to be jpg; must not contain more than one dot in the file name
 landscape_image = ./delivery/visualization/images/a_city500x500_background.jpg
 # Zoom for visual representation
 pixel_ratio = 10

@@ -1,6 +1,7 @@
 import configparser
 import numpy as np
 import math
+import sys
 
 
 class StaticGrid:
@@ -27,7 +28,12 @@ class StaticGrid:
         # Read config.cfg
         config = configparser.ConfigParser()
         config.read('./config.ini')
-        self.max_altitude = config.getint('Grid', 'max_altitude', fallback=4)
+
+        try:
+            self.max_altitude = config.getint('Grid', 'max_altitude', fallback=4)
+        except ValueError:
+            print("[Configuration] The max_altitude is not valid.")
+            sys.exit(1)
 
         # Initialize an empty grid
         self.grid = np.zeros(shape=[self.width, self.height])

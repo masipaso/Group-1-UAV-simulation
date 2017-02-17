@@ -25,14 +25,9 @@ class RealWorldGrid(VisualizationElement):
         self.grid_width = grid_width
         self.grid_height = grid_height
 
-        background_image_source = background_image_source.split("/").pop()
-        background_image_source = background_image_source.split(".")
-        background_image_source.pop()
-        background_image_source = background_image_source.pop()
-        background_image_source+= "_obstacles.png"
-        landscape_image_source = landscape_image_source.split("/").pop()
+        background_image_source += "_obstacles.png"
 
-        new_element = ("new RealWorldCanvas({}, {}, {}, {})".
+        new_element = ("new RealWorldCanvas({}, {}, {}, {}, '{}', '{}')".
                        format(self.canvas_width, self.canvas_height, self.grid_width, self.grid_height,
                               background_image_source, landscape_image_source))
         self.js_code = "elements.push(" + new_element + ");"

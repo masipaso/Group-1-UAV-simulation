@@ -1,3 +1,4 @@
+import sys
 import unittest
 import configparser
 from delivery.grid.StaticGrid import StaticGrid
@@ -11,11 +12,30 @@ class StaticGridTest(unittest.TestCase):
         config = configparser.ConfigParser()
         config.read('./config.ini')
 
-        self.width = config.getint('Grid', 'width', fallback=500)
-        self.height = config.getint('Grid', 'height', fallback=500)
-        self.pixel_ratio = config.getint('Grid', 'pixel_ratio', fallback=10)
+        try:
+            self.width = config.getint('Grid', 'width', fallback=500)
+        except ValueError:
+            print("[Configuration] The range_of_base_station is not valid.")
+            sys.exit(1)
+
+        try:
+            self.height = config.getint('Grid', 'height', fallback=500)
+        except ValueError:
+            print("[Configuration] The range_of_base_station is not valid.")
+            sys.exit(1)
+
+        try:
+            self.pixel_ratio = config.getint('Grid', 'pixel_ratio', fallback=10)
+        except ValueError:
+            print("[Configuration] The range_of_base_station is not valid.")
+            sys.exit(1)
+
         background_image_source = config.get('Grid', 'image',
                                              fallback='./delivery/visualization/images/a_city500x500.jpg')
+        if type(background_image_source) is not str:
+            print("[Configuration] The image is not valid.")
+            sys.exit(1)
+
         background_image = Image.open(background_image_source)
         self.background = background_image.load()
         self.grid = StaticGrid(self.width, self.height, self.background)

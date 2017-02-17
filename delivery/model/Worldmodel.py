@@ -30,9 +30,26 @@ class WorldModel(Model):
         config.read('./config.ini')
 
         self.background_image_source = config.get('Grid', 'image', fallback='./delivery/visualization/images/a_city500x500.jpg')
+        if type(self.background_image_source) is not str:
+            print("[Configuration] The image is not valid.")
+            sys.exit(1)
+
+        try:
+            test_background_image_source = self.background_image_source.split("/").pop()
+            test_background_image_source = test_background_image_source.split(".")
+            if test_background_image_source[len(test_background_image_source) - 1] != "jpg":
+                raise ValueError
+        except Exception:
+            print("[Configuration] The image is not valid.")
+            sys.exit(1)
+
         # Read landscape
-        background_image = Image.open(self.background_image_source)
-        background = background_image.load()
+        try:
+            background_image = Image.open(self.background_image_source)
+            background = background_image.load()
+        except FileNotFoundError:
+            print("[Configuration] The image could not be found.")
+            sys.exit(1)
 
         # Configure schedule for UAVs and BaseStations
         self.schedule = Schedule(self)
@@ -41,17 +58,59 @@ class WorldModel(Model):
         # Set parameters for ...
         # ... Grid
         self.width, self.height = background_image.size
-        self.pixel_ratio = config.getint('Grid', 'pixel_ratio', fallback=10)
-        self.max_altitude = config.getint('Grid', 'max_altitude', fallback=4)
+        try:
+            self.pixel_ratio = config.getint('Grid', 'pixel_ratio', fallback=10)
+        except ValueError:
+            print("[Configuration] The pixel_ratio is not valid.")
+            sys.exit(1)
+
+        try:
+            self.max_altitude = config.getint('Grid', 'max_altitude', fallback=4)
+        except ValueError:
+            print("[Configuration] The max_altitude is not valid.")
+            sys.exit(1)
         # ... BaseStations
-        self.range_of_base_station = config.getint('Base_station', 'range_of_base_station', fallback=125)
-        self.number_of_uavs_per_base_station = config.getint('UAV', 'number_of_uavs_per_base_station', fallback=2)
+        try:
+            self.range_of_base_station = config.getint('Base_station', 'range_of_base_station', fallback=125)
+        except ValueError:
+            print("[Configuration] The range_of_base_station is not valid.")
+            sys.exit(1)
+
+        try:
+            self.number_of_uavs_per_base_station = config.getint('UAV', 'number_of_uavs_per_base_station', fallback=2)
+        except ValueError:
+            print("[Configuration] The number_of_uavs_per_base_station is not valid.")
+            sys.exit(1)
         # ... UAV
-        self.max_charge = config.getint('UAV', 'max_charge', fallback=1000)
-        self.battery_low = config.getint('UAV', 'battery_low', fallback=500)
-        self.battery_decrease_per_step = config.getint('UAV', 'battery_decrease_per_step', fallback=1)
-        self.battery_increase_per_step = config.getint('UAV', 'battery_increase_per_step', fallback=10)
-        self.sensor_range = config.getint('UAV', 'sensor_range', fallback=5)
+        try:
+            self.max_charge = config.getint('UAV', 'max_charge', fallback=1000)
+        except ValueError:
+            print("[Configuration] The max_charge is not valid.")
+            sys.exit(1)
+
+        try:
+            self.battery_low = config.getint('UAV', 'battery_low', fallback=500)
+        except ValueError:
+            print("[Configuration] The battery_low is not valid.")
+            sys.exit(1)
+
+        try:
+            self.battery_decrease_per_step = config.getint('UAV', 'battery_decrease_per_step', fallback=1)
+        except ValueError:
+            print("[Configuration] The battery_decrease_per_step is not valid.")
+            sys.exit(1)
+
+        try:
+            self.battery_increase_per_step = config.getint('UAV', 'battery_increase_per_step', fallback=10)
+        except ValueError:
+            print("[Configuration] The battery_increase_per_step is not valid.")
+            sys.exit(1)
+
+        try:
+            self.sensor_range = config.getint('UAV', 'sensor_range', fallback=5)
+        except ValueError:
+            print("[Configuration] The sensor_range is not valid.")
+            sys.exit(1)
 
         # Counter for number of steps
         self.steps = 0

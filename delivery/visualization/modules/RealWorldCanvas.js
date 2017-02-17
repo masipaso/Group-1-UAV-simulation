@@ -37,7 +37,7 @@ let RealWorldCanvas = function(canvas_width, canvas_height, grid_width, grid_hei
 
   // Create drawing controller
   // -------------------------
-  let drawController = new RealWorldVisualization(canvas_width, canvas_height, grid_width, grid_height, foregroundContext, backgroundContext, obstacleContext, sourceImage, landscapeImage);
+  let drawController = new RealWorldVisualization(canvas_width, canvas_height, grid_width, grid_height, foregroundContext, backgroundContext, obstacleContext);
 
   // Store if the background was already created
   this.hasBackground = false;
@@ -46,8 +46,8 @@ let RealWorldCanvas = function(canvas_width, canvas_height, grid_width, grid_hei
     drawController.resetCanvas();
     // Only draw background if there is no background
     if (!this.hasBackground) {
-      drawController.drawBackground();
-      drawController.drawObstacles();
+      drawController.drawBackground(landscapeImage);
+      drawController.drawObstacles(sourceImage);
       this.hasBackground = true;
     }
     drawController.drawForeground(data);
@@ -59,7 +59,7 @@ let RealWorldCanvas = function(canvas_width, canvas_height, grid_width, grid_hei
 
 };
 
-var RealWorldVisualization = function(height, width, gridWidth, gridHeight, foregroundContext, backgroundContext, obstacleContext, sourceImage, landscapeImage) {
+const RealWorldVisualization = function(height, width, gridWidth, gridHeight, foregroundContext, backgroundContext, obstacleContext) {
   // Find cell size:
   const cellWidth = Math.floor(width / gridWidth);
   const cellHeight = Math.floor(height / gridHeight);
@@ -67,7 +67,7 @@ var RealWorldVisualization = function(height, width, gridWidth, gridHeight, fore
   /*
    * Draw the background image
    */
-  this.drawBackground = function() {
+  this.drawBackground = function(landscapeImage) {
     const that = this;
     maxX = cellWidth * gridWidth;
     maxY = cellHeight * gridHeight;
@@ -88,7 +88,7 @@ var RealWorldVisualization = function(height, width, gridWidth, gridHeight, fore
   /*
    * Draw the obstacle image
    */
-  this.drawObstacles = function() {
+  this.drawObstacles = function(sourceImage) {
     const that = this;
     maxX = cellWidth * gridWidth;
     maxY = cellHeight * gridHeight;

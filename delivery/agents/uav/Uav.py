@@ -1,4 +1,3 @@
-import configparser
 from mesa import Agent
 # Import components
 from delivery.grid.PerceivedWorldGrid import PerceivedWorldGrid
