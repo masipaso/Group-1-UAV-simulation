@@ -1,10 +1,11 @@
 from collections import defaultdict
 
+from mesa.visualization.ModularVisualization import VisualizationElement
 from delivery.agents.BaseStation import BaseStation
 from delivery.agents.uav.Uav import Uav
 
 
-class RealWorldGrid:
+class RealWorldGrid(VisualizationElement):
 
     includes = ["RealWorldCanvas.js"]
 

@@ -231,7 +231,6 @@ class WorldModel(Model):
         pos_x, pos_y = pos
         pos_x = math.floor(pos_x / self.pixel_ratio)
         pos_y = math.floor(pos_y / self.pixel_ratio)
-        print(pos_x, pos_y)
         # Search for BaseStations
         for baseStation in self.schedule.agents_by_type[BaseStation]:
             if pos_x == baseStation.pos[0] and pos_y == baseStation.pos[1]:

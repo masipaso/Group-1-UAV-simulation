@@ -59,7 +59,7 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
 
 class VisualizationServer(tornado.web.Application):
     """
-    Visualization Server
+    VisualizationServer based on the VisualizationServer from MESA
     """
     port = 8521
     model_name = None
