@@ -9,21 +9,32 @@ class RealWorldGrid(VisualizationElement):
 
     includes = ["RealWorldCanvas.js"]
 
-    def __init__(self, grid_width, grid_height, canvas_width=500, canvas_height=500):
+    def __init__(self, grid_width, grid_height, canvas_width, canvas_height, background_image_source,
+                 landscape_image_source):
         """
         Instantiate a new RealWorldGrid
         :param grid_width: Width of the grid (in cells)
         :param grid_height: Height of the grid (in cells)
         :param canvas_width: Width of the canvas to draw in the client, in pixels
         :param canvas_height: Height of the canvas to draw in the client, in pixels
+        :param background_image_source: The source image for the obstacles
+        :param landscape_image_source: The source image for additional elements (streets, ...)
         """
         self.canvas_height = canvas_height
         self.canvas_width = canvas_width
         self.grid_width = grid_width
         self.grid_height = grid_height
 
+        background_image_source = background_image_source.split("/").pop()
+        background_image_source = background_image_source.split(".")
+        background_image_source.pop()
+        background_image_source = background_image_source.pop()
+        background_image_source+= "_obstacles.png"
+        landscape_image_source = landscape_image_source.split("/").pop()
+
         new_element = ("new RealWorldCanvas({}, {}, {}, {})".
-                       format(self.canvas_width, self.canvas_height, self.grid_width, self.grid_height))
+                       format(self.canvas_width, self.canvas_height, self.grid_width, self.grid_height,
+                              background_image_source, landscape_image_source))
         self.js_code = "elements.push(" + new_element + ");"
 
     def portrayal(self, agent):

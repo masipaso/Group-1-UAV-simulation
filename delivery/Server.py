@@ -17,9 +17,14 @@ def launch_world_model():
     width = config.getint('Grid', 'width', fallback=500)
     height = config.getint('Grid', 'height', fallback=500)
     pixel_ratio = config.getint('Grid', 'pixel_ratio', fallback=10)
+    background_image_source = config.get('Grid', 'image',
+                                         fallback='./delivery/visualization/images/a_city500x500.jpg')
+    landscape_image_source = config.get('Grid', 'landscape_image',
+                                        fallback='./delivery/visualization/images/a_city500x500_background.jpg')
 
     # real_world_grid - representing the 'actual' world
-    real_world_grid = RealWorldGrid(width, height, width * pixel_ratio, height * pixel_ratio)
+    real_world_grid = RealWorldGrid(width, height, width * pixel_ratio, height * pixel_ratio, background_image_source,
+                                    landscape_image_source)
 
     # Detail information
     details = Details()

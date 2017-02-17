@@ -29,9 +29,9 @@ class WorldModel(Model):
         config = configparser.ConfigParser()
         config.read('./config.ini')
 
-        background_image_source = config.get('Grid', 'image', fallback='./delivery/visualization/images/a_city500x500.jpg')
+        self.background_image_source = config.get('Grid', 'image', fallback='./delivery/visualization/images/a_city500x500.jpg')
         # Read landscape
-        background_image = Image.open(background_image_source)
+        background_image = Image.open(self.background_image_source)
         background = background_image.load()
 
         # Configure schedule for UAVs and BaseStations
@@ -113,9 +113,14 @@ class WorldModel(Model):
         for x in range(0, self.width):
             for y in range(0, self.height):
                 image.putpixel((x, self.height - y - 1), self.landscape.get_obstacle_color((x, y)))
-            image.putpixel((x, self.height - 1), self.landscape.get_obstacle_color((x, self.height - 1)))
+            image.putpixel((x, self.height - 1), self.landscape.get_obstacle_color((x, 1)))
 
-        image.save("./delivery/visualization/images/a_city500x500_obstacles.png")
+        file_name = self.background_image_source.split("/").pop()
+        new_file_name = file_name.split(".")
+        new_file_name.pop()
+        new_file_name = new_file_name.pop()
+        new_file_name += "_obstacles.png"
+        image.save("./delivery/visualization/images/" + new_file_name)
         print("Obstacles done")
 
         # Create base stations
