@@ -193,11 +193,11 @@ class TestRunner:
         print('\033[1mTest results (Summary): {}\033[0m'.format(result))
 
         print("\033[1mList of errors (if any):\033[0m")
-        if not result.errors:
+        if result.errors:
             for err in result.errors:
                 print("\033[1m\033[31mError\033[0m: {}".format(err))
 
         print("\033[1mList of failures (if any):\033[0m")
-        if not result.failures:
+        if result.failures:
             for fail in result.failures:
                 print("\033[1m\033[31mFailure\033[0m: {}".format(fail))
