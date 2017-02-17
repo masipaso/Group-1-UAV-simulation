@@ -37,7 +37,6 @@ class Uav(Agent):
         :param max_altitude: The max altitude that is allowed
         :param sensor_range: The range the the Sensor can cover
         """
-        self.model = model
         self.pos = pos
         self.uid = uid
         self.destination = None
@@ -70,7 +69,8 @@ class Uav(Agent):
         self.real_walk = []
         # On arrival at a destination, the UAV will store how many steps it took to deliver an item
         self.walk_lengths = []
-        pass
+
+        super().__init__(uid, model)
 
     def step(self):
         """

@@ -5,7 +5,6 @@ class Sensor:
     """
     The Sensor of an UAV
     """
-    # TODO: More details
 
     def __init__(self, agents, landscape, perceived_world, sensor_range):
         """

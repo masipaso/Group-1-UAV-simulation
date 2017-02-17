@@ -1,29 +1,28 @@
 import unittest
 import configparser
-from delivery.agents.BaseStation import BaseStation
-from delivery.agents.Item import Item
-from delivery.model.Worldmodel import WorldModel
-from delivery.grid.Static_grid import StaticGrid
+from delivery.grid.StaticGrid import StaticGrid
 from PIL import Image
 
-class staticGrid_Test(unittest.TestCase):
+
+class StaticGridTest(unittest.TestCase):
 
     def setUp(self):
         # Read landscape
         config = configparser.ConfigParser()
         config.read('./config.ini')
 
-        self.width = config.getint('Grid', 'width')
-        self.height = config.getint('Grid', 'height')
-        self.pixel_ratio = config.getint('Grid', 'pixel_ratio')
-        background_image = Image.open('./delivery/visualization/images/city500x500.jpg')
+        self.width = config.getint('Grid', 'width', fallback=500)
+        self.height = config.getint('Grid', 'height', fallback=500)
+        self.pixel_ratio = config.getint('Grid', 'pixel_ratio', fallback=10)
+        background_image_source = config.get('Grid', 'image',
+                                             fallback='./delivery/visualization/images/a_city500x500.jpg')
+        background_image = Image.open(background_image_source)
         self.background = background_image.load()
-        self.grid = StaticGrid(self.width,self.height,self.pixel_ratio,self.background)
+        self.grid = StaticGrid(self.width, self.height, self.background)
 
     def test_init(self):
         self.assertEqual(self.grid.width,self.width)
         self.assertEqual(self.grid.height,self.height)
-        self.assertEqual(self.grid.pixel_ratio,self.pixel_ratio)
         self.assertEqual(self.grid.landscape,self.background)
         self.assertEqual(self.grid.BASE_STATION,-1)
         self.assertEqual(self.grid.OBSTACLE_DEFAULT,1)
@@ -32,31 +31,29 @@ class staticGrid_Test(unittest.TestCase):
 
     def test_get_neighborhood(self):
         # 1st Test: Default values for method: include_center = False, radius = 1 return same value as not specifying them
-        neighborhood = self.grid.get_neighborhood(pos=(10,10),include_center=False,radius=1)
-        neighborhood_notspecified = self.grid.get_neighborhood(pos=(10,10))
+        neighborhood = self.grid.get_neighborhood(pos=(10, 10), include_center=False, radius=1)
+        neighborhood_notspecified = self.grid.get_neighborhood(pos=(10, 10))
 
         # Both objects should be equal and (10,10) (center) not in the list
-        self.assertEqual(neighborhood,neighborhood_notspecified)
-        self.assertNotIn((10,10),neighborhood)
+        self.assertEqual(neighborhood, neighborhood_notspecified)
+        self.assertNotIn((10, 10), neighborhood)
 
-        # 2nd Test: neighborhpod should contain 8 fields
-        self.assertEqual(len(neighborhood),8)
+        # 2nd Test: neighborhood should contain 8 fields
+        self.assertEqual(len(neighborhood), 8)
 
         # 3rd Test: invalid fields not in output of function get_neighborhood
-        neighborhood = self.grid.get_neighborhood(pos=(0,0), include_center=False, radius=1)
+        neighborhood = self.grid.get_neighborhood(pos=(0, 0), include_center=False, radius=1)
 
-        self.assertNotIn((-1,0),neighborhood)
-        self.assertGreater(8,len(neighborhood))
+        self.assertNotIn((-1, 0), neighborhood)
+        self.assertGreater(8, len(neighborhood))
 
         # 4th Test: center is in neighborhood
         neighborhood = self.grid.get_neighborhood(pos=(0, 0), include_center=True, radius=1)
-        self.assertIn((0,0),neighborhood)
-
-        # Actually do some more tests for bigger radius
+        self.assertIn((0, 0), neighborhood)
 
     def test_out_of_bounds(self):
         # 1st Test: Valid position: 0 <= x < width, 0 <= y < height. Expected result: False
-        self.assertFalse(self.grid.is_out_of_bounds((self.width - 1 , self.height - 1)))
+        self.assertFalse(self.grid.is_out_of_bounds((self.width - 1, self.height - 1)))
 
         # 2nd Test: Invalid position: -1 = x, 0 <= y < height. Expected result: True
         self.assertTrue(self.grid.is_out_of_bounds((-1, self.height - 1)))
@@ -77,46 +74,42 @@ class staticGrid_Test(unittest.TestCase):
         self.assertTrue(self.grid.is_out_of_bounds((self.width + 1, self.height + 1)))
 
     def test_place_obstacle(self):
-        # No Error handling so far!
         self.grid.place_obstacle((1, 1))
         self.assertEqual(self.grid.grid[1, 1], 1)
 
     def test_place_base_station(self):
-        # No error handling so far!
-        self.grid.place_base_station((1,1))
+        self.grid.place_base_station((1, 1))
         self.assertEqual(self.grid.grid[1, 1], -1)
 
     def test_place_agent(self):
         # Test: After running the method with a pos=(x,y), the grid stored should have a float with type
-        # No error handling so far!! Thus, not yet tested
-        self.grid._place_agent((1,1),1)
-        self.assertEqual(self.grid.grid[1,1],1)
+        self.grid._place_agent((1, 1), 1)
+        self.assertEqual(self.grid.grid[1, 1], 1)
 
     def test_is_cell_empty(self):
         # 1st Test: Empty field. Expected Result: True
-        self.assertTrue(self.grid.is_cell_empty((10,10)))
+        self.assertTrue(self.grid.is_cell_empty((10, 10)))
 
         # 2nd Test: Place agent on a field. Expected Result: False
-        self.grid._place_agent((10,10),1)
-        self.assertFalse(self.grid.is_cell_empty((10,10)))
+        self.grid._place_agent((10, 10), 1)
+        self.assertFalse(self.grid.is_cell_empty((10, 10)))
 
     def test_is_obstacle_at(self):
         # 1st Test: Empty field. Expected Result: False
-        self.assertFalse(self.grid.is_obstacle_at((10,10)))
+        self.assertFalse(self.grid.is_obstacle_at((10, 10)))
 
         # 2nd Test: Obstacle at field. Expected Result: True
-        self.grid._place_agent((10,10),1)
-        self.assertTrue(self.grid.is_obstacle_at((10,10)))
-
+        self.grid._place_agent((10, 10), 1)
+        self.assertTrue(self.grid.is_obstacle_at((10, 10)))
 
     def test_is_base_station_at(self):
         # 1st Test: Empty field. Expected Result: False
-        self.assertFalse(self.grid.is_base_station_at((10,10)))
+        self.assertFalse(self.grid.is_base_station_at((10, 10)))
 
         # 2nd Test: Obstacle at field. Expected Result: True
-        self.grid._place_agent((10,10),-1)
-        self.assertTrue(self.grid.is_base_station_at((10,10)))
+        self.grid._place_agent((10, 10), -1)
+        self.assertTrue(self.grid.is_base_station_at((10, 10)))
 
         # 3rd Test: Other type at field. Expected Result: False
-        self.grid._place_agent((10,11),1)
-        self.assertFalse(self.grid.is_base_station_at((10,11)))
+        self.grid._place_agent((10, 11), 1)
+        self.assertFalse(self.grid.is_base_station_at((10, 11)))

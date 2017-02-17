@@ -2,7 +2,6 @@ class Battery:
     """
     The Battery of an UAV
     """
-    # TODO: More details
 
     def __init__(self, max_charge, battery_low, battery_decrease_per_step, battery_increase_per_step):
         """

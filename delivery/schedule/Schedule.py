@@ -18,7 +18,6 @@ class Schedule(RandomActivation):
         """
         super().__init__(model)
         self.agents_by_type = defaultdict(list)
-        pass
 
     def add(self, agent):
         """

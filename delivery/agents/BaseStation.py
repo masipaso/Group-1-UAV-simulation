@@ -21,16 +21,17 @@ class BaseStation(Agent):
         """
         config = configparser.ConfigParser()
         config.read('./config.ini')
-        self.max_item_priority = config.getint('Basestation', 'max_item_priority')
-        self.max_items_per_base_station = config.getint('Basestation', 'max_items_per_base_station')
+        self.max_item_priority = config.getint('Base_station', 'max_item_priority', fallback=3)
+        self.max_items_per_base_station = config.getint('Base_station', 'max_items_per_base_station', fallback=10)
         self.range_of_base_station = range_of_base_station
-        self.model = model
         self.pos = pos
         self.bid = bid
         self.items = []
         self.picked_up_items = 0
         self.center = center
         self.item_counter = 0
+
+        super().__init__(bid, model)
 
     def step(self):
         # A BaseStation creates an Item if max_items_per_base_station has not been reached

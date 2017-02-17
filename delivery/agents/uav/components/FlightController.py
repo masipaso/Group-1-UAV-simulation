@@ -10,7 +10,6 @@ class FlightController:
     """
     The FlightController decides where to fly next
     """
-    # TODO: More details
 
     def __init__(self, uav):
         """

@@ -7,12 +7,11 @@ class StaticGrid:
     """
     A StaticGrid is a Grid which contains simple, numeric information that doesnt change once it was initialized
     """
-    def __init__(self, width, height, pixel_ratio, landscape):
+    def __init__(self, width, height, landscape):
         """
         Create a new StaticGrid
         :param width: The width of the grid
         :param height: The height of the grid
-        :param pixel_ratio:
         :param landscape: A loaded Image file which has only two colors (black and white).
                         Black are obstacles and white is nothing.
         """
@@ -23,13 +22,12 @@ class StaticGrid:
 
         self.height = height
         self.width = width
-        self.pixel_ratio = pixel_ratio
         self.landscape = landscape
 
         # Read config.cfg
         config = configparser.ConfigParser()
         config.read('./config.ini')
-        self.max_altitude = config.getint('Grid', 'max_altitude')
+        self.max_altitude = config.getint('Grid', 'max_altitude', fallback=4)
 
         # Initialize an empty grid
         self.grid = np.zeros(shape=[self.width, self.height])
@@ -218,15 +216,3 @@ class StaticGrid:
             return 3
         if r not in black and g in black and b in black:
             return 4
-
-    def get_width(self):
-        # TODO: Used?
-        return self.width
-
-    def get_height(self):
-        # TODO: Used?
-        return self.height
-
-    def get_pixel_ratio(self):
-        # TODO: Used?
-        return self.get_pixel_ratio

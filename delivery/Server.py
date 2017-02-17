@@ -2,8 +2,8 @@ import configparser
 
 from mesa.visualization.modules import ChartModule
 
-from delivery.model.Worldmodel import WorldModel
-from delivery.visualization.Real_world_grid import RealWorldGrid
+from delivery.model.WorldModel import WorldModel
+from delivery.visualization.RealWorldGrid import RealWorldGrid
 from delivery.visualization.Details import Details
 
 from delivery.visualization.VisualizationServer import VisualizationServer
@@ -15,9 +15,9 @@ def launch_world_model():
     config = configparser.ConfigParser()
     config.read('./config.ini')
     # Get parameters
-    width = config.getint('Grid', 'width')
-    height = config.getint('Grid', 'height')
-    pixel_ratio = config.getint('Grid', 'pixel_ratio')
+    width = config.getint('Grid', 'width', fallback=500)
+    height = config.getint('Grid', 'height', fallback=500)
+    pixel_ratio = config.getint('Grid', 'pixel_ratio', fallback=10)
 
     # real_world_grid - representing the 'actual' world
     real_world_grid = RealWorldGrid(width, height, width * pixel_ratio, height * pixel_ratio)

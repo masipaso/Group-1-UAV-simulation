@@ -2,7 +2,6 @@ class CommunicationModule:
     """
     The CommunicationModule of an UAV
     """
-    # TODO: More details
 
     def __init__(self, perceived_world, max_altitude):
         """
