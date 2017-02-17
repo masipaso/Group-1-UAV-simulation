@@ -47,8 +47,7 @@ class Schedule(RandomActivation):
         """
         if by_type:
             for agent_class in self.agents_by_type:
-                if agent_class != 'Item' and agent_class != 'Obstacle':
-                    self.step_type(agent_class)
+                self.step_type(agent_class)
             self.steps += 1
             self.time += 1
         else:

@@ -77,7 +77,6 @@ class WorldModel(Model):
         )
 
         # In the beginning there are no delivered Items
-        # TODO: Make this beautiful
         self.number_of_delivered_items = 0
 
         # Populate the grid with obstacles and stuff
@@ -274,24 +273,35 @@ class WorldModel(Model):
     def compute_number_of_delivered_items(model):
         """
         Computer the number of items that are already delivered
-        :return: number of items that are already delivered
+        :param model: The model that the calculation is for
+        :return: Number of items that are already delivered
         """
         return model.number_of_delivered_items
 
     @staticmethod
     def compute_average_walk_length(model):
+        """
+        Compute the average walk length for all UAVs
+        :param model: The model that the calculation is for
+        :return: The average walk length
+        """
         average_walks = []
 
         for uav in model.schedule.agents_by_type[Uav]:
             for elem in uav.get_walk_lengths():
                 average_walks.append(elem)
-        if len(average_walks)>0:
+        if len(average_walks) > 0:
             return sum(average_walks) / len(average_walks)
         else:
             return 0
 
     @staticmethod
     def compute_standard_deviation_walk_lengths(model):
+        """
+        Compute the standard deviation in walk lengths of all UAVs
+        :param model: The model that the calculation is for
+        :return: The standard deviation of all walk length
+        """
         walks = []
 
         for uav in model.schedule.agents_by_type[Uav]:
@@ -304,6 +314,11 @@ class WorldModel(Model):
 
     @staticmethod
     def compute_walk_length_divided_by_distance(model):
+        """
+        Compute the ratio between the actual walk and the initial calculated distance
+        :param model: The model that the calculation is for
+        :return: The ratio between the actual walk and the initial distance
+        """
         initial_length_by_distance = []
 
         for uav in model.schedule.agents_by_type[Uav]:
@@ -316,6 +331,11 @@ class WorldModel(Model):
 
     @staticmethod
     def compute_item_average_lifetime(model):
+        """
+        Compute the average lifetime of an Item
+        :param model: The model that the calculation is for
+        :return: The average lifetime of an Item
+        """
         result = 0
         if not model.item_schedule.agents_by_type[Item] == []:
             for item in model.item_schedule.agents:

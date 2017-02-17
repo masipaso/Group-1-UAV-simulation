@@ -43,7 +43,7 @@ class BaseStation(Agent):
                              self.center[0] + self.range_of_base_station)
         y = random.randrange(self.center[1] - self.range_of_base_station,
                              self.center[1] + self.range_of_base_station)
-        # ... but only if the cell is not occupied with an Obstacle or BaseStation
+        # ... but only if the cell is empty
         while x >= self.model.width \
                 or y >= self.model.height \
                 or not self.model.landscape.is_cell_empty((x, y)):
@@ -52,8 +52,7 @@ class BaseStation(Agent):
             y = random.randrange(self.center[1] - self.range_of_base_station,
                                  self.center[1] + self.range_of_base_station)
         item_destination = (x, y, self.pos[2])
-        #item_destination = (118, 112, self.pos[2])
-        # The Item receives a random priority between 1 and ...
+        # The Item receives a random priority between 1 and the defined max_item_priority
         item_priority = random.randint(1, self.max_item_priority)
         # Create the Item
         item = Item(destination=item_destination, priority=item_priority, iid=str(self.bid) + "_" + str(self.item_counter))
@@ -62,7 +61,6 @@ class BaseStation(Agent):
         self.items.append(item)
         # Add the Item to the scheduler of the model
         self.model.item_schedule.add(item)
-        # print("Created item {}, destination: {}, priority: {}".format(item.iid, item.pos, item.priority))
 
     def get_item(self):
         """
@@ -83,7 +81,6 @@ class BaseStation(Agent):
         Sort the currently available Items based on their priority
         """
         for item in self.items:
-            # TODO: Validate this
             item.pick_up_priority = item.lifetime + item.priority * 100
 
         self.items.sort(key=lambda item: item.pick_up_priority)
@@ -108,7 +105,6 @@ class BaseStation(Agent):
             return items_by_priority
         else:
             return len(self.items)
-
 
     def get_pos(self):
         """
