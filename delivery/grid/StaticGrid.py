@@ -45,7 +45,7 @@ class StaticGrid:
                 new_y = self.height - y
                 if self.is_obstacle_color(r, g, b):
                     altitude = self.get_altitude(r, g, b)
-                    if 0 < x < self.width and 0 < new_y < self.height:
+                    if 0 <= x < self.width and 0 <= new_y < self.height:
                         self.place_obstacle((x, new_y), altitude)
 
     def get_neighborhood(self, pos, include_center=False, radius=1):

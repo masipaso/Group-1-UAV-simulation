@@ -10,7 +10,6 @@ from delivery.visualization.VisualizationServer import VisualizationServer
 
 
 def launch_world_model():
-
     # Read config file
     config = configparser.ConfigParser()
     config.read('./config.ini')

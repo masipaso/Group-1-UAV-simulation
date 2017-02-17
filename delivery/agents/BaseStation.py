@@ -8,7 +8,7 @@ from delivery.agents.Item import Item
 
 class BaseStation(Agent):
     """
-    A BaseStation is an Agent that cannot move
+    A BaseStation is an Agent that cannot move, is a place where UAVs can pick up Items and charge their battery.
     """
     def __init__(self, model, pos, bid, center, range_of_base_station):
         """
