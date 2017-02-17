@@ -218,8 +218,8 @@ class WorldModel(Model):
         position = (pos_x, pos_y, pos_z)
         uav = Uav(self, pos=position, uid=uid, max_charge=self.max_charge, battery_low=self.battery_low,
                   base_station=base_station, battery_decrease_per_step=self.battery_decrease_per_step,
-                  battery_increase_per_step=self.battery_increase_per_step, altitude=self.uav_default_altitude,
-                  max_altitude=self.max_altitude, sensor_range=self.sensor_range)
+                  battery_increase_per_step=self.battery_increase_per_step, max_altitude=self.max_altitude,
+                  sensor_range=self.sensor_range)
         # Add the Uav to the schedule
         self.schedule.add(uav)
 

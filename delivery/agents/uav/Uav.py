@@ -23,7 +23,7 @@ class Uav(Agent):
         6: stranded without battery life left
     """
     def __init__(self, model, pos, uid, max_charge, battery_low, battery_decrease_per_step, battery_increase_per_step,
-                 base_station, altitude, max_altitude, sensor_range):
+                 base_station, max_altitude, sensor_range):
         """
         Initialize the UAV
         :param model: world model
@@ -34,18 +34,15 @@ class Uav(Agent):
         :param battery_decrease_per_step: The decrease in battery charge per step
         :param battery_increase_per_step: The increase in battery charge while charging per step
         :param base_station: The 'home' BaseStation
-        :param altitude: The height the UAV is flying in
         :param max_altitude: The max altitude that is allowed
         :param sensor_range: The range the the Sensor can cover
         """
-        # TODO: Why do we have the model here? This should not be available
         self.model = model
         self.pos = pos
         self.uid = uid
         self.destination = None
         self.walk = []
         self.state = 1
-        self.altitude = altitude
         self.max_altitude = max_altitude
 
         # Construct UAV
