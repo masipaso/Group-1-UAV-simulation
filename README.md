@@ -43,14 +43,14 @@ max_altitude = 4
 
 Image with obstacle information:
 
-![Image with obstacle information](images/a_city500x500.jpg" Image with obstacle information")
+![Image with obstacle information](https://gitlab.tu-berlin.de/asp_ws2016_uav/group1/blob/master/images/a_city500x500.jpg "Image with obstacle information")
 
 As you can see here, different obstacles are differently colored. To be able to parse this image file and create obstacles of different heights, we have chosen to color-code different heights.
 Starting with black, the lowest level, going to blue, green and red, the highest level. As a recommendation, the parsing deliveres better results, if the obstacles have sharp borders and corners. The more exact each pixel is colored, the better the representation of the obstacles.
 
 Image with additional information:
 
-![Image with visual information](images/a_city500x500_background.jpg" Image with obstacle information")
+![Image with visual information](https://gitlab.tu-berlin.de/asp_ws2016_uav/group1/blob/master/images/a_city500x500_background.jpg "Image with obstacle information")
 
 To see different levels of detail in the GUI, you can change the `pixel_ratio`. The lowest value is 1 and enables you to see the complete map. Higher values might allow you to see more details.
 
@@ -108,8 +108,44 @@ run_mode = 1
 number_steps = 100000
 ```
 
-## 3. System Architecture
+## 3. Graphical User Interface
+
+When starting the simulation with GUI, a browser window opens with the following content:
+
+![GUI](https://gitlab.tu-berlin.de/asp_ws2016_uav/group1/blob/master/images/gui.PNG "Image with obstacle information")
+
+In the upper right corner, you can see the control panel, which allows you to reset, start, make a step and pause the simulation. Below the control panel you will see the current step which the simulation rendered last. The detail view, below, will be empty at first. But as soon as you click on either a base station (yellow square), a UAV or an item (green square), you will get more detail information for that specific entity.
+
+## 4. System Architecture
 
 The system architecture is described in the following figure. This figure only contains the most important attributes and methods. For more details, please refer to the code.
 
-![System architecture](images/domain.png" Image with obstacle information")
+![System architecture](https://gitlab.tu-berlin.de/asp_ws2016_uav/group1/blob/master/images/domain.png "Image with obstacle information")
+
+## 5. Analysis
+
+This section describes how we intend to analyse the efficiency of the UAV delivery algorithms. We defined the following KPI's to analyse the algorithm:
+
+*  Average walk length
+* Average walk length divided by initial distance
+* Standard deviation of average walk lengths
+* Items delivered per UAV
+
+The data requirements shall be defined in the following sections.
+
+#### Average Walk Length
+This data point describes the average number of steps taken for an item to be delivered. Th
+
+#### Average walk length divided by initial distance
+This data point is a ratio calculated by dividing the average number of steps taken by the initial distance from base station to an item's destination. The initial distances are calculated as euclidean distances.
+Example: A value of 2 means that the average walk length is 2 times the initial distances.
+
+#### Standard deviation of average walk lengths
+Represents the standard deviation of all walk lengths to get a better insight into the data additional to the average walk length.
+
+#### Items delivered per UAV
+Items delivered divided by number of UAV's.
+
+#### Average lifetime of item
+Calculation of the average lifetime of items by aggregating all item's lifetimes, divided by number of items.
+Lifetime is defined as the time from creation to delivery
