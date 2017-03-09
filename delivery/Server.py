@@ -3,7 +3,7 @@ import sys
 
 from mesa.visualization.modules import ChartModule
 
-from delivery.model.WorldModel import WorldModel
+from delivery.model.Worldmodel import WorldModel
 from delivery.visualization.RealWorldGrid import RealWorldGrid
 from delivery.visualization.Details import Details
 

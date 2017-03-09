@@ -1,8 +1,8 @@
 import configparser
 
 from delivery.Server import launch_world_model
-from delivery.tests.tests_runner import TestRunner
-from delivery.model.WorldModel import WorldModel
+#from delivery.tests.tests_runner import TestRunner
+from delivery.model.Worldmodel import WorldModel
 
 
 def run_gui():
