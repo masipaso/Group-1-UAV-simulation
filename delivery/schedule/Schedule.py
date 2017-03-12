@@ -3,7 +3,7 @@ from collections import defaultdict
 import random
 
 
-class RandomActivationByType(RandomActivation):
+class Schedule(RandomActivation):
     """
     A Scheduler which activates each type of agent once per step in random order.
     The random order is reshuffled in every step.
@@ -18,7 +18,6 @@ class RandomActivationByType(RandomActivation):
         """
         super().__init__(model)
         self.agents_by_type = defaultdict(list)
-        pass
 
     def add(self, agent):
         """
@@ -47,8 +46,7 @@ class RandomActivationByType(RandomActivation):
         """
         if by_type:
             for agent_class in self.agents_by_type:
-                if agent_class != 'Item' and agent_class != 'Obstacle':
-                    self.step_type(agent_class)
+                self.step_type(agent_class)
             self.steps += 1
             self.time += 1
         else:

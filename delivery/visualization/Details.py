@@ -1,11 +1,10 @@
-from collections import defaultdict
-
+from mesa.visualization.ModularVisualization import VisualizationElement
 from delivery.agents.BaseStation import BaseStation
 from delivery.agents.uav.Uav import Uav
 from delivery.agents.Item import Item
 
 
-class Details:
+class Details(VisualizationElement):
 
     includes = ["Details.js"]
 
@@ -55,7 +54,6 @@ class Details:
         return portrayal
 
     def render(self, model):
-        # TODO: Adjust description and parameters
         """
         Get all the requested detail information
         :param model: The model which needs to be visualized

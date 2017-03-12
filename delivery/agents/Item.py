@@ -26,7 +26,6 @@ class Item:
         Mark an Item as delivered
         """
         self.delivered = True
-        # TODO: Remove from schedule
 
     def get_destination(self):
         """

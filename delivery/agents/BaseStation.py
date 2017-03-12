@@ -1,3 +1,4 @@
+import sys
 import random
 import configparser
 
@@ -8,7 +9,7 @@ from delivery.agents.Item import Item
 
 class BaseStation(Agent):
     """
-    A BaseStation is an Agent that cannot move
+    A BaseStation is an Agent that cannot move, is a place where UAVs can pick up Items and charge their battery.
     """
     def __init__(self, model, pos, bid, center, range_of_base_station):
         """
@@ -21,16 +22,27 @@ class BaseStation(Agent):
         """
         config = configparser.ConfigParser()
         config.read('./config.ini')
-        self.max_item_priority = config.getint('Basestation', 'max_item_priority')
-        self.max_items_per_base_station = config.getint('Basestation', 'max_items_per_base_station')
+        try:
+            self.max_item_priority = config.getint('Base_station', 'max_item_priority', fallback=3)
+        except ValueError:
+            print("[Configuration] The max_item_priority is not valid.")
+            sys.exit(1)
+
+        try:
+            self.max_items_per_base_station = config.getint('Base_station', 'max_items_per_base_station', fallback=10)
+        except ValueError:
+            print("[Configuration] The max_items_per_base_station is not valid.")
+            sys.exit(1)
+
         self.range_of_base_station = range_of_base_station
-        self.model = model
         self.pos = pos
         self.bid = bid
         self.items = []
         self.picked_up_items = 0
         self.center = center
         self.item_counter = 0
+
+        super().__init__(bid, model)
 
     def step(self):
         # A BaseStation creates an Item if max_items_per_base_station has not been reached
@@ -43,7 +55,7 @@ class BaseStation(Agent):
                              self.center[0] + self.range_of_base_station)
         y = random.randrange(self.center[1] - self.range_of_base_station,
                              self.center[1] + self.range_of_base_station)
-        # ... but only if the cell is not occupied with an Obstacle or BaseStation
+        # ... but only if the cell is empty
         while x >= self.model.width \
                 or y >= self.model.height \
                 or not self.model.landscape.is_cell_empty((x, y)):
@@ -52,8 +64,7 @@ class BaseStation(Agent):
             y = random.randrange(self.center[1] - self.range_of_base_station,
                                  self.center[1] + self.range_of_base_station)
         item_destination = (x, y, self.pos[2])
-        #item_destination = (118, 112, self.pos[2])
-        # The Item receives a random priority between 1 and ...
+        # The Item receives a random priority between 1 and the defined max_item_priority
         item_priority = random.randint(1, self.max_item_priority)
         # Create the Item
         item = Item(destination=item_destination, priority=item_priority, iid=str(self.bid) + "_" + str(self.item_counter))
@@ -62,7 +73,6 @@ class BaseStation(Agent):
         self.items.append(item)
         # Add the Item to the scheduler of the model
         self.model.item_schedule.add(item)
-        # print("Created item {}, destination: {}, priority: {}".format(item.iid, item.pos, item.priority))
 
     def get_item(self):
         """
@@ -83,7 +93,6 @@ class BaseStation(Agent):
         Sort the currently available Items based on their priority
         """
         for item in self.items:
-            # TODO: Validate this
             item.pick_up_priority = item.lifetime + item.priority * 100
 
         self.items.sort(key=lambda item: item.pick_up_priority)
@@ -108,7 +117,6 @@ class BaseStation(Agent):
             return items_by_priority
         else:
             return len(self.items)
-
 
     def get_pos(self):
         """

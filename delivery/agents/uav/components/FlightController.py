@@ -10,7 +10,6 @@ class FlightController:
     """
     The FlightController decides where to fly next
     """
-    # TODO: More details
 
     def __init__(self, uav):
         """
@@ -28,14 +27,10 @@ class FlightController:
         """
         # If the Uav does not have a destination, do nothing
         if self.uav.destination is None:
-            print(' Agent: {} has no destination.'.format(self.uav.uid))
             return None
 
         # Initiate scan of the neighborhood
-        # print("Scanning ...")
         self.uav.sensor.scan(self.uav.pos)
-
-        shortest_path = self.current_path
 
         # If the current_best_cell is the destination ...
         if are_same_positions(self.current_best_cell, self.uav.destination):
@@ -45,7 +40,6 @@ class FlightController:
                 # ... if it cannot, recalculate
                 shortest_path = self._calculate_next_steps()
                 if shortest_path is None:
-                    # print('Agent: {} cannot move.'.format(self.uav.uid))
                     return None
             else:
                 # ... otherwise use the already known path
@@ -54,7 +48,6 @@ class FlightController:
             # Get the next cell on the shortest path
             shortest_path = self._calculate_next_steps()
             if shortest_path is None:
-                # print('Agent: {} cannot move.'.format(self.uav.uid))
                 return None
 
         # Store the current_best_cell for future usage
@@ -70,7 +63,6 @@ class FlightController:
         self.current_path = shortest_path
 
         # Move the UAV
-        # print("Agent: {} moves from {} to {} on its way to {}".format(self.uav.uid, self.uav.pos, next_cell, self.current_best_cell))
         self.move_to(next_cell)
 
         # If the UAV reached the destination, clear the visited cells of that tour
@@ -105,7 +97,6 @@ class FlightController:
                 return None
 
             # ... and calculate the shortest path to it
-            # print("Finding path ...")
             shortest_path = self._get_shortest_path_between(self.uav.pos, best_cell)
 
             # If there is no path to the best_cell ...
@@ -119,10 +110,10 @@ class FlightController:
         """
         Get the best possible cell that is known to the UAV. Best possible means that being on that cell minimizes
         the remaining distance to the destination.
-        :param excluded_cell: A list of cells that are excluded as best cell
+        :param excluded_cells: A list of cells that are excluded as best cell
         :return: A triple of coordinates representing the best possible cell
         """
-        min_distance = None
+        min_sum = None
         best_cell = None
 
         # Iterate over all altitudes ...
@@ -140,15 +131,16 @@ class FlightController:
                 # If there is no Obstacle at the altitude ...
                 if not self.uav.perceived_world.is_obstacle_at(coordinates):
                     # ... then there might be a BaseStation or nothing ...
-                    # ... calculate the remaining distance from the coordinates to the destination of the UAV
-                    distance = get_euclidean_distance(self.uav.destination, coordinates) + get_euclidean_distance(self.uav.pos, coordinates)
+                    # ... calculate the remaining distance from the coordinates to the destination of the UAV and the
+                    # distance from the current position to the coordinates
+                    sum = get_euclidean_distance(self.uav.destination, coordinates) + get_euclidean_distance(self.uav.pos, coordinates)
                     # If the UAV already visited this cell on its current tour ...
                     # Don't weight cells if the UAV is low on battery and trying to reach the base station
                     if coordinates in self.visited_cells and not self.uav.state == 4:
                         # ... weight it by the times the cell was already visited
-                        distance += distance * self.visited_cells.count(coordinates)
-                    if not min_distance or min_distance > distance:
-                        min_distance = distance
+                        sum += sum * self.visited_cells.count(coordinates)
+                    if not min_sum or min_sum > sum:
+                        min_sum = sum
                         best_cell = coordinates
         return best_cell
 

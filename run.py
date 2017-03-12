@@ -1,15 +1,23 @@
 import configparser
 
 from delivery.Server import launch_world_model
-from delivery.tests.tests_runner import tests_runner
+#from delivery.tests.tests_runner import TestRunner
 from delivery.model.Worldmodel import WorldModel
 
 
 def run_gui():
+    """
+    Run the simulation in GUI-mode
+    :return:
+    """
     launch_world_model()
 
 
-def run_no_gui(number_steps):
+def run_no_gui():
+    """
+    Run the simulation without a GUI
+    :return:
+    """
     print("\033[1mStart of Simulation without GUI\033[0m")
     model = WorldModel()
     for i in range(0, number_steps):
@@ -19,26 +27,29 @@ def run_no_gui(number_steps):
 
 
 def run_tests():
-    tests_runner().run_tests()
+    """
+    Run the test suite
+    """
+    TestRunner().run_tests()
+
 
 # Read config.cfg
 config = configparser.ConfigParser()
 config.read('./config.ini')
-runmode = config.getint('Runmode', 'runmode')
+run_mode = config.getint('Run_mode', 'run_mode')
 
-if runmode == 1:
+if run_mode == 1:
     run_gui()
 
-elif runmode == 2:
-    number_steps = config.getint('Runmode', 'number_steps')
-    run_no_gui(number_steps=number_steps)
+elif run_mode == 2:
+    number_steps = config.getint('Run_mode', 'number_steps')
+    run_no_gui()
 
-elif runmode == 3:
+elif run_mode == 3:
     run_tests()
 
 
 else:
-    print("Runmode setting in config.ini not correct!")
+    print("Run mode setting in config.ini not correct!")
     print("1 = GUI, 2 = No GUI, 3 = Unittests")
 
-# with open('trash', 'w'): pass

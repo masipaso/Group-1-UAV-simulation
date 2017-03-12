@@ -1,4 +1,3 @@
-import configparser
 from mesa import Agent
 # Import components
 from delivery.grid.PerceivedWorldGrid import PerceivedWorldGrid
@@ -23,7 +22,7 @@ class Uav(Agent):
         6: stranded without battery life left
     """
     def __init__(self, model, pos, uid, max_charge, battery_low, battery_decrease_per_step, battery_increase_per_step,
-                 base_station, altitude, max_altitude, sensor_range):
+                 base_station, max_altitude, sensor_range):
         """
         Initialize the UAV
         :param model: world model
@@ -34,18 +33,14 @@ class Uav(Agent):
         :param battery_decrease_per_step: The decrease in battery charge per step
         :param battery_increase_per_step: The increase in battery charge while charging per step
         :param base_station: The 'home' BaseStation
-        :param altitude: The height the UAV is flying in
         :param max_altitude: The max altitude that is allowed
         :param sensor_range: The range the the Sensor can cover
         """
-        # TODO: Why do we have the model here? This should not be available
-        self.model = model
         self.pos = pos
         self.uid = uid
         self.destination = None
         self.walk = []
         self.state = 1
-        self.altitude = altitude
         self.max_altitude = max_altitude
 
         # Construct UAV
@@ -59,7 +54,7 @@ class Uav(Agent):
         # Add CargoBay
         self.cargo_bay = CargoBay(item=None)
         # Add CommunicationModule
-        self.communication_module = CommunicationModule(self.perceived_world, model, max_altitude)
+        self.communication_module = CommunicationModule(self.perceived_world, max_altitude)
         # Add Sensor
         self.sensor = Sensor(model.schedule.agents_by_type[Uav], model.landscape, self.perceived_world, sensor_range)
 
@@ -67,14 +62,14 @@ class Uav(Agent):
         self.base_station = base_station
         # Delivery
         self.initial_delivery_distance = 0
-        #This is the ratio of direct walk (initial distance, euclidean) against Length of actual walk taken.
+        # This is the ratio of direct walk (initial distance, euclidean) against Length of actual walk taken.
         # This value is calculated on every delivery for every order.
         self.walk_length_divided_by_initial_distance = []
-        # ??
         self.real_walk = []
         # On arrival at a destination, the UAV will store how many steps it took to deliver an item
         self.walk_lengths = []
-        pass
+
+        super().__init__(uid, model)
 
     def step(self):
         """
@@ -144,7 +139,6 @@ class Uav(Agent):
         if self.state is 5:
             # ... and the battery is fully charged
             if self.battery.is_charged():
-                # print(' Agent: {} is fully charged'.format(self.uid))
                 # ... set the state to the previous state
                 # If the UAV doesn't carry an Item
                 if self.cargo_bay.is_empty():
@@ -160,12 +154,10 @@ class Uav(Agent):
             self.state = 4
             # ... and head to the next BaseStation to charge
             self.destination = self.flight_controller.get_nearest_base_station()
-            # print(' Agent: {}  has low Battery. going to Base Station: {}'.format(self.uid, self.destination))
         # If the Battery is empty ...
         elif self.battery.is_empty():
             # ... adjust the state
             self.state = 6
-            # print(' Agent: {}  has no Battery life left.'.format(self.uid))
 
     def pick_up_item(self, item):
         """
@@ -184,9 +176,6 @@ class Uav(Agent):
             self.walk = []
             self.real_walk = []
             self.initial_delivery_distance = get_euclidean_distance(self.pos, self.destination)
-            # print(' Agent: {} Received Item {}. Delivering to {}. Distance to Destination: {}. Battery: {}'
-            #       .format(self.uid, item.iid, self.destination, get_euclidean_distance(self.pos, self.destination),
-            #               self.battery.get_charge()))
 
     def deliver_item(self):
         """
@@ -201,26 +190,17 @@ class Uav(Agent):
         # ... adjust the state
         self.state = 3
         # ... notify model that a delivery was made
-        # TODO: Make this more beautiful!
         self.model.number_of_delivered_items += 1
 
         # ... fly back to the base station
         self.destination = self.base_station.get_pos()
 
-
         # Clear out the previous walk
         self.walk = []
         self.walk_lengths.append(len(self.real_walk))
-        self.walk_length_divided_by_initial_distance.append(len(self.real_walk)
-                                                             / self.initial_delivery_distance)
-        self.initial_delivery_distance = []
+        self.walk_length_divided_by_initial_distance.append(len(self.real_walk) / self.initial_delivery_distance)
+        self.initial_delivery_distance = None
         self.real_walk = []
-        # self.walk_lengths.append(len(self.real_walk))
-
-        # print(' Agent: {}  Delivered Item {} to {}. Flying back to base at: {}. Battery: {}'
-        #       .format(self.uid, iid, self.pos, self.destination, self.battery.get_charge()))
-        # print(' Agent: {}  Needed {} steps and took this walk: {}'
-        #       .format(self.uid, len(self.walk) - 1, self.walk))
 
     def arrive_at_base_station(self, idle=False, charge=False):
         """
@@ -229,28 +209,24 @@ class Uav(Agent):
         :param charge: Indicator if the UAV should be charging in the next step
         :return:
         """
-        # print(' Agent: {}  Arrived at BaseStation {}. Battery: {} '
-        #       .format(self.uid, self.destination, self.battery.get_charge()))
         # Update state
         if charge:
             self.state = 5
         if idle:
             self.state = 1
 
-    # TODO: @Dominik what are walk lengths?
     def get_walk_lengths(self):
         """
-        Get the lengths of the walks
-        :return: Length of the walks
+        Get the lengths of the walk
+        :return: Length of the walk
         """
         return self.walk_lengths
 
-
     def get_walk_length_divided_by_initial_distance(self):
-        '''
+        """
         Return KPI "Initial Delivery Distance by Avg. Walk length". This is the ratio of direct walk (euclidean) against
         Length of actual walk taken. This value is calculated on every delivery for every order.
-        '''
+        """
         return self.walk_length_divided_by_initial_distance
 
     def find_uavs_close(self):
@@ -258,7 +234,8 @@ class Uav(Agent):
         Locate UAVs that are close and exchange grids
         """
 
-        if self.model.steps <= 50:
+        # Avoid immediate exchange
+        if self.model.steps <= 20:
             return
 
         # Scan for UAVs
@@ -267,5 +244,4 @@ class Uav(Agent):
         if len(other_uavs) is not 0:
             # ... exchange perceived_world_grids with them
             for other_uav in other_uavs:
-                # print("Agent {} and {} exchanging grid".format(self.uid, other_uav.uid))
-                self.communication_module.exchange_grid(other_uav)
+                self.communication_module.exchange_grid_with(other_uav)

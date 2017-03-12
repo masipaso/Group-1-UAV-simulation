@@ -2,20 +2,21 @@ class CommunicationModule:
     """
     The CommunicationModule of an UAV
     """
-    # TODO: More details
 
-    def __init__(self, perceived_world, model, max_altitude):
+    def __init__(self, perceived_world, max_altitude):
         """
         Initialize the CommunicationModule
         :param perceived_world: The UAV-specific grid for Repellents and Items
-        :param model: The Model of the Simulation
         :param max_altitude: The maximum altitude
         """
         self.perceived_world = perceived_world
-        self.model = model
         self.max_altitude = max_altitude
 
-    def exchange_grid(self, other_uav):
+    def exchange_grid_with(self, other_uav):
+        """
+        Exchange the perceived world between two UAVs.
+        :param other_uav: The UAV to exchange the knowledge with
+        """
         other_perceived_world = self._receive_perceived_world_from(other_uav)
         for altitude in range(0, self.max_altitude):
             self.perceived_world.perceived_world[altitude] = {**self.perceived_world.perceived_world[altitude], **other_perceived_world.perceived_world[altitude]}

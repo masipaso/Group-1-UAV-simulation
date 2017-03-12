@@ -2,7 +2,6 @@ class CargoBay:
     """
     The CargoBay of an UAV
     """
-    # TODO: More details
 
     def __init__(self, item=None):
         """
