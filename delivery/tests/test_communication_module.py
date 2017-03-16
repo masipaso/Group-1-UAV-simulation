@@ -1,7 +1,7 @@
 import unittest
 from delivery.agents.uav.Uav import Uav
 from delivery.agents.BaseStation import BaseStation
-from delivery.model.WorldModel import WorldModel
+from delivery.model.Worldmodel import WorldModel
 from delivery.agents.uav.components.CommunicationModule import CommunicationModule
 
 

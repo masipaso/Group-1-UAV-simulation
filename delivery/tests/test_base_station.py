@@ -1,7 +1,7 @@
 import unittest
 from delivery.agents.BaseStation import BaseStation
 from delivery.agents.Item import Item
-from delivery.model.WorldModel import WorldModel
+from delivery.model.Worldmodel import WorldModel
 
 
 class BaseStationTest(unittest.TestCase):

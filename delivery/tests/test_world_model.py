@@ -1,4 +1,4 @@
-from delivery.model.WorldModel import WorldModel
+from delivery.model.Worldmodel import WorldModel
 from delivery.agents.BaseStation import BaseStation
 from delivery.agents.uav.Uav import Uav
 import configparser

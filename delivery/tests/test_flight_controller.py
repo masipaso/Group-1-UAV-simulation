@@ -1,7 +1,7 @@
 import unittest
 from delivery.agents.uav.Uav import Uav
 from delivery.agents.BaseStation import BaseStation
-from delivery.model.WorldModel import WorldModel
+from delivery.model.Worldmodel import WorldModel
 
 # Only testing move_to method here, as it can be predicted. The other implementations are left to you! Implement
 # make_step() for the actual algorithm that you implement!
